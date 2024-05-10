@@ -1,0 +1,16 @@
+name: "Hello world"
+
+run-name: "${{ github.actor }} is testing the triggering of an action on push"
+
+on: 
+    push: 
+        branches: 
+            - main
+
+
+jobs:
+    say-hello:
+        runs-on: ubuntu-latest
+        steps:
+            - id: test
+              run: echo "hello world" 
