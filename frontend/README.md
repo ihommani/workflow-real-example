@@ -1,41 +1,25 @@
-# docker-python-helloworld
-A Python dockerized hello world app
-This repo aims at showing how simple it can be to build a Docker container running a Python (very simple) app.
-Once you understand how this simple example works, it's easy to apply it to bigger apps.
+# Welcome to Next.js
 
-### Steps to run directly the python code
-It's highly recommended to install the (empty) dependencies in a virtual environment.
+This is the most minimal starter for your Next.js project.
 
-- Creating the virtual environment: 
+## Deploy your own
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/hello-world&project-name=hello-world&repository-name=hello-world)
+
+## How to use
+
+Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+
 ```bash
-python3 -m venv hello
+npx create-next-app --example hello-world hello-world-app
 ```
 
-- Activatingv the virtual environment:
 ```bash
-source hello/bin/activate
-```
-- Installing dependencies:
-```bash
-pip install -r requirements.txt
+yarn create next-app --example hello-world hello-world-app
 ```
 
-- Running the code:
 ```bash
-python main.py
+pnpm create next-app --example hello-world hello-world-app
 ```
 
-
-### Steps to run the python code within a Docker container
-
-- Build the image:
-```bash
-docker image build -t docker-python-helloworld:lastest
-```
-
-- Run the container:
-```bash
-docker container run docker-python-helloworld:latest 
-```
-
-
+Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
