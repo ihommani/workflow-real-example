@@ -12,8 +12,10 @@ on:
             - frontend/**
 
 jobs:
-    next-application-integration:
+    check-sources-change:
         runs-on: ubuntu-22.04
+        outputs:
+          launch_integration_job: ${{ steps.sources_modified.outputs.output }}
         steps:
             - uses: actions/checkout@v4
             
@@ -24,14 +26,28 @@ jobs:
                 files: |
                   frontend/**
                 files_ignore: |
-                  *.md
+                  frontend/*.md
+                  frontend/Dockerfile
+                  frontend/.dockerignore
 
-            - name: List all changed files
-              env:
-                ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
-              run: |
-                for file in ${ALL_CHANGED_FILES}; do
-                  echo "$file was changed"
-                done
+            - name: Are sources modified
+              id: sources_modified
+              run: | 
+                echo ${{ steps.changed-files.outputs.all_modified_files_count }}
+                echo "output= ${{ steps.changed-files.outputs.all_modified_files_count }} > 0" >> "$GITHUB_OUTPUT"
+
+    next_application_integration:
+      needs: check-sources-change
+      runs-on: ubuntu-22.04
+      steps:
+        - name: test
+          id: test
+          run: echo ${{ needs.check-sources-change.outputs.launch_integration_job }}
+
+          
+
+          
+
+               
         
               
