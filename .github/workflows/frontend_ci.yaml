@@ -41,10 +41,14 @@ jobs:
       runs-on: ubuntu-22.04
       if: ${{ needs.check-sources-change.outputs.launch_integration_job == 'true' }}
       steps:
+
+        - name: Checkout
+          uses: actions/checkout@v4
+
         - name: test
           id: test
           run: echo "Hello world"
-          
+
         - name: launch integration
           id: integration
           uses: ./.github/workflows/_nextjs_integration.yaml
