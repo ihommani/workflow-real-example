@@ -39,5 +39,5 @@ jobs:
     next_application_integration:
       needs: check-sources-change
       if: ${{ needs.check-sources-change.outputs.launch_integration_job == 'true' }}
-      uses: ./github/workflows/_nextjs_integration.yaml@ihommani/frontend-integration
+      uses: ./.github/workflows/_nextjs_integration.yaml@ihommani/frontend-integration
       
