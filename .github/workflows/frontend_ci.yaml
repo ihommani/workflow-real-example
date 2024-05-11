@@ -20,11 +20,8 @@ jobs:
               id: changed-files
               uses: tj-actions/changed-files@v44
               with:
-                files_ignore: |
-                    '**/*.md'
-                    'frontend/*.md'
-                    '**/*Dockerfile'
-                    '**/*.dockerignore'
+                files_ignore: frontend/README.md
+
             - name: List all changed files
               env:
                 ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
