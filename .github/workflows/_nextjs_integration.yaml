@@ -15,8 +15,10 @@ jobs:
     build:
         runs-on: ubuntu-22.04
         steps:
+
           - name: Checkout
-            uses: actions/checkout@v4
+            uses: actions/checkout@v2
+
           - name: Detect package manager
             id: detect-package-manager
             run: |
@@ -34,11 +36,13 @@ jobs:
                 echo "Unable to determine package manager"
                 exit 1
               fi
+
           - name: Setup Node
             uses: actions/setup-node@v4
             with:
               node-version: ${{ inputs.node-version}}
               cache: ${{ steps.detect-package-manager.outputs.manager }}
+
           - name: Restore cache
             uses: actions/cache@v4
             with:
@@ -49,9 +53,11 @@ jobs:
                 # If source files changed but packages didn't, rebuild from a prior cache.
                 restore-keys: |
                   ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+
           - name: Lint code
             # run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
             run: echo "lint nest application code"
+            
           - name: Run test
             # run: ${{ steps.detect-package-manager.outputs.runner }} next build
             run: echo "Run nestjs test code"
