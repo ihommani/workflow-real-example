@@ -44,3 +44,7 @@ jobs:
         - name: test
           id: test
           run: echo "Hello world"
+          
+        - name: launch integration
+          id: integration
+          uses: ./.github/workflows/_nextjs_integration.yaml
