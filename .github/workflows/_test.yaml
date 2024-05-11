@@ -1,0 +1,21 @@
+name: Nextjs application integration
+run-name: "${{ github.actor }} run nextjs application integration"
+
+on:
+    workflow_call:
+        inputs:
+            node-version:
+                description: "Node version to setup"
+                type: string
+                required: true
+                default: "20"
+
+
+jobs:
+    build:
+        runs-on: ubuntu-22.04
+        steps:
+            
+          - name: Run test
+            # run: ${{ steps.detect-package-manager.outputs.runner }} next build
+            run: echo "Run nestjs test code"
