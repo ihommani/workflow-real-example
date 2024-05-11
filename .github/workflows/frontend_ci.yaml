@@ -18,9 +18,9 @@ jobs:
           launch_integration_job: ${{ steps.sources_modified.outputs.output }}
         steps:
 
+            - uses: actions/checkout@v4
             - uses: ./.github/workflows/_test.yaml@ihommani/frontend-integration
 
-            - uses: actions/checkout@v4
             
             - name: Get changed file
               id: changed-files
