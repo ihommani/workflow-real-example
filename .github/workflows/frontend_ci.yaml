@@ -6,6 +6,7 @@ on:
     push: 
         branches-ignore: 
             - main
+            - release
             - release/**
         paths: 
             - frontend/**
@@ -15,5 +16,20 @@ jobs:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
+            - name: Get changed file
+              id: changed-files
+              uses: tj-actions/changed-files@v44
+              with:
+                files_ignore: |
+                    "*.md"
+                    "Dockerfile"
+                    ".dockerignore"
+            - name: List all changed files
+              env:
+                ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+              run: |
+                for file in ${ALL_CHANGED_FILES}; do
+                  echo "$file was changed"
+                done
         
               
