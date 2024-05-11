@@ -7,7 +7,7 @@ on:
             node-version:
                 description: "Node version to setup"
                 type: string
-                required: true
+                required: false
                 default: "20"
 
 
