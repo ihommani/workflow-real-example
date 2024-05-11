@@ -40,4 +40,6 @@ jobs:
       needs: check-sources-change
       if: ${{ needs.check-sources-change.outputs.launch_integration_job == 'true' }}
       uses: ./.github/workflows/_nextjs_integration.yaml
+      with:
+        application_folder_path: "./frontend"
       
