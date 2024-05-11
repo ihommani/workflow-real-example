@@ -26,7 +26,7 @@ jobs:
           - name: Checkout
             uses: actions/checkout@v4
 
-          - name: Detect package manager
+          - name: Detect package managerdd
             id: detect-package-managerdd
             run: |
               if [ -f "yarn.lock" ]; then
