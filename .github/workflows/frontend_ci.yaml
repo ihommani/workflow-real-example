@@ -18,9 +18,7 @@ jobs:
           launch_integration_job: ${{ steps.sources_modified.outputs.output }}
         steps:
 
-            - name: launch integration
-              id: integration
-              uses: ./.github/workflows/_test.yaml
+            - uses: ./.github/workflows/_test.yaml
 
             - uses: actions/checkout@v4
             
