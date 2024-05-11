@@ -51,4 +51,4 @@ jobs:
 
         - name: launch integration
           id: integration
-          uses: ./.github/workflows/_nextjs_integration.yaml
+          uses: ./.github/workflows/_test.yaml
