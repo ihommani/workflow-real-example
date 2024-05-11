@@ -39,10 +39,11 @@ jobs:
     next_application_integration:
       needs: check-sources-change
       runs-on: ubuntu-22.04
+      if: ${{ needs.check-sources-change.outputs.launch_integration_job }}
       steps:
         - name: test
           id: test
-          run: echo ${{ needs.check-sources-change.outputs.launch_integration_job }}
+          run: echo "Hello world"
 
           
 
