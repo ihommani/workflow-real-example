@@ -1,0 +1,19 @@
+name: "Frontend continuous integration"
+
+run-name: "${{ github.actor }} triggers Frontend continuous integration"
+
+on:
+    push: 
+        branches-ignore: 
+            - main
+            - release/**
+        paths: 
+            - frontend/**
+
+jobs:
+    next-application-integration:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v4
+        
+              
