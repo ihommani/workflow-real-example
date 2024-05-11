@@ -44,11 +44,3 @@ jobs:
         - name: test
           id: test
           run: echo "Hello world"
-
-          
-
-          
-
-               
-        
-              
