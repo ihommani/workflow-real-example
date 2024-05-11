@@ -4,12 +4,12 @@ run-name: "${{ github.actor }} triggers Frontend continuous integration"
 
 on:
     push: 
-        branches-ignore: 
-            - main
-            - release
-            - release/**
-        paths: 
-            - frontend/**
+        # branches-ignore: 
+        #     - main
+        #     - release
+        #     - release/**
+        # paths: 
+        #     - frontend/**
 
 jobs:
     check-sources-change:
