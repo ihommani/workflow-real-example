@@ -1,0 +1,20 @@
+name: Docker integration
+run-name: "${{ github.actor }} run Docker integration"
+
+on:
+    workflow_call:
+        inputs:
+            dockerfile-path:
+                description: "Path of the considered dockerfile"
+                type: string
+                required: true 
+
+jobs:
+    lint-dockerfile:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v3
+            - uses: hadolint/hadolint-action@v3.1.0
+              with:
+                  dockerfile: ${{ inputs.dockerfile-path }}
+    #scan-dockerfile: TODO: any other open source action ? 
