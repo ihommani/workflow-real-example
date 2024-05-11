@@ -3,13 +3,6 @@ run-name: "${{ github.actor }} run nextjs application integration"
 
 on:
     workflow_call:
-        inputs:
-            node-version:
-                description: "Node version to setup"
-                type: string
-                required: true
-                default: "20"
-
 
 jobs:
     build:
