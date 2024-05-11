@@ -34,7 +34,7 @@ jobs:
               id: sources_modified
               run: | 
                 echo ${{ steps.changed-files.outputs.all_modified_files_count }}
-                echo "output= ${{ steps.changed-files.outputs.all_modified_files_count > 0 }}" >> "$GITHUB_OUTPUT"
+                echo "output=${{ steps.changed-files.outputs.all_modified_files_count > 0 }}" >> "$GITHUB_OUTPUT"
 
     next_application_integration:
       needs: check-sources-change
