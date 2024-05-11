@@ -8,8 +8,8 @@ on:
             - main
             - release
             - release/**
-        # paths: 
-        #     - frontend/**
+        paths: 
+            - frontend/**
 
 jobs:
     check-sources-change:
@@ -17,10 +17,7 @@ jobs:
         outputs:
           launch_integration_job: ${{ steps.sources_modified.outputs.output }}
         steps:
-
             - uses: actions/checkout@v4
-            - uses: ./.github/workflows/_test.yaml@ihommani/frontend-integration
-
             
             - name: Get changed file
               id: changed-files
@@ -41,17 +38,6 @@ jobs:
 
     next_application_integration:
       needs: check-sources-change
-      runs-on: ubuntu-22.04
       if: ${{ needs.check-sources-change.outputs.launch_integration_job == 'true' }}
-      steps:
-
-        - name: Checkout
-          uses: actions/checkout@v4
-
-        - name: test
-          id: test
-          run: echo "Hello world"
-
-        - name: launch integration
-          id: integration
-          uses: ./.github/workflows/_test.yaml
+      uses: ./github/workflows/_nextjs_integration.yaml
+      
