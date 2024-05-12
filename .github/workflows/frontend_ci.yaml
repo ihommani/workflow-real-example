@@ -4,29 +4,23 @@ run-name: "${{ github.actor }} triggers Frontend continuous integration"
 
 on:
     push: 
-        # branches-ignore: 
-        #     - main
-        #     - release
-        #     - release/**
-        # paths: 
-        #     - frontend/**
+        branches-ignore: 
+            - main
+            - release
+            - release/**
+        paths: 
+            - frontend/**
 
 jobs:
     check-sources-change:
       uses: ./.github/workflows/_check_source_changes.yaml
       with:
         files: |
-          backend/**
+          frontend/**
         files_ignore: |
-          backend/*.md
-          backend/Dockerfile
-          backend/.dockerignore
-
-    test_output:
-      runs-on: ubuntu-22.04
-      needs: check-sources-change
-      steps:
-        - run: echo ${{ needs.check-sources-change.outputs.is_modified_files }}
+          frontend/*.md
+          frontend/Dockerfile
+          frontend/.dockerignore
 
     next_application_integration:
       needs: check-sources-change
