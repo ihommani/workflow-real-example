@@ -1,0 +1,31 @@
+name: "Backend continuous integration"
+
+run-name: "${{ github.actor }} triggers backend continuous integration"
+
+on:
+    push: 
+        # branches-ignore: 
+        #     - main
+        #     - release
+        #     - release/**
+        paths: 
+            - backend/**
+
+jobs:
+    check-sources-change:
+      uses: ./github/workflows/_check_source_changes.yaml
+      with:
+        files: |
+          backend/**
+        files_ignore: |
+          backend/*.md
+          backend/Dockerfile
+          backend/.dockerignore
+
+    nest_application_integration:
+      needs: check-sources-change
+      if: ${{ needs.check-sources-change.outputs.is_modified_files == 'true' }}
+      uses: ./.github/workflows/_nextjs_integration.yaml
+      with:
+        application_folder_path: "./backend"
+      
