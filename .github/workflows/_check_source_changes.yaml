@@ -32,12 +32,8 @@ jobs:
               id: changed-files
               uses: tj-actions/changed-files@v44
               with:
-                files: |
-                  frontend/**
-                files_ignore: |
-                  frontend/*.md
-                  frontend/Dockerfile
-                  frontend/.dockerignore
+                files: ${{ inputs.files }}
+                files_ignore: ${{ inputs.files_ignore }}
 
             - name: Are sources modified
               id: sources_modified
