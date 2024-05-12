@@ -14,6 +14,7 @@ on:
                 description: "Application source code path relative to the root of your repository"
                 required: true
                 type: string
+        # outputs: TODO: export error message
 
 
 jobs:
@@ -68,6 +69,7 @@ jobs:
           - name: Lint code
             # run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
             run: echo "lint nest application code"
+            # TODO: use the https://github.com/marketplace/actions/verify-changed-files action to fail on modification
             
           - name: Run test
             # run: ${{ steps.detect-package-manager.outputs.runner }} next build
