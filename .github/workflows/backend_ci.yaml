@@ -8,12 +8,12 @@ on:
         #     - main
         #     - release
         #     - release/**
-        paths: 
-            - backend/**
+        # paths: 
+        #     - backend/**
 
 jobs:
     check-sources-change:
-      uses: ./github/workflows/_check_source_changes.yaml
+      uses: ./.github/workflows/_check_source_changes.yaml
       with:
         files: |
           backend/**
