@@ -4,10 +4,10 @@ run-name: "${{ github.actor }} triggers backend continuous integration"
 
 on:
     push: 
-        # branches-ignore: 
-        #     - main
-        #     - release
-        #     - release/**
+        branches-ignore: 
+            - main
+            - release
+            - release/**
         paths: 
             - backend/**
 
@@ -25,7 +25,7 @@ jobs:
     nest_application_integration:
       needs: check-sources-change
       if: ${{ needs.check-sources-change.outputs.is_modified_files == 'true' }}
-      uses: ./.github/workflows/_nextjs_integration.yaml
+      uses: ./.github/workflows/_nestjs_integration.yaml
       with:
         application_folder_path: "./backend"
       
