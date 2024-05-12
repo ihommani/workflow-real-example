@@ -1,0 +1,47 @@
+name: "Look for source changes"
+run-name: "${{ github.event_name }} needs to look for source changes" # TODO: change to expose the caller event id
+
+on:
+    workflow_call: 
+        inputs:
+            files:
+                description: "File and directory patterns used to detect changes (Defaults to the entire repo if unset)"
+                type: string
+                required: false
+                default: ''
+            files_ignore:
+                description: "Ignore changes to these file(s)."
+                type: string
+                required: false
+                default: ''
+        outputs:
+            is_modified_files:
+                description: "Has some file been modified, deleted, added or created"
+                value: =${{ jobs.check-sources-change.outputs.launch_integration_job }}
+
+
+jobs:
+    check-sources-change:
+        runs-on: ubuntu-22.04
+        outputs:
+          launch_integration_job: ${{ steps.sources_modified.outputs.output }}
+        steps:
+            - uses: actions/checkout@v4
+            
+            - name: Get changed file
+              id: changed-files
+              uses: tj-actions/changed-files@v44
+              with:
+                files: |
+                  frontend/**
+                files_ignore: |
+                  frontend/*.md
+                  frontend/Dockerfile
+                  frontend/.dockerignore
+
+            - name: Are sources modified
+              id: sources_modified
+              run: | 
+                echo ${{ steps.changed-files.outputs.all_modified_files_count }}
+                echo "output=${{ steps.changed-files.outputs.all_modified_files_count > 0 }}" >> "$GITHUB_OUTPUT"
+
