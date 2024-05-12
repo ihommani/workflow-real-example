@@ -8,8 +8,8 @@ on:
         #     - main
         #     - release
         #     - release/**
-        # paths: 
-        #     - backend/**
+        paths: 
+            - backend/**
 
 jobs:
     check-sources-change:

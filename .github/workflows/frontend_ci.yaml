@@ -22,9 +22,15 @@ jobs:
           backend/Dockerfile
           backend/.dockerignore
 
+    test_output:
+      runs-on: ubuntu-22.04
+      needs: check-sources-change
+      steps:
+        - run: echo ${{ needs.check-sources-change.outputs.is_modified_files }}
+
     next_application_integration:
       needs: check-sources-change
-      if: ${{ needs.check-sources-change.outputs.launch_integration_job == 'true' }}
+      if: ${{ needs.check-sources-change.outputs.is_modified_files == 'true' }}
       uses: ./.github/workflows/_nextjs_integration.yaml
       with:
         application_folder_path: "./frontend"

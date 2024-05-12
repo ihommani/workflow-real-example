@@ -17,7 +17,7 @@ on:
         outputs:
             is_modified_files:
                 description: "Has some file been modified, deleted, added or created"
-                value: =${{ jobs.check-sources-change.outputs.launch_integration_job }}
+                value: ${{ jobs.check-sources-change.outputs.launch_integration_job }}
 
 
 jobs:
