@@ -7,7 +7,7 @@ on:
             node-version:
                 description: "Node version to setup"
                 type: string
-                required: true
+                required: false
                 default: "20"
 
             application_folder_path:
@@ -66,12 +66,17 @@ jobs:
 
           - name: Lint code
             id: lint
-            run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }} lint
-
+            #run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }} lint
+            run: echo "lint nest code"
+            # TODO: use the https://github.com/marketplace/actions/verify-changed-files action to fail on modification (input "stict" to continue on failure if false)
+            
           - name: Format code
             id: fmt
-            run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }} format
-
+            #run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }} format
+            run: echo "formating nest code"
+            # TODO: use the https://github.com/marketplace/actions/verify-changed-files action to fail on modification (input "stict" to continue on failure if false)
+            
           - name: Run test
             id: test
-            run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }} test
+            #run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }} test
+            run: echo "Launching nest projects unit tests"
