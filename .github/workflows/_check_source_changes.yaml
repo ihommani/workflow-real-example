@@ -18,6 +18,9 @@ on:
             is_modified_files:
                 description: "Has some file been modified, deleted, added or created"
                 value: ${{ jobs.check-sources-change.outputs.launch_integration_job }}
+            all_changed_files:
+                description: "Returns all changed files i.e. a combination of all added, copied, modified and renamed files"
+                value: ${{ jobs.check-sources-change.outputs.all_changed_files }}
 
 
 jobs:
@@ -25,6 +28,7 @@ jobs:
         runs-on: ubuntu-22.04
         outputs:
           launch_integration_job: ${{ steps.sources_modified.outputs.output }}
+          all_changed_files: ${{ steps.sources_modified.outputs.all_changed_files }}
         steps:
             - uses: actions/checkout@v4
             
@@ -34,10 +38,13 @@ jobs:
               with:
                 files: ${{ inputs.files }}
                 files_ignore: ${{ inputs.files_ignore }}
+                json: true
+                json_raw_format: true
 
             - name: Are sources modified
               id: sources_modified
               run: | 
                 echo ${{ steps.changed-files.outputs.all_modified_files_count }}
                 echo "output=${{ steps.changed-files.outputs.all_modified_files_count > 0 }}" >> "$GITHUB_OUTPUT"
+                echo "all_changed_files=${{ steps.changed-files.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
 
