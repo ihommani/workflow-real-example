@@ -10,7 +10,10 @@ on:
             - release/**
         paths: 
             - frontend/**
+    workflow_call: 
 
+
+      
 jobs:
     check-sources-change:
       uses: ./.github/workflows/_check_source_changes.yaml
@@ -19,7 +22,7 @@ jobs:
           frontend/**
         files_ignore: |
           frontend/*.md
-          frontend/Dockerfile
+          frontend/Dockerfile*
           frontend/.dockerignore
 
     next_application_integration:

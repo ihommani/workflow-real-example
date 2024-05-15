@@ -10,6 +10,7 @@ on:
             - release/**
         paths: 
             - backend/**
+    workflow_call: 
 
 jobs:
     check-sources-change:
@@ -19,7 +20,7 @@ jobs:
           backend/**
         files_ignore: |
           backend/*.md
-          backend/Dockerfile
+          backend/Dockerfile*
           backend/.dockerignore
 
     nest_application_integration:
