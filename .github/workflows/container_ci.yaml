@@ -1,0 +1,36 @@
+name: "Containers continuous integration"
+
+run-name: "${{ github.actor }} triggers containers continuous integration"
+
+on:
+    push: 
+        branches-ignore: 
+            - main
+            - release
+            - release/**
+
+jobs:
+    
+    check_sources_change:
+      uses: ./.github/workflows/_check_source_changes.yaml
+      with:
+        files: |
+          **/Dockerfile*
+          **/Dockerfile*
+
+    output_source_changed:
+      if: ${{ fromJSON(needs.check_sources_change.outputs.all_changed_files) }}
+      needs: check_sources_change
+      uses: ./.github/workflows/_docker_integration.yaml
+      strategy:
+        fail-fast: false
+        matrix:
+          docker-file: ${{ fromJSON(needs.check_sources_change.outputs.all_changed_files) }}
+      with:
+        dockerfile-path: ${{ matrix.docker-file }}
+        
+        
+      
+    
+          
+      

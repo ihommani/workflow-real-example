@@ -18,3 +18,32 @@ jobs:
               with:
                   dockerfile: ${{ inputs.dockerfile-path }}
     #scan-dockerfile: TODO: any other open source action ? 
+
+    # TODO complete with https://github.com/marketplace/actions/build-and-push-docker-images to build the image only
+
+    test-image-build:
+        runs-on: ubuntu-22.04
+        steps:
+
+        - name: Checkout
+          id: checkout
+          uses: actions/checkout@v4
+            
+        - name: Set up QEMU
+          id: set-up-qemu
+          uses: docker/setup-qemu-action@v3
+
+        - name: Set up Docker Buildx
+          id: set-up-docker-buildx
+          uses: docker/setup-buildx-action@v3
+
+        - name: extract dockerfile dirname
+          id: dockerfile-dirname
+          run: echo "dirname=$(dirname ${{ inputs.dockerfile-path }})" >> "$GITHUB_OUTPUT"
+
+        - name: Build
+          id: image-build
+          uses: docker/build-push-action@v5
+          with:
+              context: ./${{ steps.dockerfile-dirname.outputs.dirname }} # TODO: a script should deduce the context path from the dockerfile path
+              file: ${{ inputs.dockerfile-path }}
