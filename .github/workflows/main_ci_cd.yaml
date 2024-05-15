@@ -1,0 +1,16 @@
+
+name: test
+
+on:
+    push:
+
+jobs:
+    test:
+        uses: ./.github/workflows/frontend_ci.yaml
+    test2:
+        needs: test
+        runs-on: ubuntu-22.04
+        steps:
+            - run: echo "toto"
+    test3:
+        uses: ./.github/workflows/backend_ci.yaml
