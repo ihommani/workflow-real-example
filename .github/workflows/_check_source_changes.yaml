@@ -14,6 +14,11 @@ on:
                 type: string
                 required: false
                 default: ''
+            get_folders:
+                description: "Do you need to get changed folders instead of changed files"
+                required: false
+                type: boolean
+                default: false
         outputs:
             is_modified_files:
                 description: "Has some file been modified, deleted, added or created"
@@ -29,17 +34,19 @@ jobs:
         outputs:
           launch_integration_job: ${{ steps.sources_modified.outputs.output }}
           all_changed_files: ${{ steps.sources_modified.outputs.all_changed_files }}
+          all_changed_folders: ${{ steps.sources_modified.outputs.all_changed_files }}
         steps:
             - uses: actions/checkout@v4
             
-            - name: Get changed file
+            - name: Get changed files
               id: changed-files
               uses: tj-actions/changed-files@v44
               with:
                 files: ${{ inputs.files }}
                 files_ignore: ${{ inputs.files_ignore }}
+                dir_names: ${{ inputs.get_folders }}
                 json: true
-                json_raw_format: true
+                # json_raw_format: true
 
             - name: Are sources modified
               id: sources_modified
