@@ -26,6 +26,9 @@ jobs:
           frontend/.dockerignore
 
     next_application_integration:
+      permissions: 
+        pull-requests: 
+          write
       needs: check-sources-change
       if: ${{ needs.check-sources-change.outputs.is_modified_files == 'true' }}
       uses: ./.github/workflows/_nextjs_integration.yaml
