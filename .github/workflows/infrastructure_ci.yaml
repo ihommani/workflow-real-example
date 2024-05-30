@@ -1,0 +1,47 @@
+name: "Infrastructure continuous integration"
+
+run-name: "${{ github.actor }} triggers infrastructure continuous integration"
+
+on:
+    push: 
+        branches-ignore: 
+            - main
+            - release
+            - release/**
+    workflow_call:
+
+jobs:
+    
+    check_sources_change:
+      uses: ./.github/workflows/_check_source_changes.yaml
+      with:
+        files: |
+          **/*.tf
+        get_folders: true
+
+
+    infrastructure_integration:
+      needs: check_sources_change
+      # if: ${{ needs.check_sources_change.outputs.is_modified_files == true }} # Not workin for unknown reason
+      permissions: 
+        pull-requests:  
+          write
+      uses: ./.github/workflows/_terraform_integration.yaml
+      strategy:
+        fail-fast: false
+        matrix:
+          root_module_path: ${{ fromJSON(needs.check_sources_change.outputs.all_changed_files) }}
+      with:
+        terraform-version: "1.7.0"
+        root-module-path : ${{ matrix.root_module_path }}
+
+          
+      
+        
+    
+        
+        
+      
+    
+          
+      

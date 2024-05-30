@@ -1,0 +1,41 @@
+name: Terraform root module application
+run-name: "${{ github.actor }} run Terraform code integration"
+
+on:
+    workflow_call:
+        inputs:
+            root-module-path:
+                description: "Path of the terraform root module to apply linting on."
+                type: string
+                required: true
+            terraform-version:
+                description: "Terraform version to install"
+                required: true
+                type: string
+
+jobs:
+    terraform-apply:
+        runs-on: ubuntu-22.04
+        defaults:
+            run:
+                working-directory: ${{ inputs.root-module-path }}
+        permissions: 
+            pull-requests: write
+        steps:
+            - uses: actions/checkout@v4
+            - uses: hashicorp/setup-terraform@v3
+              with:
+                terraform_version: ${{ inputs.terraform-version }}
+
+            - name: Terraform init
+              id: init
+              run: terraform init
+
+            - name: Terraform validate
+              id: validate
+              run: terraform validate -no-color
+            
+            - name: Terraform apply
+              id: apply
+              run: terraform apply -auto-approve
+              continue-on-error: false

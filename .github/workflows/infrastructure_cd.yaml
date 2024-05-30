@@ -1,0 +1,40 @@
+name: "Infrastructure continuous deployment"
+
+run-name: "${{ github.actor }} triggers infrastructure continuous integration"
+
+on:
+    workflow_call:
+      inputs:
+        root_module_path:
+          description: "Absolute path from the root git context to the root module to apply"
+          type: string
+          required: true
+
+jobs:
+    check_sources_change:
+      uses: ./.github/workflows/_check_source_changes.yaml
+      with:
+        files: |
+          ./${{ inputs.root_module_path }}/*.tf
+
+    infrastructure_deployment:
+      needs: check_sources_change
+      # if: ${{ needs.check_sources_change.outputs.is_modified_files == true }} # Not workin for unknown reason
+      permissions: 
+        pull-requests:  
+          write
+      uses: ./.github/workflows/_terraform_application.yaml
+      with:
+        terraform-version: "1.7.0"
+        root-module-path : ${{ inputs.root_module_path }}
+
+          
+      
+        
+    
+        
+        
+      
+    
+          
+      
