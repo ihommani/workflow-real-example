@@ -1,0 +1,73 @@
+name: Docker deployment
+description: 'test'
+
+inputs:
+    dockerfile-path:
+        description: "Path of the considered dockerfile"
+        required: true
+    build-image:
+        description: "Do we need to build the image ?"
+        required: false
+        default: 'false'
+    # IMAGE NAME TOO
+    # if build image is false we still need to upload the tag using gcloud container images add-tag on latest with the current sha1 to the latest tag
+    # https://github.com/google-github-actions/setup-gcloud
+    # https://cloud.google.com/sdk/gcloud/reference/artifacts/docker/tags/add
+    # https://cloud.google.com/sdk/gcloud/reference/container/images/add-tag
+
+runs:
+    using: "composite"
+    steps:
+        - name: Checkout
+          id: checkout
+          uses: actions/checkout@v4
+
+        - name: Set up QEMU
+          id: set-up-qemu
+          uses: docker/setup-qemu-action@v3
+
+        - name: Set up Docker Buildx
+          id: set-up-docker-buildx
+          uses: docker/setup-buildx-action@v3
+
+        - name: extract dockerfile dirname
+          shell: bash
+          id: dockerfile-dirname
+          run: echo "dirname=$(dirname ${{ inputs.dockerfile-path }})" >> "$GITHUB_OUTPUT"
+
+        - name: Image name
+          shell: bash
+          id: infer-image-name
+          run: |
+            path=${{ inputs.dockerfile-path }}
+            image_name=${path##*Dockerfile}
+            default=_$(basename $(dirname ${{ inputs.dockerfile-path }})) # if image name is empty put the folder name containing Dockerfile as image name
+            tmp_name=${image_name:-$default}
+            final_name=${tmp_name:1:100}
+            echo "Image name: $final_name"
+            echo "image_name=$final_name" >> $GITHUB_OUTPUT
+
+        # we delete the tag "latest"
+
+        # if false
+        # we add the tag sha1 along the tag latest
+
+        # if true:
+        # we delete latest, we build image and push with tags latest 
+
+        - name: Build
+          if: ${{ contains('true', inputs.build-image) }}
+          id: image-build-push
+          uses: docker/build-push-action@v5
+          with:
+              context: ./${{ steps.dockerfile-dirname.outputs.dirname }} # TODO: a script should deduce the context path from the dockerfile path
+              file: ${{ inputs.dockerfile-path }}
+              tags: name/app:latest,name/app:1.0.0 # sha1 and latest
+              push: false
+
+# if branch is main then --> nope. The decision to push is not only on dockerfile modification. It's code source, dockerfile, env, ...
+# so it's better to set inputs to decide if we push or not, with what artifactory and which tags to set (tag latest is to move on the most recent image push).
+# give the possibility to just set a tag and not push a new image version --> we always do that
+# infer the image name from the Docker file or the folder it comes from 
+# authenticate to google (env var from environment) --> main corresponds to integration env and release to staging and production: we don't care. we associate branch to env and event. Environemnt are associated to env variable with the needed value. 
+# Push to artifactory (env var from environment ? ) tag being the commit SHA1 (in fact all the lastest images should be tagged with the new SHA1. Ease the reasonning on TF deployment)

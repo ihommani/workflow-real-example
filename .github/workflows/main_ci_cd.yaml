@@ -1,16 +1,55 @@
 
-name: test
+name: Project continuous delivery
+
+run-name: "${{ github.actor }} triggers global CI/CD"
 
 on:
     push:
+        # branches: 
+        #      - main
+        #      - release
+        branches-ignore: 
+             - main
 
+# TODO: ne pas declencher la ci sur un push release
 jobs:
-    test:
+    frontend_ci:
+        permissions: 
+            pull-requests: 
+                write
         uses: ./.github/workflows/frontend_ci.yaml
-    test2:
-        needs: test
+    backend_ci:
+        uses: ./.github/workflows/backend_ci.yaml
+    container_ci:
+        uses: ./.github/workflows/container_ci.yaml    
+    infrastructure_ci:
+        uses: ./.github/workflows/backend_ci.yaml
+
+    frontend_container_cd:
+        needs: [backend_ci, frontend_ci, container_ci, infrastructure_ci]
         runs-on: ubuntu-22.04
         steps:
             - run: echo "toto"
-    test3:
-        uses: ./.github/workflows/backend_ci.yaml
+
+    backend_container_cd:
+        needs: [backend_ci, frontend_ci, container_ci, infrastructure_ci]
+        runs-on: ubuntu-22.04
+        steps:
+            - run: echo "toto"
+    
+    infrastructure_cd:
+        permissions: 
+            pull-requests: 
+                write
+        needs: [frontend_container_cd, backend_container_cd]
+        uses: ./.github/workflows/infrastructure_cd.yaml
+        with:
+            root_module_path: "./infrastructure/integration" # TODO: set as env variable from an environment
+            
+            
+
+# frontend_ci | backend_ci | container_ci needs frontend_ci and backend_ci | infrastructure_ci 
+# CD needs [frontend, backend, container, infastructure]_ci
+# container_cd (main tomorrow point); infrastructure_cd needs container_cd (extra version with infracost and plan only in the case of the pull request. Pb what image verison if based on SHA1 ? latest ? --> yes) 
+#
+#

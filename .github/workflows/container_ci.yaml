@@ -25,6 +25,7 @@ jobs:
       uses: ./.github/workflows/_docker_integration.yaml
       strategy:
         fail-fast: false
+        # TOFIX: Error when evaluating 'strategy' for job 'output_source_changed'. ihommani/workflow-real-example/.github/workflows/container_ci.yaml@7bd9ed05074ff9aa7f5edf786104590cf530c551 (Line: 29, Col: 24): Matrix vector 'docker-file' does not contain any values
         matrix:
           docker-file: ${{ fromJSON(needs.check_sources_change.outputs.all_changed_files) }}
       with:

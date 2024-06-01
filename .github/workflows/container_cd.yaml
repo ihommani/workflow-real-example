@@ -1,0 +1,107 @@
+name: "Containers continuous integration"
+
+run-name: "${{ github.actor }} triggers containers continuous integration"
+
+on:
+    workflow_call:
+      inputs:
+        files:
+          description: "File and directory patterns used to detect changes (Defaults to the entire repo if unset)"
+          required: true
+          type: string
+        files_ignore:
+          description: "Ignore changes to these file(s)."
+          required: false
+          type: string 
+          default: ''
+
+jobs:
+    check_sources_change:
+      uses: ./.github/workflows/_check_source_changes.yaml
+      with:
+        files: ${{ inputs.files }}
+        files_ignore: ${{ inputs.files_ignore }}
+        get_folders : true
+
+    get_docker_files:
+      runs-on: ubuntu-22.04
+      outputs:
+        docker_files: ${{ steps.docker_files_list.outputs.docker_files }}
+      steps:
+
+        - uses: actions/checkout@v4
+
+        - name: Get docker files
+          id: get_docker_files
+          uses: tj-actions/glob@v22
+          with:
+            separator: ","
+            files: |
+              **/Dockerfile*
+
+        - name: docker file listing
+          id: docker_files_list
+          run: |
+            echo "docker_files=[$(echo ${{ steps.get_docker_files.outputs.paths }} | sed 's/[^,][^,]*/"&"/g')]" >> $GITHUB_OUTPUT
+
+    # We need to list the entire docker file path lists. If folder is modified then we rebuild it. Otherwise we just set the tag on the latest
+    build_status_per_dockerfile:
+      runs-on: ubuntu-22.04
+      needs: [check_sources_change, get_docker_files]
+      # outputs:
+      # https://github.com/marketplace/actions/matrix-outputs-write
+      # https://github.com/orgs/community/discussions/17245
+      strategy:
+        fail-fast: false
+        matrix:
+          docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
+      steps:
+        - run: echo "${{ matrix.docker_file_path }}"
+        - run: echo "${{ needs.check_sources_change.outputs.all_changed_files }}"
+        - run: echo "dirname=$(dirname ${{ matrix.docker_file_path }})" >> $GITHUB_OUTPUT
+          id: get_docker_file_dirname
+        - run: echo "$(echo '${{ needs.check_sources_change.outputs.all_changed_files }}' | jq  '. | index("${{ steps.get_docker_file_dirname.outputs.dirname }}")')"
+        - run: echo "to_build=$(echo '${{ needs.check_sources_change.outputs.all_changed_files }}' | jq  '. | index("${{ steps.get_docker_file_dirname.outputs.dirname }}")')" >> $GITHUB_OUTPUT
+          id: is_image_to_build
+        - run: echo "${{ steps.is_image_to_build.outputs.to_build }}"
+        - run: echo "image_to_build=${{ !startsWith('null', steps.is_image_to_build.outputs.to_build) }}" >> $GITHUB_OUTPUT
+          id: foo
+
+        ## Write for matrix outputs workaround 
+        - uses: cloudposse/github-action-matrix-outputs-write@v1
+          id: out
+          with:
+            matrix-step-name: ${{ github.job }}
+            matrix-key: ${{ matrix.docker_file_path }}
+            outputs: |-
+              to_build: ${{ steps.foo.outputs.image_to_build }}
+
+    read:
+      runs-on: ubuntu-latest
+      needs: [build_status_per_dockerfile]
+      steps:
+        - uses: cloudposse/github-action-matrix-outputs-read@v1
+          id: read
+          with:
+            matrix-step-name: build_status_per_dockerfile
+        - run: echo "${{ steps.read.outputs.result }}"
+
+      outputs:
+        result: "${{ steps.read.outputs.result }}"
+
+    build_image:
+      runs-on: ubuntu-22.04
+      needs: [get_docker_files, build_status_per_dockerfile, read]
+      strategy:
+        fail-fast: true
+        matrix:
+          docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
+      steps:
+        - uses: actions/checkout@v4
+        - run: echo "to_build=$(echo '${{ needs.read.outputs.result }}' | jq '.to_build."${{ matrix.docker_file_path }}"')" >> $GITHUB_OUTPUT
+          id: bar
+        - id: foo
+          uses: ./.github/actions/docker_deployment
+          with:
+            dockerfile-path: ${{ matrix.docker_file_path }}
+            build-image: ${{ steps.bar.outputs.to_build }}

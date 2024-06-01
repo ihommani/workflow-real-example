@@ -13,19 +13,11 @@ on:
                 type: boolean
                 required: false
                 default: false
-
+            # IMAGE NAME TOO
                 # if build image is false we still need to upload the tag using gcloud container images add-tag on latest with the current sha1 to the latest tag
                 # https://github.com/google-github-actions/setup-gcloud
 
 jobs:
-    lint-dockerfile:
-        runs-on: ubuntu-22.04
-        steps:
-            - uses: actions/checkout@v3
-            - uses: hadolint/hadolint-action@v3.1.0
-              with:
-                  dockerfile: ${{ inputs.dockerfile-path }}
-
     image-build:
         runs-on: ubuntu-22.04
         steps:
@@ -48,12 +40,13 @@ jobs:
 
         - name: Image name
           id: infer-image-name
+          # if image name is empty put the folder name containing Dockerfile as image name
           run: |
-            image_name=$(cut -d "_" basename $${{ inputs.dockerfile-path }} -f 2)
+            image_name=$(cut -d "_" basename $${{ inputs.dockerfile-path }} -f 2) #
             echo "image_name=$image_name" >> $GITHUB_OUTPUT
 
         - name: Build
-          id: image-build
+          id: image-build-push
           uses: docker/build-push-action@v5
           with:
               context: ./${{ steps.dockerfile-dirname.outputs.dirname }} # TODO: a script should deduce the context path from the dockerfile path
