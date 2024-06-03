@@ -22,7 +22,7 @@ jobs:
 
     infrastructure_integration:
       needs: check_sources_change
-      # if: ${{ needs.check_sources_change.outputs.is_modified_files == true }} # Not workin for unknown reason
+      # if: ${{ needs.check_sources_change.outputs.is_modified_files == true }} # Not workin for unknown reason. Try with contains('true', ...)
       permissions: 
         pull-requests:  
           write
