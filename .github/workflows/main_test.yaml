@@ -16,3 +16,7 @@ jobs:
                 ./backend/**
             files_ignore: |
                 **/*.md
+            workload_identity_provider: |
+                foo
+            service_account: |
+                bar

@@ -1,3 +1,17 @@
+# Workflow dedicated to the image build and push action.
+#
+# In order to preserve Github action compute time, we build an image from a Dockerfile if and only if associated files have changed.  
+# Associated is to be understand as: files in the same Dockerfile dirname or subdirestories.  
+#
+# Dockerfiles are automatically detected if following the pattern 'Dockerfile*'
+# The tag 'latest' is added if not exist, otherwise translated to the new sha1 tag.
+# Whether built or not, we set the tag corresponding to the sha1 originating this workflow at the same location of the 'latest' tag.
+#
+# If any of the dockerfile build fails, we do not have to remove images which builds succeeded.
+# Thx to the previous strategy, the fix commit would either only trigger new tags appliance with the fix sha1 either rebuild the image 
+# and apply the same fix sha1. Tag 'latest' will be translated to thix fix. 
+# We will have 'orphaned' images (never considered by the CD pipeline as we want all images to be on the same tag) that would be cleaned at some point.
+
 name: "Containers continuous integration"
 
 run-name: "${{ github.actor }} triggers containers continuous integration"
@@ -14,6 +28,14 @@ on:
           required: false
           type: string 
           default: ''
+        workload_identity_provider:
+          description: ""
+          required: true
+          type: string
+        service_account:
+          description: ""
+          required: true
+          type: string
 
 jobs:
     check_sources_change:
@@ -27,11 +49,13 @@ jobs:
       runs-on: ubuntu-22.04
       outputs:
         docker_files: ${{ steps.docker_files_list.outputs.docker_files }}
+
       steps:
 
-        - uses: actions/checkout@v4
+        - name: Checkout sources
+          uses: actions/checkout@v4
 
-        - name: Get docker files
+        - name: Get Docker files from sources
           id: get_docker_files
           uses: tj-actions/glob@v22
           with:
@@ -39,7 +63,7 @@ jobs:
             files: |
               **/Dockerfile*
 
-        - name: docker file listing
+        - name: Render Docker files list Json compatible
           id: docker_files_list
           run: |
             echo "docker_files=[$(echo ${{ steps.get_docker_files.outputs.paths }} | sed 's/[^,][^,]*/"&"/g')]" >> $GITHUB_OUTPUT
@@ -48,60 +72,94 @@ jobs:
     build_status_per_dockerfile:
       runs-on: ubuntu-22.04
       needs: [check_sources_change, get_docker_files]
-      # outputs:
-      # https://github.com/marketplace/actions/matrix-outputs-write
-      # https://github.com/orgs/community/discussions/17245
+
       strategy:
         fail-fast: false
         matrix:
           docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
+
       steps:
-        - run: echo "${{ matrix.docker_file_path }}"
-        - run: echo "${{ needs.check_sources_change.outputs.all_changed_files }}"
-        - run: echo "dirname=$(dirname ${{ matrix.docker_file_path }})" >> $GITHUB_OUTPUT
+        - name: Get Dockerfile dirname
           id: get_docker_file_dirname
-        - run: echo "$(echo '${{ needs.check_sources_change.outputs.all_changed_files }}' | jq  '. | index("${{ steps.get_docker_file_dirname.outputs.dirname }}")')"
-        - run: echo "to_build=$(echo '${{ needs.check_sources_change.outputs.all_changed_files }}' | jq  '. | index("${{ steps.get_docker_file_dirname.outputs.dirname }}")')" >> $GITHUB_OUTPUT
+          run: echo "dirname=$(dirname ${{ matrix.docker_file_path }})" >> $GITHUB_OUTPUT
+
+          # TODO: does not work with subfolder to Dockerfile dirname. To adapt.
+        - name: Compute rebuild status per Dockerfile. True if sources in Dockerfile dirname changed.
+          id: compute_image_to_build_status
+          run: echo "to_build=$(echo '${{ needs.check_sources_change.outputs.all_changed_files }}' | jq  '. | index("${{ steps.get_docker_file_dirname.outputs.dirname }}")')" >> $GITHUB_OUTPUT
+
+        - name: Tagging Docker file to rebuild
           id: is_image_to_build
-        - run: echo "${{ steps.is_image_to_build.outputs.to_build }}"
-        - run: echo "image_to_build=${{ !startsWith('null', steps.is_image_to_build.outputs.to_build) }}" >> $GITHUB_OUTPUT
-          id: foo
+          run: echo "image_to_build=${{ !startsWith('null', steps.compute_image_to_build_status.outputs.to_build) }}" >> $GITHUB_OUTPUT
 
         ## Write for matrix outputs workaround 
+        # https://github.com/marketplace/actions/matrix-outputs-write
+        # https://github.com/orgs/community/discussions/17245
         - uses: cloudposse/github-action-matrix-outputs-write@v1
           id: out
           with:
             matrix-step-name: ${{ github.job }}
             matrix-key: ${{ matrix.docker_file_path }}
             outputs: |-
-              to_build: ${{ steps.foo.outputs.image_to_build }}
+              to_build: ${{ steps.is_image_to_build.outputs.image_to_build }}
 
-    read:
+    matrix_read:
       runs-on: ubuntu-latest
       needs: [build_status_per_dockerfile]
-      steps:
-        - uses: cloudposse/github-action-matrix-outputs-read@v1
-          id: read
-          with:
-            matrix-step-name: build_status_per_dockerfile
-        - run: echo "${{ steps.read.outputs.result }}"
 
       outputs:
-        result: "${{ steps.read.outputs.result }}"
+        result: "${{ steps.matrix_read.outputs.result }}"
 
-    build_image:
+      steps:
+        - name: Read matrix output
+          id: matrix_read
+          uses: cloudposse/github-action-matrix-outputs-read@v1
+          with:
+            matrix-step-name: build_status_per_dockerfile
+        - run: echo "${{ steps.matrix_read.outputs.result }}"
+
+
+    build_push_image:
       runs-on: ubuntu-22.04
-      needs: [get_docker_files, build_status_per_dockerfile, read]
+      needs: [get_docker_files, build_status_per_dockerfile, matrix_read]
       strategy:
         fail-fast: true
         matrix:
           docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
+
       steps:
-        - uses: actions/checkout@v4
-        - run: echo "to_build=$(echo '${{ needs.read.outputs.result }}' | jq '.to_build."${{ matrix.docker_file_path }}"')" >> $GITHUB_OUTPUT
-          id: bar
-        - id: foo
-          uses: ./.github/actions/docker_deployment
+        - name: Checkout sources
+          uses: actions/checkout@v4
+
+        - name: Filter Dockerfile to_build status
+          id: is_image_to_build_status
+          run: echo "to_build=$(echo '${{ needs.matrix_read.outputs.result }}' | jq '.to_build."${{ matrix.docker_file_path }}"')" >> $GITHUB_OUTPUT
+
+        - name: Compute image name
+          id: infer-image-name
+          shell: bash
+          run: |
+            path=${{ matrix.docker_file_path }}
+            image_name=${path##*Dockerfile}
+            default=_$(basename $(dirname ${{ matrix.docker_file_path }})) # if image name is empty put the folder name containing Dockerfile as image name. Note the leading '_'
+            tmp_name=${image_name:-$default}
+            final_name=${tmp_name:1:100} # We remove the leading '_' and take the rest
+            echo "image_name=$final_name" >> $GITHUB_OUTPUT
+
+        - name: Image delivery
+          if: ${{ contains('true', steps.is_image_to_build_status.outputs.to_build) }}
+          id: image_delivery
+          uses: ./.github/actions/docker_build_push
           with:
             dockerfile-path: ${{ matrix.docker_file_path }}
-            build-image: ${{ steps.bar.outputs.to_build }}
+            image_name: ${{ steps.infer-image-name.outputs.image_name }}
+            # docker repo id
+
+        - name: Image tagging
+          id: image_tagging
+          uses: ./.github/actions/gcloud_image_tag
+          with:
+            workload_identity_provider: ''
+            service_account: ''
+            dockerfile-path: ''
+            image_name: ''

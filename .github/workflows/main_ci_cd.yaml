@@ -18,30 +18,27 @@ jobs:
             pull-requests: 
                 write
         uses: ./.github/workflows/frontend_ci.yaml
+
     backend_ci:
         uses: ./.github/workflows/backend_ci.yaml
+
     container_ci:
-        uses: ./.github/workflows/container_ci.yaml    
+        uses: ./.github/workflows/container_ci.yaml
+        
     infrastructure_ci:
-        uses: ./.github/workflows/backend_ci.yaml
+        uses: ./.github/workflows/infrastructure_ci.yaml
 
-    frontend_container_cd:
+    container_cd:
         needs: [backend_ci, frontend_ci, container_ci, infrastructure_ci]
         runs-on: ubuntu-22.04
         steps:
             - run: echo "toto"
 
-    backend_container_cd:
-        needs: [backend_ci, frontend_ci, container_ci, infrastructure_ci]
-        runs-on: ubuntu-22.04
-        steps:
-            - run: echo "toto"
-    
     infrastructure_cd:
         permissions: 
             pull-requests: 
                 write
-        needs: [frontend_container_cd, backend_container_cd]
+        needs: [container_cd]
         uses: ./.github/workflows/infrastructure_cd.yaml
         with:
             root_module_path: "./infrastructure/integration" # TODO: set as env variable from an environment

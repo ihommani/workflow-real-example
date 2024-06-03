@@ -9,6 +9,10 @@ on:
           description: "Absolute path from the root git context to the root module to apply"
           type: string
           required: true
+        common_image_tag:
+          description: "Image tag to deploy as workload"
+          type: string
+          required: true
 
 jobs:
     check_sources_change:
