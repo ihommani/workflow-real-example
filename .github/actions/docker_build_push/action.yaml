@@ -2,11 +2,37 @@ name: Docker build and push
 description: 'test'
 
 inputs:
-    dockerfile-path:
+    dockerfile_path:
         description: "Path of the considered dockerfile"
         required: true
     image_name:
-        description: "Image name"
+        description: |-
+          Tagged image name
+        required: true
+    region:
+        description: |-
+          region of the artifact registry
+    repository_id:
+        description: |-
+          Id of the Cloud artifact registry repository where image will be stored
+        required: true
+    project_id:
+        description: |-
+          Google cloud project id where the targeted repository is located.
+        required: true
+    workload_identity_provider:
+        description: |-
+          The full identifier of the Workload Identity Provider, including the
+          project number, pool name, and provider name. If provided, this must be
+          the full identifier which includes all parts, for example:
+          "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider".
+          This is mutually exclusive with "credentials_json".
+        required: true
+    service_account:
+        description: |-
+          Email address or unique identifier of the Google Cloud service account for
+          which to generate credentials. This is required if
+          "workload_identity_provider" is specified.
         required: true
 
     # IMAGE NAME TOO
@@ -33,7 +59,7 @@ runs:
         - name: extract dockerfile dirname
           id: dockerfile-dirname
           shell: bash
-          run: echo "dirname=$(dirname ${{ inputs.dockerfile-path }})" >> "$GITHUB_OUTPUT"
+          run: echo "dirname=$(dirname ${{ inputs.dockerfile_path }})" >> "$GITHUB_OUTPUT"
 
         # we delete the tag "latest"
 
@@ -48,7 +74,7 @@ runs:
           uses: docker/build-push-action@v5
           with:
               context: ./${{ steps.dockerfile-dirname.outputs.dirname }} # TODO: a script should deduce the context path from the dockerfile path
-              file: ${{ inputs.dockerfile-path }}
+              file: ${{ inputs.dockerfile_path }}
               tags: name/app:latest,name/app:1.0.0 # sha1 and latest
               push: false
 

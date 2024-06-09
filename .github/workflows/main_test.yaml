@@ -8,15 +8,19 @@ on:
 
 
 jobs:
+    # environment: TODO 
     backend_ci:
         uses: ./.github/workflows/container_cd.yaml
-        with:
-            files: |
+        with: # TODO: All below values should be taken from Github action environments 
+            files: |           
                 ./fontend/**
                 ./backend/**
             files_ignore: |
                 **/*.md
+            project_id: gde-ihommani
+            repository_id: toto 
             workload_identity_provider: |
                 foo
-            service_account: |
+            workflow_identity: |
                 bar
+            region: europe-west1
