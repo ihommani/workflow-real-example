@@ -1,0 +1,20 @@
+name: "Testing Github action gcp auth through workflow identity federation"
+run-name: "${{ github.actor }} launching an authentication test"
+
+
+on:
+    workflow_call: 
+
+
+jobs:
+    test:
+        runs-on: ubuntu-22.04
+        permissions: 
+            contents: 'read'
+            id-token: 'write'
+        steps:
+            - uses: 'google-github-actions/auth@v2'
+              with:
+                  project_id: 'gde-ihommani'
+                  workload_identity_provider: 'projects/684160996295/locations/global/workloadIdentityPools/github-ihommani/providers/workflow-real-example-provider'
+                  service_account: 'workflow-real-example-gh@gde-ihommani.iam.gserviceaccount.com'
