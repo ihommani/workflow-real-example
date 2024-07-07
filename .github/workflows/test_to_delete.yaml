@@ -3,7 +3,7 @@ run-name: "${{ github.actor }} launching an authentication test"
 
 
 on:
-    workflow_call: 
+    workflow_dispatch:   
 
 
 jobs:
