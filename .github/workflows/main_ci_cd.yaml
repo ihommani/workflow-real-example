@@ -30,9 +30,7 @@ jobs:
 
     container_cd:
         needs: [backend_ci, frontend_ci, container_ci, infrastructure_ci]
-        runs-on: ubuntu-22.04
-        steps:
-            - run: echo "toto"
+        uses: ./.github/workflows/container_cd.yaml
 
     infrastructure_cd:
         permissions: 
