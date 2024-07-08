@@ -1,0 +1,66 @@
+name: Gcloud Tag images
+description: |
+ Ensure we have the tag corresponding to trigger event's sha1 if no new image have been pushed. Assign the tag 'lates' to the current event's sha1
+
+inputs:
+    workload_identity_provider:
+      description: |-
+        Worklaod identity pool provider.
+      required: true
+    service_account_to_impersonate:
+      description: |-
+        Google service account to impersonate while authenticating to Google through the workload identity pool
+      required: true
+    image_name:
+        description: |-
+          Tagged image name
+        required: true
+
+
+runs:
+    using: "composite"
+    steps:
+        - name: Checkout
+          id: checkout
+          uses: actions/checkout@v4
+
+        - name: Authenticate to gcp workload identity pool
+          id: auth_to_google
+          uses: google-github-actions/auth@v2
+          with:
+              workload_identity_provider: ${{ inputs.workload_identity_provider }}
+              service_account: ${{ inputs.service_account_to_impersonate }}
+              access_token_lifetime: 300s
+              create_credentials_file: true
+
+        # Does not work with access token. Only through credential file. For this reason we can't define an access token as an input and we require the previous auth action
+        - name: Set up Cloud SDK
+          id: set_up_gcloud_sdk
+          uses: google-github-actions/setup-gcloud@v2
+    
+        - name: Check sha1 tag existence
+          id: tag_sha1_exist
+          shell: bash
+          run: |
+            echo $(gcloud artifacts docker tags list ${{ inputs.image_name }} | grep "${{ github.sha }}")
+            echo 'tag_sha1_exist=$(gcloud artifacts docker tags list ${{ inputs.image_name }} | grep "${{ github.sha }}")' >> "$GITHUB_OUTPUT"
+
+        - name: Set tag sha1 if it does not exist # the image has not been built because no source has changed. Tag latest should exist
+          id: create_sha1_tag
+          if: steps.tag_sha1_exist.outputs.tag_sha1_exist == ''
+          shell: bash
+          run: |
+            gcloud artifacts docker tags add ${{ inputs.image_name }}:latest ${{ inputs.image_name }}:${{ github.sha }}
+
+        - name: Delete tag latest if exist
+          id: delete_tag_latest_if_exist
+          continue-on-error: true
+          shell: bash
+          run: |
+            gcloud artifacts docker tags delete ${{ inputs.image_name }}:latest
+
+        - name: Align tag latest to the current sha1 tag
+          id: align_tag_latest
+          shell: bash
+          run: |
+            gcloud artifacts docker tags add ${{ inputs.image_name }}:${{ github.sha }} ${{ inputs.image_name }}:latest

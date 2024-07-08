@@ -1,18 +1,17 @@
-name: "Infrastructure continuous deployment"
-
-run-name: "${{ github.actor }} triggers infrastructure continuous integration"
+name: Infrastructure continuous deployment
+run-name: '${{ github.actor }} triggers infrastructure continuous integration'
 
 on:
     workflow_call:
       inputs:
         root_module_path:
-          description: "Absolute path from the root git context to the root module to apply"
+          description: Absolute path from the root git context to the root module to apply
           type: string
           required: true
         common_image_tag:
-          description: "Image tag to deploy as workload"
+          description: Common image tag to deploy as workload on all services
           type: string
-          required: true
+          required: false
 
 jobs:
     check_sources_change:
@@ -23,7 +22,7 @@ jobs:
 
     infrastructure_deployment:
       needs: check_sources_change
-      # if: ${{ needs.check_sources_change.outputs.is_modified_files == true }} # Not workin for unknown reason
+      if: ${{ needs.check_sources_change.outputs.is_modified_files == 'true' }}
       permissions: 
         pull-requests:  
           write

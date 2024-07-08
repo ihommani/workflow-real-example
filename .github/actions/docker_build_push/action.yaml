@@ -1,48 +1,26 @@
 name: Docker build and push
-description: 'test'
+description: |-
+  Composite action to build and push docker images. Image tag is taken from the sha1 associated to the triggering event. 
 
 inputs:
     dockerfile_path:
-        description: "Path of the considered dockerfile"
+        description: Path of the considered dockerfile
         required: true
-    image_name:
+    image_tag:
         description: |-
-          Tagged image name
+          Complete image tag name
         required: true
-    region:
-        description: |-
-          region of the artifact registry
-    repository_id:
+    registry_id:
         description: |-
           Id of the Cloud artifact registry repository where image will be stored
         required: true
-    project_id:
+    access_token:
         description: |-
-          Google cloud project id where the targeted repository is located.
+          Oauth2 access token used to authenticate on the artifactory.
         required: true
-    workload_identity_provider:
-        description: |-
-          The full identifier of the Workload Identity Provider, including the
-          project number, pool name, and provider name. If provided, this must be
-          the full identifier which includes all parts, for example:
-          "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider".
-          This is mutually exclusive with "credentials_json".
-        required: true
-    service_account:
-        description: |-
-          Email address or unique identifier of the Google Cloud service account for
-          which to generate credentials. This is required if
-          "workload_identity_provider" is specified.
-        required: true
-
-    # IMAGE NAME TOO
-    # if build image is false we still need to upload the tag using gcloud container images add-tag on latest with the current sha1 to the latest tag
-    # https://github.com/google-github-actions/setup-gcloud
-    # https://cloud.google.com/sdk/gcloud/reference/artifacts/docker/tags/add
-    # https://cloud.google.com/sdk/gcloud/reference/container/images/add-tag
 
 runs:
-    using: "composite"
+    using: composite
     steps:
         - name: Checkout
           id: checkout
@@ -61,43 +39,19 @@ runs:
           shell: bash
           run: echo "dirname=$(dirname ${{ inputs.dockerfile_path }})" >> "$GITHUB_OUTPUT"
 
-        - name: Authenticate to gcp workload identity pool
-          id: auth_to_google
-          uses: 'google-github-actions/auth@v2'
-          with:
-              workload_identity_provider: 'projects/684160996295/locations/global/workloadIdentityPools/github-ihommani/providers/workflow-real-example-provider' #TODO: to take from input
-              service_account: 'workflow-real-example-gh@gde-ihommani.iam.gserviceaccount.com' #TODO: to take from input
-              token_format: access_token
-
         - name: Docker Authentication
           id: docker_auth
-          uses: "docker/login-action@v2"
+          uses: docker/login-action@v3
           with:
               username: oauth2accesstoken
-              password: ${{ steps.auth_to_google.outputs.access_token }}
-              registry: europe-west1-docker.pkg.dev
-
-        # we delete the tag "latest"
-
-        # if false
-        # we add the tag sha1 along the tag latest
-
-        # if true:
-        # we delete latest, we build image and push with tags latest 
+              password: ${{ inputs.access_token }}
+              registry: ${{ inputs.registry_id }}
 
         - name: Build and push image
           id: image-build-push
           uses: docker/build-push-action@v5
           with:
-              context: ./${{ steps.dockerfile-dirname.outputs.dirname }} # TODO: a script should deduce the context path from the dockerfile path
+              context: ./${{ steps.dockerfile-dirname.outputs.dirname }}
               file: ${{ inputs.dockerfile_path }}
-              tags: europe-west1-docker.pkg.dev/gde-ihommani/to-delete/name/app:latest # sha1 and latest
-              # tags: name/app:latest,name/app:1.0.0 # sha1 and latest
-              push: false
-
-# if branch is main then --> nope. The decision to push is not only on dockerfile modification. It's code source, dockerfile, env, ...
-# so it's better to set inputs to decide if we push or not, with what artifactory and which tags to set (tag latest is to move on the most recent image push).
-# give the possibility to just set a tag and not push a new image version --> we always do that
-# infer the image name from the Docker file or the folder it comes from 
-# authenticate to google (env var from environment) --> main corresponds to integration env and release to staging and production: we don't care. we associate branch to env and event. Environemnt are associated to env variable with the needed value. 
-# Push to artifactory (env var from environment ? ) tag being the commit SHA1 (in fact all the lastest images should be tagged with the new SHA1. Ease the reasonning on TF deployment)
+              tags: ${{ inputs.image_tag }}
+              push: true

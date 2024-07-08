@@ -1,30 +1,30 @@
-name: "Look for source changes"
-run-name: "${{ github.event_name }} needs to look for source changes" # TODO: change to expose the caller event id
+name: Look for source changes in the current repository
+run-name: '${{ github.event_name }} needs to look for source changes' # TODO: change to expose the caller event id
 
 on:
     workflow_call: 
         inputs:
             files:
-                description: "File and directory patterns used to detect changes (Defaults to the entire repo if unset)"
+                description: File and directory patterns used to detect changes. Defaults to the entire repo if unset
                 type: string
                 required: false
                 default: ''
             files_ignore:
-                description: "Ignore changes to these file(s)."
+                description: Ignore changes to these file(s)
                 type: string
                 required: false
                 default: ''
             get_folders:
-                description: "Do you need to get changed folders instead of changed files"
+                description: Do you need to get changed folders instead of changed files
                 required: false
                 type: boolean
                 default: false
         outputs:
             is_modified_files:
-                description: "Has some file been modified, deleted, added or created"
+                description: Has some file been modified, deleted, added or created
                 value: ${{ jobs.check-sources-change.outputs.launch_integration_job }}
             all_changed_files:
-                description: "Returns all changed files i.e. a combination of all added, copied, modified and renamed files"
+                description: Returns all changed files i.e. a combination of all added, copied, modified and renamed files
                 value: ${{ jobs.check-sources-change.outputs.all_changed_files }}
 
 
@@ -34,7 +34,6 @@ jobs:
         outputs:
           launch_integration_job: ${{ steps.sources_modified.outputs.output }}
           all_changed_files: ${{ steps.sources_modified.outputs.all_changed_files }}
-          all_changed_folders: ${{ steps.sources_modified.outputs.all_changed_files }}
         steps:
             - uses: actions/checkout@v4
             
@@ -51,7 +50,9 @@ jobs:
             - name: Are sources modified
               id: sources_modified
               run: | 
+                echo ${{ steps.changed-files.outputs.all_changed_files }}
                 echo ${{ steps.changed-files.outputs.all_modified_files_count }}
+                echo ${{ steps.changed-files.outputs.all_modified_files_count > 0 }}
                 echo "output=${{ steps.changed-files.outputs.all_modified_files_count > 0 }}" >> "$GITHUB_OUTPUT"
                 echo "all_changed_files=${{ steps.changed-files.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
 

@@ -1,15 +1,15 @@
 name: Terraform application integration
-run-name: "${{ github.actor }} run Terraform code integration"
+run-name: '${{ github.actor }} run Terraform code integration'
 
 on:
     workflow_call:
         inputs:
             root-module-path:
-                description: "Path of the terraform root module to apply linting on."
+                description: Path of the terraform root module to apply linting on
                 type: string
                 required: true
             terraform-version:
-                description: "Terraform version to install"
+                description: Terraform version to install
                 required: true
                 type: string
 

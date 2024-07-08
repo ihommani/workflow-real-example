@@ -1,15 +1,15 @@
 name: Terraform root module application
-run-name: "${{ github.actor }} run Terraform code integration"
+run-name: '${{ github.actor }} run Terraform code apply'
 
 on:
     workflow_call:
         inputs:
             root-module-path:
-                description: "Path of the terraform root module to apply linting on."
+                description: Path of the terraform root module to apply linting on
                 type: string
                 required: true
             terraform-version:
-                description: "Terraform version to install"
+                description: Terraform version to install
                 required: true
                 type: string
 
@@ -23,10 +23,11 @@ jobs:
             pull-requests: write
         steps:
             - uses: actions/checkout@v4
+
             - uses: hashicorp/setup-terraform@v3
               with:
                 terraform_version: ${{ inputs.terraform-version }}
-
+                
             - name: Terraform init
               id: init
               run: terraform init

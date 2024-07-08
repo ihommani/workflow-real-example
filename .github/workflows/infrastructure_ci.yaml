@@ -1,6 +1,5 @@
-name: "Infrastructure continuous integration"
-
-run-name: "${{ github.actor }} triggers infrastructure continuous integration"
+name: Infrastructure continuous integration
+run-name: '${{ github.actor }} triggers infrastructure continuous integration'
 
 on:
     push: 
@@ -9,6 +8,12 @@ on:
             - release
             - release/**
     workflow_call:
+      inputs:
+        terraform_version:
+          description: Terraform version to install
+          type: string
+          required: false
+          default: '1.7.0'
 
 jobs:
     
@@ -22,7 +27,7 @@ jobs:
 
     infrastructure_integration:
       needs: check_sources_change
-      # if: ${{ needs.check_sources_change.outputs.is_modified_files == true }} # Not workin for unknown reason. Try with contains('true', ...)
+      if: ${{ needs.check_sources_change.outputs.is_modified_files == 'true' }}
       permissions: 
         pull-requests:  
           write
@@ -32,7 +37,7 @@ jobs:
         matrix:
           root_module_path: ${{ fromJSON(needs.check_sources_change.outputs.all_changed_files) }}
       with:
-        terraform-version: "1.7.0"
+        terraform-version: ${{ inputs.terraform_version }}
         root-module-path : ${{ matrix.root_module_path }}
 
           

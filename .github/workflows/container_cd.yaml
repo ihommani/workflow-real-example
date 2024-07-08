@@ -1,39 +1,24 @@
-# Workflow dedicated to the image build and push action.
-#
-# In order to preserve Github action compute time, we build an image from a Dockerfile if and only if associated files have changed.  
-# Associated is to be understand as: files in the same Dockerfile dirname or subdirestories.  
-#
-# Dockerfiles are automatically detected if following the pattern 'Dockerfile*'
-# The tag 'latest' is added if not exist, otherwise translated to the new sha1 tag.
-# Whether built or not, we set the tag corresponding to the sha1 originating this workflow at the same location of the 'latest' tag.
-#
-# If any of the dockerfile build fails, we do not have to remove images which builds succeeded.
-# Thx to the previous strategy, the fix commit would either only trigger new tags appliance with the fix sha1 either rebuild the image 
-# and apply the same fix sha1. Tag 'latest' will be translated to thix fix. 
-# We will have 'orphaned' images (never considered by the CD pipeline as we want all images to be on the same tag) that would be cleaned at some point.
-
-name: "Containers continuous integration"
-
-run-name: "${{ github.actor }} triggers containers continuous integration"
+name: Containers continuous delivery
+run-name: '${{ github.actor }} triggers containers continuous delivery'
 
 on:
     workflow_call:
       inputs:
         files:
-          description: "File and directory patterns used to detect changes (Defaults to the entire repo if unset)"
+          description: File and directory patterns used to detect changes. Defaults to the entire repo if unset
           required: true
           type: string
         files_ignore:
-          description: "Ignore changes to these file(s)."
+          description: Ignore changes to these file(s)
           required: false
           type: string 
           default: ''
         project_id:
-          description: "Location of the consumed resources"
+          description: Location of the consumed resources
           required: true
           type: string
         repository_id:
-          description: "Image repository id"
+          description: Image repository id
           required: true
           type: string
         workload_identity_provider:
@@ -41,9 +26,9 @@ on:
             Identifier of the concrete workload identity provider. 
           required: true
           type: string
-        workflow_identity:
+        service_account_to_impersonate:
           description: |-
-            Identity to interact with the concrete artirfactory service
+            Identity to impersonate through the workload identity provider
           required: true
           type: string
         region:
@@ -51,6 +36,7 @@ on:
             Region of the concrete artifactory service
           required: true
           type: string
+
 jobs:
     check_sources_change:
       uses: ./.github/workflows/_check_source_changes.yaml
@@ -58,6 +44,7 @@ jobs:
         files: ${{ inputs.files }}
         files_ignore: ${{ inputs.files_ignore }}
         get_folders : true
+
 
     get_docker_files:
       runs-on: ubuntu-22.04
@@ -67,13 +54,14 @@ jobs:
       steps:
 
         - name: Checkout sources
+          id: checkout_sources
           uses: actions/checkout@v4
 
         - name: Get Docker files from sources
           id: get_docker_files
           uses: tj-actions/glob@v22
           with:
-            separator: ","
+            separator: ','
             files: |
               **/Dockerfile*
 
@@ -82,7 +70,7 @@ jobs:
           run: |
             echo "docker_files=[$(echo ${{ steps.get_docker_files.outputs.paths }} | sed 's/[^,][^,]*/"&"/g')]" >> $GITHUB_OUTPUT
 
-    # We need to list the entire docker file path lists. If folder is modified then we rebuild it. Otherwise we just set the tag on the latest
+
     build_status_per_dockerfile:
       runs-on: ubuntu-22.04
       needs: [check_sources_change, get_docker_files]
@@ -95,12 +83,16 @@ jobs:
       steps:
         - name: Get Dockerfile dirname
           id: get_docker_file_dirname
-          run: echo "dirname=$(dirname ${{ matrix.docker_file_path }})" >> $GITHUB_OUTPUT
+          run: |-
+            echo "$(dirname ${{ matrix.docker_file_path }})"
+            echo "dirname=$(dirname ${{ matrix.docker_file_path }})" >> $GITHUB_OUTPUT
 
           # TODO: does not work with subfolder to Dockerfile dirname. To adapt.
         - name: Compute rebuild status per Dockerfile. True if sources in Dockerfile dirname changed.
           id: compute_image_to_build_status
-          run: echo "to_build=$(echo '${{ needs.check_sources_change.outputs.all_changed_files }}' | jq  '. | index("${{ steps.get_docker_file_dirname.outputs.dirname }}")')" >> $GITHUB_OUTPUT
+          run: |-
+             echo '${{ needs.check_sources_change.outputs.all_changed_files }}'
+             echo "to_build=$(echo '${{ needs.check_sources_change.outputs.all_changed_files }}' | jq  '. | index("${{ steps.get_docker_file_dirname.outputs.dirname }}")')" >> $GITHUB_OUTPUT
 
         - name: Tagging Docker file to rebuild
           id: is_image_to_build
@@ -116,6 +108,7 @@ jobs:
             matrix-key: ${{ matrix.docker_file_path }}
             outputs: |-
               to_build: ${{ steps.is_image_to_build.outputs.image_to_build }}
+
 
     matrix_read:
       runs-on: ubuntu-latest
@@ -136,10 +129,14 @@ jobs:
     build_push_image:
       runs-on: ubuntu-22.04
       needs: [get_docker_files, build_status_per_dockerfile, matrix_read]
+      permissions: 
+        contents: 'read'
+        id-token: 'write'
       strategy:
+        # TODO: document in the README
         # If one of the OCI image build fails, then no images push should happens. 
         # This is not bullet proof as, one of the matrix path can still passes before a path failure
-        # Tagging image, event if not rebuilt, with the triggering event sha1 allows to relaunch the workflow to allign the service images on a common sha1.
+        # Tagging image, even if not rebuilt, with the triggering event sha1 allows to relaunch the workflow to allign the service images on a common sha1.
         fail-fast: true 
         matrix:
           docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
@@ -147,6 +144,16 @@ jobs:
       steps:
         - name: Checkout sources
           uses: actions/checkout@v4
+
+        - name: Authenticate to gcp workload identity pool
+          id: auth_to_google
+          uses: 'google-github-actions/auth@v2'
+          with:
+              workload_identity_provider: ${{ inputs.workload_identity_provider }}
+              service_account: ${{ inputs.service_account_to_impersonate }}
+              token_format: access_token
+              access_token_lifetime: 300s
+              create_credentials_file: true
 
         - name: Filter Dockerfile to_build status
           id: is_image_to_build_status
@@ -169,20 +176,14 @@ jobs:
           uses: ./.github/actions/docker_build_push
           with:
             dockerfile_path: ${{ matrix.docker_file_path }}
-            image_name: ${{ steps.infer-image-name.outputs.image_name }}
-            region: ${{ inputs.region }}
-            repository_id: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ steps.infer-image-name.outputs.image_name }}
-            project_id: ${{ inputs.project_id }}
-            workload_identity_provider: ${{ inputs.workload_identity_provider }}
-            service_account: ${{ inputs.workflow_identity }}
+            image_tag: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ steps.infer-image-name.outputs.image_name }}:${{ github.sha }}
+            registry_id: ${{ inputs.region }}-docker.pkg.dev
+            access_token: ${{ steps.auth_to_google.outputs.access_token }}
 
         - name: Image tagging
           id: image_tagging
-          uses: ./.github/actions/gcloud_image_tag
+          uses: ./.github/actions/image_tag
           with:
-            image_name: ${{ steps.infer-image-name.outputs.image_name }}
-            region: ${{ inputs.region }}
-            repository_id: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ steps.infer-image-name.outputs.image_name }}
-            project_id: ${{ inputs.project_id }}
             workload_identity_provider: ${{ inputs.workload_identity_provider }}
-            service_account: ${{ inputs.workflow_identity }}
+            service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }}
+            image_name: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ steps.infer-image-name.outputs.image_name }}

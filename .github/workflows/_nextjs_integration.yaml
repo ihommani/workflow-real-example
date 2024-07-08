@@ -1,17 +1,17 @@
 name: Nextjs application integration
-run-name: "${{ github.actor }} run nextjs application integration"
+run-name: '${{ github.actor }} run nextjs application integration'
 
 on:
     workflow_call:
         inputs:
             node-version:
-                description: "Node version to setup"
+                description: Node version to setup
                 type: string
                 required: false
-                default: "20"
+                default: '20'
 
             application_folder_path:
-                description: "Application source code path relative to the root of your repository"
+                description: Application source code path relative to the root of your repository
                 required: true
                 type: string
         # outputs: TODO: export error message
