@@ -61,6 +61,22 @@ runs:
           shell: bash
           run: echo "dirname=$(dirname ${{ inputs.dockerfile_path }})" >> "$GITHUB_OUTPUT"
 
+        - name: Authenticate to gcp workload identity pool
+          id: auth_to_google
+          uses: 'google-github-actions/auth@v2'
+          with:
+              workload_identity_provider: 'projects/684160996295/locations/global/workloadIdentityPools/github-ihommani/providers/workflow-real-example-provider' #TODO: to take from input
+              service_account: 'workflow-real-example-gh@gde-ihommani.iam.gserviceaccount.com' #TODO: to take from input
+              token_format: access_token
+
+        - name: Docker Authentication
+          id: docker_auth
+          uses: "docker/login-action@v2"
+          with:
+              username: oauth2accesstoken
+              password: ${{ steps.auth_to_google.outputs.access_token }}
+              registry: europe-west1-docker.pkg.dev
+
         # we delete the tag "latest"
 
         # if false
@@ -75,7 +91,8 @@ runs:
           with:
               context: ./${{ steps.dockerfile-dirname.outputs.dirname }} # TODO: a script should deduce the context path from the dockerfile path
               file: ${{ inputs.dockerfile_path }}
-              tags: name/app:latest,name/app:1.0.0 # sha1 and latest
+              tags: europe-west1-docker.pkg.dev/gde-ihommani/to-delete/name/app:latest # sha1 and latest
+              # tags: name/app:latest,name/app:1.0.0 # sha1 and latest
               push: false
 
 # if branch is main then --> nope. The decision to push is not only on dockerfile modification. It's code source, dockerfile, env, ...
