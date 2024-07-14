@@ -74,6 +74,7 @@ jobs:
     build_status_per_dockerfile:
       runs-on: ubuntu-22.04
       needs: [check_sources_change, get_docker_files]
+      if: needs.check_sources_change.outputs.is_modified_files == 'true'
 
       strategy:
         fail-fast: false
