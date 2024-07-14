@@ -5,7 +5,7 @@ description: |
 inputs:
     workload_identity_provider:
       description: |-
-        Worklaod identity pool provider.
+        Workload identity pool provider.
       required: true
     service_account_to_impersonate:
       description: |-
@@ -38,29 +38,24 @@ runs:
           id: set_up_gcloud_sdk
           uses: google-github-actions/setup-gcloud@v2
     
-        - name: Check sha1 tag existence
-          id: tag_sha1_exist
-          shell: bash
-          run: |
-            echo $(gcloud artifacts docker tags list ${{ inputs.image_name }} | grep "${{ github.sha }}")
-            echo 'tag_sha1_exist=$(gcloud artifacts docker tags list ${{ inputs.image_name }} | grep "${{ github.sha }}")' >> "$GITHUB_OUTPUT"
-
         - name: Set tag sha1 if it does not exist # the image has not been built because no source has changed. Tag latest should exist
           id: create_sha1_tag
-          if: steps.tag_sha1_exist.outputs.tag_sha1_exist == ''
           shell: bash
           run: |
-            gcloud artifacts docker tags add ${{ inputs.image_name }}:latest ${{ inputs.image_name }}:${{ github.sha }}
+            echo "If not exist, adding sha1 tag at the same level than tag latest"
+            [ -z $(gcloud artifacts docker tags list ${{ inputs.image_name }} --format="csv(tag)" | grep "${{ github.sha }}") ] && gcloud artifacts docker tags add ${{ inputs.image_name }}:latest ${{ inputs.image_name }}:${{ github.sha }} || echo "sha1 tag exists"
 
         - name: Delete tag latest if exist
           id: delete_tag_latest_if_exist
           continue-on-error: true
           shell: bash
           run: |
+            echo "Deleting tag latest"
             gcloud artifacts docker tags delete ${{ inputs.image_name }}:latest
 
         - name: Align tag latest to the current sha1 tag
           id: align_tag_latest
           shell: bash
           run: |
+            echo "Align tag latest to the current sha1 tag"
             gcloud artifacts docker tags add ${{ inputs.image_name }}:${{ github.sha }} ${{ inputs.image_name }}:latest

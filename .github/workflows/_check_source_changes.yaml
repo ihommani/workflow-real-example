@@ -19,6 +19,11 @@ on:
                 required: false
                 type: boolean
                 default: false
+            dir_names_max_depth:
+                description: Limit the directory output to a maximum depth
+                required: false
+                type: string
+                default: ''
         outputs:
             is_modified_files:
                 description: Has some file been modified, deleted, added or created
@@ -44,6 +49,7 @@ jobs:
                 files: ${{ inputs.files }}
                 files_ignore: ${{ inputs.files_ignore }}
                 dir_names: ${{ inputs.get_folders }}
+                dir_names_max_depth: ${{ inputs.dir_names_max_depth }}
                 json: true
                 # json_raw_format: true
 

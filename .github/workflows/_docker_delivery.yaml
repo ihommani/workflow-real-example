@@ -1,7 +1,6 @@
 name: Containers continuous delivery
 run-name: '${{ github.actor }} triggers containers continuous delivery'
 
-# TODO: export this file in _docker_delivery.yaml and encapsulate it's call here.
 on:
     workflow_call:
       inputs:
@@ -45,7 +44,6 @@ jobs:
         files: ${{ inputs.files }}
         files_ignore: ${{ inputs.files_ignore }}
         get_folders : true
-        dir_names_max_depth: 1
 
 
     get_docker_files:
@@ -76,7 +74,6 @@ jobs:
     build_status_per_dockerfile:
       runs-on: ubuntu-22.04
       needs: [check_sources_change, get_docker_files]
-      if: needs.check_sources_change.outputs.is_modified_files == 'true'
 
       strategy:
         fail-fast: false
@@ -90,7 +87,7 @@ jobs:
             echo "$(dirname ${{ matrix.docker_file_path }})"
             echo "dirname=$(dirname ${{ matrix.docker_file_path }})" >> $GITHUB_OUTPUT
 
-          # TODO: does not work with subfolder to Dockerfile dirname. To adapt.  --> we need to map dirname  
+          # TODO: does not work with subfolder to Dockerfile dirname. To adapt.
         - name: Compute rebuild status per Dockerfile. True if sources in Dockerfile dirname changed.
           id: compute_image_to_build_status
           run: |-

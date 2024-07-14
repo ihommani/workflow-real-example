@@ -36,6 +36,7 @@ jobs:
                 fi
 
     # TODO: documenter dans le README pk la CI n'est pas souhaitable pour des contexte où l'output est une image docker agnostique de l'env, alors qu'elle l'est sur la partie infra (config et couts différents par env, )
+    # => CCL: lifecycle of terraform and app code should live in their own workflows
     frontend_ci:
         needs: guess_env
         if: contains(fromJSON('["integration"]'), needs.guess_env.outputs.environment)
@@ -59,7 +60,6 @@ jobs:
         
     infrastructure_ci:
         needs: guess_env
-        if: contains(fromJSON('["integration"]'), needs.guess_env.outputs.environment)
         uses: ./.github/workflows/infrastructure_ci.yaml
 
     collect_env_variables_of_interest:
