@@ -1,0 +1,37 @@
+name: Infrastructure continuous planification
+run-name: '${{ github.actor }} triggers infrastructure continuous integration'
+
+on:
+    workflow_call:
+      inputs:
+        terraform_version:
+          description: Terraform version to install
+          type: string
+          required: false
+          default: '1.7.0'
+        targeted_environment:
+          description: Environment from where we need to plan
+          type: string
+          required: true
+
+jobs:
+    
+    infrastructure_plan:
+      permissions: 
+        pull-requests:  
+          write
+      uses: ./.github/workflows/_terraform_planning.yaml
+      with:
+        terraform-version: ${{ inputs.terraform_version }}
+        root-module-path : ${{ inputs.targeted_environment }}
+
+          
+      
+        
+    
+        
+        
+      
+    
+          
+      

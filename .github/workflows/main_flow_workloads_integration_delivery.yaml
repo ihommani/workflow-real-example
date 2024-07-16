@@ -1,0 +1,126 @@
+
+name: Project continuous integration, delivery and deployment
+
+run-name: "${{ github.actor }} triggered global workload CI/CD"
+
+on:
+    push: # this logic is part of our git workflow
+        branches: 
+             - main
+             - release
+        tags:
+            - v*.*.*
+    # workflow_dispatch: # TODO : integrate the production logic inside this workflow. (too many if ? )
+    # What can be done with workflow_run event ? 
+    
+    
+jobs:
+
+    guess_env:
+        runs-on: ubuntu-22.04
+        outputs:
+            environment: ${{ steps.guess_env.outputs.environment }}
+        steps:
+            - name: guess environment
+              id: guess_env
+              shell: bash
+              run: | # this logic is part of our git workflow
+                if [ ${{ github.ref_name }} = "main" ]; then
+                    echo "integration"
+                    echo 'environment=integration' >> "$GITHUB_OUTPUT"
+                elif [ ${{ github.ref_name }} = "release" ]; then
+                    echo "staging"
+                    echo 'environment=staging' >> "$GITHUB_OUTPUT"
+                elif [[ ${{ github.ref_type }} = "tag" && ${{ github.ref_name }} =~ ^v\d*(.\d*.\d*)? ]]; then # TODO: to change: should check the event trigger type which has to be a worklaod dispatch
+                    echo "production"
+                    echo 'environment=production' >> "$GITHUB_OUTPUT"
+                else
+                    echo 'environment="integration"' >> "$GITHUB_OUTPUT"
+                fi
+
+    # TODO: documenter dans le README pk la CI n'est pas souhaitable pour des contextes où l'output est une image docker agnostique de l'env, alors qu'elle l'est sur la partie infra (config et couts différents par env, )
+    # => CCL: lifecycle of terraform and app code should live in their own workflows
+    frontend_ci:
+        needs: guess_env
+        if: contains(fromJSON('["integration"]'), needs.guess_env.outputs.environment)
+        permissions: 
+            pull-requests: 
+                write
+        uses: ./.github/workflows/frontend_ci.yaml
+
+
+    backend_ci:
+        needs: guess_env
+        if: contains(fromJSON('["integration"]'), needs.guess_env.outputs.environment)
+        uses: ./.github/workflows/backend_ci.yaml
+
+
+    container_ci:
+        needs: guess_env
+        if: contains(fromJSON('["integration"]'), needs.guess_env.outputs.environment)
+        uses: ./.github/workflows/container_ci.yaml
+
+        
+    collect_env_variables_of_interest:
+            needs: guess_env
+            runs-on: ubuntu-22.04
+            environment:
+                name: ${{ needs.guess_env.outputs.environment }}
+            outputs:
+                project_id: ${{ steps.get_project_id.outputs.project_id }}
+                repository_id: ${{ steps.get_repository_id.outputs.repository_id }}
+                workload_identity_provider: ${{ steps.get_workload_identity_provider.outputs.workload_identity_provider }}
+                service_account_to_impersonate: ${{ steps.get_sa_to_impersonate.outputs.service_account_to_impersonate }}
+                region: ${{ steps.get_region.outputs.region }}
+            steps:
+                - name: Getting project id
+                  id: get_project_id
+                  run: |-
+                    echo "${{ vars.PROJECT_ID }}"
+                    echo "project_id=${{ vars.PROJECT_ID }}" >> "$GITHUB_OUTPUT"
+    
+                - name: Getting repository id
+                  id: get_repository_id
+                  run: |-
+                    echo "${{ vars.REPOSITORY_ID }}"
+                    echo "repository_id=${{ vars.REPOSITORY_ID }}" >> "$GITHUB_OUTPUT"
+    
+                - name: Getting workload identity provider
+                  id: get_workload_identity_provider
+                  run: |-
+                    echo "${{ vars.WORKLOAD_IDENTITY_PROVIDER }}"
+                    echo "workload_identity_provider=${{ vars.WORKLOAD_IDENTITY_PROVIDER }}" >> "$GITHUB_OUTPUT"
+    
+                - name: Getting service account to impersonate
+                  id: get_sa_to_impersonate
+                  run: |-
+                    echo "${{ vars.SA_TO_IMPERSONATE }}"
+                    echo "service_account_to_impersonate=${{ vars.SA_TO_IMPERSONATE }}" >> "$GITHUB_OUTPUT"
+    
+                - name: Getting region
+                  id: get_region
+                  run: |-
+                    echo "${{ vars.CLOUD_REGION }}"
+                    echo "region=${{ vars.CLOUD_REGION }}" >> "$GITHUB_OUTPUT"
+
+        
+    container_cd:
+        needs: [collect_env_variables_of_interest, backend_ci, frontend_ci, container_ci]
+        uses: ./.github/workflows/container_cd.yaml
+        with:
+            files: |           
+                ./frontend/**
+                ./backend/**
+            files_ignore: |
+                **/*.md
+            project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
+            repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }} 
+            workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
+            service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
+            region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
+
+
+    ## TODO: to complete. Set as input the environment
+    workloads_deployment:
+        needs: container_cd
+        uses: ./.github/workflows/workloads_deployment.yaml

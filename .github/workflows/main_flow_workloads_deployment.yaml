@@ -1,17 +1,23 @@
 
-name: Project continuous integration, delivery and deployment
+name: Workload production deployment
 
-run-name: "${{ github.actor }} triggers global CI/CD"
+run-name: "${{ github.actor }} triggered global workload CI/CD"
 
 on:
-    push: # this logic is part of our git workflow
-        branches: 
-             - main
-             - release
-        tags:
-            - v*.*.*
+    workflow_dispatch: 
+
 
 jobs:
+
+    validate_ref_type: # We can only dploy on pro
+        runs-on: ubuntu-22.04
+        steps:
+            - name: validate reference is a version tag
+              id: validate_ref_type
+              run: |-
+                echo "${{ github.ref_type }}"
+                echo "${{ github.ref_name }}"
+                echo "${{ github.ref }}"
 
     guess_env:
         runs-on: ubuntu-22.04
@@ -22,9 +28,9 @@ jobs:
               id: guess_env
               shell: bash
               run: | # this logic is part of our git workflow
-                if [ ${{ github.ref_name }} = "main" ]; then
-                    echo "integration"
-                    echo 'environment=integration' >> "$GITHUB_OUTPUT"
+                echo "${{ github.ref_type }}"
+                echo ""
+                echo ""
                 elif [ ${{ github.ref_name }} = "release" ]; then
                     echo "staging"
                     echo 'environment=staging' >> "$GITHUB_OUTPUT"
@@ -56,12 +62,8 @@ jobs:
         needs: guess_env
         if: contains(fromJSON('["integration"]'), needs.guess_env.outputs.environment)
         uses: ./.github/workflows/container_ci.yaml
-       
-        
-    infrastructure_ci:
-        needs: guess_env
-        uses: ./.github/workflows/infrastructure_ci.yaml
 
+        
     collect_env_variables_of_interest:
             needs: guess_env
             runs-on: ubuntu-22.04
@@ -105,8 +107,8 @@ jobs:
                     echo "region=${{ vars.CLOUD_REGION }}" >> "$GITHUB_OUTPUT"
 
         
-    container_cd:
-        needs: [collect_env_variables_of_interest, backend_ci, frontend_ci, container_ci, infrastructure_ci]
+    workloads_cd:
+        needs: [collect_env_variables_of_interest, backend_ci, frontend_ci, container_ci]
         uses: ./.github/workflows/container_cd.yaml
         with:
             files: |           
@@ -119,13 +121,3 @@ jobs:
             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
-
-
-    infrastructure_cd:
-        needs: [container_cd, guess_env]
-        uses: ./.github/workflows/infrastructure_cd.yaml
-        permissions: 
-            pull-requests: 
-                write
-        with:
-            root_module_path: './infrastructure/${{ needs.guess_env.outputs.environment }}'

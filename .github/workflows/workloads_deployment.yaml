@@ -1,0 +1,16 @@
+name: TODO
+run-name: TODO
+
+
+on: 
+    workflow_call: # TODO : set the environemnt as an input.along with repository id and so on. 
+
+
+# matrix strategy: one cloud_run_deployment job per app/service folder (each one contains a Dockerfile which was build as an image with the name of the parent folder)
+jobs:
+    deploy_service:
+        runs-on: ubuntu-22.04
+        steps:
+            - name: toto
+              run: |-
+                echo "TODO" 

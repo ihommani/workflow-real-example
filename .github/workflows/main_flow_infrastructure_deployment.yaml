@@ -1,0 +1,44 @@
+
+name: Infrastructure deployment
+
+run-name: "${{ github.actor }} triggered Infrastructure deployment"
+
+on:
+    push: # this logic is part of our git workflow
+        branches: 
+             - integration
+             - staging
+             - production
+
+jobs:
+
+    guess_env:
+        runs-on: ubuntu-22.04
+        outputs:
+            environment: ${{ steps.guess_env.outputs.environment }}
+        steps:
+            - name: guess environment
+              id: guess_env
+              shell: bash
+              run: | # this logic is part of our git workflow
+                if [ ${{ github.ref_name }} = "integration" ]; then
+                    echo "integration"
+                    echo 'environment=integration' >> "$GITHUB_OUTPUT"
+                elif [ ${{ github.ref_name }} = "staging" ]; then
+                    echo "staging"
+                    echo 'environment=staging' >> "$GITHUB_OUTPUT"
+                elif [[ ${{ github.ref_name }} = "production" ]]; then
+                    echo "production"
+                    echo 'environment=production' >> "$GITHUB_OUTPUT"
+                else
+                    exit 1
+                fi
+
+    infrastructure_cd:
+        needs: [guess_env]
+        uses: ./.github/workflows/infrastructure_cd.yaml
+        permissions: 
+            pull-requests: 
+                write
+        with:
+            root_module_path: './infrastructure/${{ needs.guess_env.outputs.environment }}'

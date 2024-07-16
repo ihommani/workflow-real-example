@@ -1,0 +1,13 @@
+
+name: Infrastructure integration
+
+run-name: "${{ github.actor }} triggered infrastructure integration"
+
+on:
+    push:
+        branches: 
+             - main
+             
+jobs:
+    infrastructure_ci:
+        uses: ./.github/workflows/infrastructure_ci.yaml

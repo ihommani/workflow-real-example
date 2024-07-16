@@ -1,0 +1,41 @@
+
+name: Infrastructure change request
+
+run-name: "${{ github.actor }} triggered an infrastructure change request"
+
+on:
+    pull_request: 
+
+jobs:
+
+    guess_env:
+        runs-on: ubuntu-22.04
+        outputs:
+            environment: ${{ steps.guess_env.outputs.environment }}
+        steps:
+            - name: guess environment
+              id: guess_env
+              shell: bash
+              run: | # this logic is part of our git workflow
+                if [ ${{ github.ref_name }} = "integration" ]; then
+                    echo "integration"
+                    echo 'environment=integration' >> "$GITHUB_OUTPUT"
+                elif [ ${{ github.ref_name }} = "staging" ]; then
+                    echo "staging"
+                    echo 'environment=staging' >> "$GITHUB_OUTPUT"
+                elif [[ ${{ github.ref_name }} = "production" ]]; then
+                    echo "production"
+                    echo 'environment=production' >> "$GITHUB_OUTPUT"
+                else
+                    exit 1
+                fi
+
+    infrastructure_plan:
+        if: github.event_name == 'pull_request' && contains(fromJSON('["integration", "staging", "production"]'), github.base_ref) && contains(fromJSON('["main"]'), github.head_ref)
+        needs: [guess_env]
+        uses: ./.github/workflows/infrastructure_plan.yaml
+        permissions: 
+            pull-requests: 
+                write
+        with:
+            root_module_path: './infrastructure/${{ needs.guess_env.outputs.environment }}'
