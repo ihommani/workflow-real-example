@@ -46,7 +46,7 @@ jobs:
               continue-on-error: true
 
             - uses: actions/github-script@v7
-              if: github.event_name == 'pull_request' && github.base_ref == 'main'
+              if: github.event_name == 'pull_request' && contains(fromJSON('["main", "release"]'), github.base_ref)
               env: 
                 PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
               with:
