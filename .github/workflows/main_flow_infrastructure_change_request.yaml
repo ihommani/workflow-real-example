@@ -3,6 +3,8 @@ name: Infrastructure change request
 
 run-name: "${{ github.actor }} triggered an infrastructure change request"
 
+#TODO: can be fused with infrastructure deployment. use conditioning to set plan only if pull_request event
+
 on:
     pull_request: 
 
