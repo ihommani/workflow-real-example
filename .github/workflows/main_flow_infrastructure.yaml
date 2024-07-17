@@ -32,7 +32,7 @@ jobs:
             pull-requests: 
                 write
         with:
-            root_module_path: './infrastructure/${{ needs.guess_env.outputs.environment }}'   
+            targeted_environment: './infrastructure/${{ needs.guess_env.outputs.environment }}'   
 
     guess_env:
         if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
