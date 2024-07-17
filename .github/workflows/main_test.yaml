@@ -1,93 +1,97 @@
-name: Workflow sandbox to debug
+# name: Workflow sandbox to debug
 
 
-on:
-    push:
-        # branches: 
-        #      - main
-        #      - release
-        branches-ignore: 
-             - main
+# on:
+#     push:
+#         # branches: 
+#         #      - main
+#         #      - release
+#         branches-ignore: 
+#              - main
+#              - integration
+#              - release
+#              - staging
+#              - production
 
 
-jobs:
+# jobs:
 
-    guess_env:
-        runs-on: ubuntu-22.04
-        outputs:
-            environment: ${{ steps.guess_env.outputs.environment }}
-        steps:
-            - name: guess environment
-              id: guess_env
-              shell: bash
-              run: | # this logic is part of our git workflow
-                if [ ${{ github.ref_name }} = "main" ]; then
-                    echo "integration"
-                    echo 'environment=integration' >> "$GITHUB_OUTPUT"
-                elif [ ${{ github.ref_name }} = "release" ]; then
-                    echo "staging"
-                    echo 'environment=staging' >> "$GITHUB_OUTPUT"
-                elif [ ${{ github.ref_name }} = "v"* ]; then
-                    echo "production"
-                    echo 'environment=production' >> "$GITHUB_OUTPUT"
-                else
-                    echo 'environment="test"' >> "$GITHUB_OUTPUT"
-                fi
+#     guess_env:
+#         runs-on: ubuntu-22.04
+#         outputs:
+#             environment: ${{ steps.guess_env.outputs.environment }}
+#         steps:
+#             - name: guess environment
+#               id: guess_env
+#               shell: bash
+#               run: | # this logic is part of our git workflow
+#                 if [ ${{ github.ref_name }} = "main" ]; then
+#                     echo "integration"
+#                     echo 'environment=integration' >> "$GITHUB_OUTPUT"
+#                 elif [ ${{ github.ref_name }} = "release" ]; then
+#                     echo "staging"
+#                     echo 'environment=staging' >> "$GITHUB_OUTPUT"
+#                 elif [ ${{ github.ref_name }} = "v"* ]; then
+#                     echo "production"
+#                     echo 'environment=production' >> "$GITHUB_OUTPUT"
+#                 else
+#                     echo 'environment="test"' >> "$GITHUB_OUTPUT"
+#                 fi
             
-    collect_env_variables_of_interest:
-        needs: guess_env
-        runs-on: ubuntu-22.04
-        environment:
-            name: ${{ needs.guess_env.outputs.environment }}
-        outputs:
-            project_id: ${{ steps.get_project_id.outputs.project_id }}
-            repository_id: ${{ steps.get_repository_id.outputs.repository_id }}
-            workload_identity_provider: ${{ steps.get_workload_identity_provider.outputs.workload_identity_provider }}
-            service_account_to_impersonate: ${{ steps.get_sa_to_impersonate.outputs.service_account_to_impersonate }}
-            region: ${{ steps.get_region.outputs.region }}
-        steps:
-            - name: Getting project id
-              id: get_project_id
-              run: |-
-                echo "${{ vars.PROJECT_ID }}"
-                echo "project_id=${{ vars.PROJECT_ID }}" >> "$GITHUB_OUTPUT"
+#     collect_env_variables_of_interest:
+#         needs: guess_env
+#         runs-on: ubuntu-22.04
+#         environment:
+#             name: ${{ needs.guess_env.outputs.environment }}
+#         outputs:
+#             project_id: ${{ steps.get_project_id.outputs.project_id }}
+#             repository_id: ${{ steps.get_repository_id.outputs.repository_id }}
+#             workload_identity_provider: ${{ steps.get_workload_identity_provider.outputs.workload_identity_provider }}
+#             service_account_to_impersonate: ${{ steps.get_sa_to_impersonate.outputs.service_account_to_impersonate }}
+#             region: ${{ steps.get_region.outputs.region }}
+#         steps:
+#             - name: Getting project id
+#               id: get_project_id
+#               run: |-
+#                 echo "${{ vars.PROJECT_ID }}"
+#                 echo "project_id=${{ vars.PROJECT_ID }}" >> "$GITHUB_OUTPUT"
 
-            - name: Getting repository id
-              id: get_repository_id
-              run: |-
-                echo "${{ vars.REPOSITORY_ID }}"
-                echo "repository_id=${{ vars.REPOSITORY_ID }}" >> "$GITHUB_OUTPUT"
+#             - name: Getting repository id
+#               id: get_repository_id
+#               run: |-
+#                 echo "${{ vars.REPOSITORY_ID }}"
+#                 echo "repository_id=${{ vars.REPOSITORY_ID }}" >> "$GITHUB_OUTPUT"
 
-            - name: Getting workload identity provider
-              id: get_workload_identity_provider
-              run: |-
-                echo "${{ vars.WORKLOAD_IDENTITY_PROVIDER }}"
-                echo "workload_identity_provider=${{ vars.WORKLOAD_IDENTITY_PROVIDER }}" >> "$GITHUB_OUTPUT"
+#             - name: Getting workload identity provider
+#               id: get_workload_identity_provider
+#               run: |-
+#                 echo "${{ vars.WORKLOAD_IDENTITY_PROVIDER }}"
+#                 echo "workload_identity_provider=${{ vars.WORKLOAD_IDENTITY_PROVIDER }}" >> "$GITHUB_OUTPUT"
 
-            - name: Getting service account to impersonate
-              id: get_sa_to_impersonate
-              run: |-
-                echo "${{ vars.SA_TO_IMPERSONATE }}"
-                echo "service_account_to_impersonate=${{ vars.SA_TO_IMPERSONATE }}" >> "$GITHUB_OUTPUT"
+#             - name: Getting service account to impersonate
+#               id: get_sa_to_impersonate
+#               run: |-
+#                 echo "${{ vars.SA_TO_IMPERSONATE }}"
+#                 echo "service_account_to_impersonate=${{ vars.SA_TO_IMPERSONATE }}" >> "$GITHUB_OUTPUT"
 
-            - name: Getting region
-              id: get_region
-              run: |-
-                echo "${{ vars.CLOUD_REGION }}"
-                echo "region=${{ vars.CLOUD_REGION }}" >> "$GITHUB_OUTPUT"
+#             - name: Getting region
+#               id: get_region
+#               run: |-
+#                 echo "${{ vars.CLOUD_REGION }}"
+#                 echo "region=${{ vars.CLOUD_REGION }}" >> "$GITHUB_OUTPUT"
 
     
-    containers_cd:
-        needs: collect_env_variables_of_interest
-        uses: ./.github/workflows/container_cd.yaml
-        with:
-            files: |           
-                ./frontend/**
-                ./backend/**
-            files_ignore: |
-                **/*.md
-            project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
-            repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }} 
-            workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
-            service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
-            region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
+#     containers_cd:
+#         needs: collect_env_variables_of_interest
+#         uses: ./.github/workflows/container_cd.yaml
+#         with:
+#             files: |           
+#                 ./frontend/**
+#                 ./backend/**
+#             files_ignore: |
+#                 **/*.md
+#             project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
+#             repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }} 
+#             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
+#             service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
+#             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}

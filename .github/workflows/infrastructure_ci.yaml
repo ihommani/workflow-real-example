@@ -42,7 +42,7 @@ jobs:
         matrix:
           root_module_path: ${{ fromJSON(needs.check_sources_change.outputs.all_changed_files) }}
       with:
-        terraform-version: ${{ inputs.terraform_version }}
+        terraform-version: ${{ inputs.terraform_version != '' && inputs.terraform_version || '1.7' }}
         root-module-path : ${{ matrix.root_module_path }}
 
           
