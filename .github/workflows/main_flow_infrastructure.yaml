@@ -24,6 +24,16 @@ jobs:
         if: github.event_name == 'push' && github.ref_name == 'main'
         uses: ./.github/workflows/infrastructure_ci.yaml
 
+    forbid_pull_request_to_env_branches_from_other_branch_than_main:
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Forbid random branches to merge into env branches 
+              id: not_allowed_source_branch
+              run: |-
+                [ "${{ github.head_ref }}" != "main" ] && exit 1
+
+
     infrastructure_plan:
         if: github.event_name == 'pull_request'
         needs: [guess_env]
