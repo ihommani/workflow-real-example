@@ -8,6 +8,10 @@ on:
         #      - release
         branches-ignore: 
              - main
+             - integration
+             - release
+             - staging
+             - production
 
 
 jobs:
