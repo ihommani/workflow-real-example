@@ -19,7 +19,7 @@ jobs:
         runs-on: ubuntu-22.04
         defaults:
           run:
-              working-directory: ${{ inputs.root-module-path }}
+              working-directory: ./${{ inputs.root-module-path }}
         steps:
           - uses: actions/checkout@v4
           # TODO infracost https://github.com/infracost/actions

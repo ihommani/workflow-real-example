@@ -94,6 +94,7 @@ jobs:
                     exit 1
                 fi
 
+                
     infrastructure_cd:
         needs: [guess_deployment_env]
         if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
