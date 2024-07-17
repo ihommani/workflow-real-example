@@ -25,6 +25,15 @@ jobs:
         terraform-version: ${{ inputs.terraform_version }}
         root-module-path : ${{ inputs.targeted_environment }}
 
+    infrastructure_cost:
+      permissions: 
+        pull-requests:  
+          write
+      uses: ./.github/workflows/_terraform_costing.yaml
+      with:
+        terraform-version: ${{ inputs.terraform_version }}
+        root-module-path : ${{ inputs.targeted_environment }}
+
           
       
         

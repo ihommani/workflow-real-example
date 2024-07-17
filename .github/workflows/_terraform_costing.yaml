@@ -1,0 +1,26 @@
+name: Terraform planning
+run-name: '${{ github.actor }} run Terraform code integration'
+
+on:
+    workflow_call:
+        inputs:
+            root-module-path:
+                description: Path of the terraform root module to apply linting on
+                type: string
+                required: true
+            terraform-version:
+                description: Terraform version to install
+                required: true
+                type: string
+
+jobs:
+
+    updated-infrastructure-cost:
+        runs-on: ubuntu-22.04
+        defaults:
+          run:
+              working-directory: ./${{ inputs.root-module-path }}
+        steps:
+          - uses: actions/checkout@v4
+          # TODO infracost https://github.com/infracost/actions
+                
