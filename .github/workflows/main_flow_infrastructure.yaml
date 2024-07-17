@@ -68,7 +68,7 @@ jobs:
             pull-requests: 
                 write
         with:
-            targeted_environment: './infrastructure/${{ needs.guess_env.outputs.environment }}'   
+            targeted_environment: './infrastructure/${{ needs.guess_env_to_plan.outputs.environment }}'   
 
 
     guess_deployment_env:
@@ -94,7 +94,7 @@ jobs:
                     exit 1
                 fi
 
-                
+
     infrastructure_cd:
         needs: [guess_deployment_env]
         if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
@@ -103,4 +103,4 @@ jobs:
             pull-requests: 
                 write
         with:
-            root_module_path: './infrastructure/${{ needs.guess_env.outputs.environment }}'
+            root_module_path: './infrastructure/${{ needs.guess_deployment_env.outputs.environment }}'
