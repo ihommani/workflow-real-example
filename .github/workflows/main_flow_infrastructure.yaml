@@ -1,17 +1,41 @@
 
-name: Infrastructure deployment
+name: Infrastructure main workflow
 
-run-name: "${{ github.actor }} triggered Infrastructure deployment"
+run-name: '${{ github.actor }} triggered Infrastructure workflow'
 
 on:
-    push: # this logic is part of our git workflow
-        branches: 
+    push:
+        branches:
+             - main 
              - integration
              - staging
              - production
+    pull_request: 
+        branches: 
+            - integration
+            - staging
+            - production
+        paths: 
+            - infrastructure/**.tf
 
 jobs:
+
+    infrastructure_ci:
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        uses: ./.github/workflows/infrastructure_ci.yaml
+
+    infrastructure_plan:
+        if: github.event_name == 'pull_request'
+        needs: [guess_env]
+        uses: ./.github/workflows/infrastructure_plan.yaml
+        permissions: 
+            pull-requests: 
+                write
+        with:
+            root_module_path: './infrastructure/${{ needs.guess_env.outputs.environment }}'   
+
     guess_env:
+        if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
         runs-on: ubuntu-22.04
         outputs:
             environment: ${{ steps.guess_env.outputs.environment }}
@@ -19,7 +43,7 @@ jobs:
             - name: guess environment
               id: guess_env
               shell: bash
-              run: | # this logic is part of our git workflow
+              run: |- 
                 if [ ${{ github.ref_name }} = "integration" ]; then
                     echo "integration"
                     echo 'environment=integration' >> "$GITHUB_OUTPUT"
@@ -35,6 +59,7 @@ jobs:
 
     infrastructure_cd:
         needs: [guess_env]
+        if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
         uses: ./.github/workflows/infrastructure_cd.yaml
         permissions: 
             pull-requests: 

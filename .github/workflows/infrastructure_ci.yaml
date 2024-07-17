@@ -7,6 +7,11 @@ on:
             - main
             - release
             - release/**
+            - integration
+            - staging
+            - production
+        paths: 
+            - infrastructure/**
     workflow_call:
       inputs:
         terraform_version:
@@ -24,7 +29,7 @@ jobs:
           **/*.tf
         get_folders: true
 
-
+        
     infrastructure_integration:
       needs: check_sources_change
       if: ${{ needs.check_sources_change.outputs.is_modified_files == 'true' }}
