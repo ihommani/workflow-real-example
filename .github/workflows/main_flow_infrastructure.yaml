@@ -30,6 +30,7 @@ jobs:
         steps:
             - name: Forbid random branches to merge into env branches 
               id: not_allowed_source_branch
+              shell: bash
               run: |-
                 [ "${{ github.head_ref }}" != "main" ] && exit 1
 
