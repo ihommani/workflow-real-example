@@ -32,7 +32,8 @@ jobs:
               id: not_allowed_source_branch
               shell: bash
               run: |-
-                [ "${{ github.head_ref }}" != "main" ] && exit 1
+                if [ ${{ github.head_ref }} != "main" ]; then
+                    exit 1
 
 
     infrastructure_plan:
