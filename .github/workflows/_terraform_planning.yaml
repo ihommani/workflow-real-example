@@ -28,7 +28,7 @@ jobs:
         runs-on: ubuntu-22.04
         defaults:
             run:
-                working-directory: ${{ inputs.root-module-path }}
+                working-directory: ./${{ inputs.root-module-path }}
         permissions: 
             pull-requests: write
         steps:
@@ -39,6 +39,10 @@ jobs:
               uses: hashicorp/setup-terraform@v3
               with:
                 terraform_version: ${{ inputs.terraform-version }}
+
+            - name: current dir
+              id: current_dir
+              run: echo $(pwd)
 
             - name: Terraform init
               id: terraform_init
