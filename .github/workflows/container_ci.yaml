@@ -7,6 +7,9 @@ on:
             - main
             - release
             - release/**
+        paths: 
+          - frontend/**
+          - backend/**
     workflow_call:
 
 jobs:

@@ -15,10 +15,7 @@ on:
 
 jobs:
 
-    infrastructure_cost:
-      runs-on: ubuntu-22.04
-
-    updated-cost:
+    updated-infrastructure-cost:
         runs-on: ubuntu-22.04
         defaults:
           run:

@@ -10,6 +10,9 @@ on:
              - release
         tags:
             - v*.*.*
+        paths: 
+            - frontend/**
+            - backend/**
     # workflow_dispatch: # TODO : integrate the production logic inside this workflow. (too many if ? )
     # What can be done with workflow_run event ? 
     
