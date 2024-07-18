@@ -1,4 +1,4 @@
-provider google {
+provider "google" {
   impersonate_service_account = "workflow-real-example-tf@gde-ihommani.iam.gserviceaccount.com"
 }
 

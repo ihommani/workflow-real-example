@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
-    bucket = "gde-ihommani-tf-state"
-    prefix = "workflow-real-example-sta/"
+    bucket                      = "gde-ihommani-tf-state"
+    prefix                      = "workflow-real-example-sta/"
     impersonate_service_account = "workflow-real-example-tf@gde-ihommani.iam.gserviceaccount.com"
   }
 }
