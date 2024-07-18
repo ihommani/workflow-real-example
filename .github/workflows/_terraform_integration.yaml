@@ -33,6 +33,18 @@ jobs:
               run: terraform fmt -check
               continue-on-error: false
 
+              # TODO: document web-app factory with this link: https://developer.hashicorp.com/terraform/language/modules/develop/composition
+
+            - name: Authenticate to gcp workload identity pool
+              id: auth_to_google
+              uses: 'google-github-actions/auth@v2'
+              with:
+                  workload_identity_provider: https://developer.hashicorp.com/terraform/language/modules/develop/composition
+                  service_account: workflow-real-example-gh@gde-ihommani.iam.gserviceaccount.com
+                  token_format: access_token # maybe not needed. Try commented out. 
+                  access_token_lifetime: 300s
+                  create_credentials_file: true 
+
             - name: Terraform init
               id: init
               run: terraform init
@@ -40,12 +52,6 @@ jobs:
             - name: Terraform validate
               id: validate
               run: terraform validate -no-color
-            
-            # - name: Terraform plan
-            #   id: plan
-            #   run: terraform plan -no-color
-            #   continue-on-error: true
-
             
     terraform_compliancy:
       needs: terraform-basic-checks

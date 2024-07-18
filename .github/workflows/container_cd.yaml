@@ -156,7 +156,7 @@ jobs:
               service_account: ${{ inputs.service_account_to_impersonate }}
               token_format: access_token
               access_token_lifetime: 300s
-              create_credentials_file: true
+              create_credentials_file: true # maybe not needed. Try commented out. 
 
         - name: Filter Dockerfile to_build status
           id: is_image_to_build_status
