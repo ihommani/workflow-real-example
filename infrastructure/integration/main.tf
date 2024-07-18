@@ -8,8 +8,15 @@ resource "null_resource" "default" {
   }
 }
 
+resource "google_project_service" "project" {
+  project = "gde-ihommani"
+  service = "run.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 resource "google_cloud_run_service" "default" {
-  name     = "cloudrun-srv"
+  name     = "frontend"
   location = "europe-west1"
   project  = "gde-ihommani"
 
