@@ -8,6 +8,13 @@ resource "null_resource" "default" {
   }
 }
 
+resource "google_project_service" "project" {
+  project = "gde-ihommani"
+  service = "run.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 resource "google_project_service" "gce" {
   project = "gde-ihommani"
   service = "run.googleapis.com"
