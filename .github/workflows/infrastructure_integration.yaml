@@ -34,8 +34,9 @@ jobs:
       needs: check_sources_change
       if: ${{ needs.check_sources_change.outputs.is_modified_files == 'true' }}
       permissions: 
-        pull-requests:  
-          write
+        pull-requests: write
+        contents: read
+        id-token: write
       uses: ./.github/workflows/_terraform_integration.yaml
       strategy:
         fail-fast: false
@@ -44,7 +45,6 @@ jobs:
       with:
         terraform-version: ${{ inputs.terraform_version != '' && inputs.terraform_version || '1.7' }}
         root-module-path : ${{ matrix.root_module_path }}
-
           
       
         

@@ -14,13 +14,36 @@ on:
                 type: string
 
 jobs:
+    extract_environment_from_module_path:
+        runs-on: ubuntu-22.04
+        outputs:
+            environment: ${{ steps.extract_environment.outputs.environment }}
+        defaults:
+            run:
+                working-directory: ${{ inputs.root-module-path }}
+        steps:
+          - name: Checkout sources
+            uses: actions/checkout@v4
+
+          - name: extract environment
+            id: extract_environment
+            run: |-
+              echo $(basename $(pwd))
+              echo "environment=$(basename $(pwd))" >> $GITHUB_OUTPUT
+         
+
     terraform-basic-checks:
+        needs: extract_environment_from_module_path
+        environment: 
+          name: ${{ needs.extract_environment_from_module_path.outputs.environment }}
         runs-on: ubuntu-22.04
         defaults:
             run:
                 working-directory: ${{ inputs.root-module-path }}
         permissions: 
             pull-requests: write
+            contents: read
+            id-token: write
         steps:
             - uses: actions/checkout@v4
 
@@ -33,16 +56,12 @@ jobs:
               run: terraform fmt -check
               continue-on-error: false
 
-              # TODO: document web-app factory with this link: https://developer.hashicorp.com/terraform/language/modules/develop/composition
-
             - name: Authenticate to gcp workload identity pool
               id: auth_to_google
               uses: 'google-github-actions/auth@v2'
               with:
-                  workload_identity_provider: https://developer.hashicorp.com/terraform/language/modules/develop/composition
-                  service_account: workflow-real-example-gh@gde-ihommani.iam.gserviceaccount.com
-                  token_format: access_token # maybe not needed. Try commented out. 
-                  access_token_lifetime: 300s
+                  workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+                  service_account: ${{ vars.SA_TO_IMPERSONATE }}
                   create_credentials_file: true 
 
             - name: Terraform init

@@ -20,9 +20,10 @@ on:
 
 jobs:
 
-    infrastructure_ci:
+    infrastructure_integration:
         if: github.event_name == 'push' && github.ref_name == 'main'
-        uses: ./.github/workflows/infrastructure_ci.yaml
+        uses: ./.github/workflows/infrastructure_integration.yaml
+
 
     forbid_pull_request_to_env_branches_from_other_branch_than_main:
         if: github.event_name == 'pull_request'
@@ -36,71 +37,50 @@ jobs:
                     exit 1
                 fi
 
-    guess_env_to_plan:
+
+    get_plan_env:
         if: github.event_name == 'pull_request'
         runs-on: ubuntu-22.04
         outputs:
-            environment: ${{ steps.guess_env.outputs.environment }}
+            environment: ${{ steps.get_env.outputs.plan_environment }}
         steps:
-            - name: guess environment
-              id: guess_env
-              shell: bash
-              run: |- 
-                if [ ${{ github.base_ref }} = "integration" ]; then
-                    echo "integration"
-                    echo 'environment=integration' >> "$GITHUB_OUTPUT"
-                elif [ ${{ github.base_ref }} = "staging" ]; then
-                    echo "staging"
-                    echo 'environment=staging' >> "$GITHUB_OUTPUT"
-                elif [[ ${{ github.base_ref }} = "production" ]]; then
-                    echo "production"
-                    echo 'environment=production' >> "$GITHUB_OUTPUT"
-                else
-                    exit 1
-                fi
+            - name: Checkout sources
+              uses: actions/checkout@v4
 
+            - name: get environment
+              id: get_env
+              uses: ./.github/actions/get_infrastructure_flow_env
 
     infrastructure_plan:
         if: github.event_name == 'pull_request'
-        needs: [guess_env_to_plan]
+        needs: [get_plan_env]
         uses: ./.github/workflows/infrastructure_plan.yaml
         permissions: 
             pull-requests: 
                 write
         with:
-            targeted_environment: './infrastructure/${{ needs.guess_env_to_plan.outputs.environment }}'   
+            targeted_environment: './infrastructure/${{ needs.get_plan_env.outputs.environment }}'   
 
 
-    guess_deployment_env:
+    get_deploy_env:
         if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
         runs-on: ubuntu-22.04
         outputs:
-            environment: ${{ steps.guess_env.outputs.environment }}
+            environment: ${{ steps.get_env.outputs.deploy_environment }}
         steps:
-            - name: guess environment
-              id: guess_env
-              shell: bash
-              run: |- 
-                if [ ${{ github.ref_name }} = "integration" ]; then
-                    echo "integration"
-                    echo 'environment=integration' >> "$GITHUB_OUTPUT"
-                elif [ ${{ github.ref_name }} = "staging" ]; then
-                    echo "staging"
-                    echo 'environment=staging' >> "$GITHUB_OUTPUT"
-                elif [[ ${{ github.ref_name }} = "production" ]]; then
-                    echo "production"
-                    echo 'environment=production' >> "$GITHUB_OUTPUT"
-                else
-                    exit 1
-                fi
+            - name: Checkout sources
+              uses: actions/checkout@v4
 
+            - name: get environment
+              id: get_env
+              uses: ./.github/actions/get_infrastructure_flow_env
 
-    infrastructure_cd:
-        needs: [guess_deployment_env]
+    infrastructure_deployment:
+        needs: [get_deploy_env]
         if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
-        uses: ./.github/workflows/infrastructure_cd.yaml
+        uses: ./.github/workflows/infrastructure_deployment.yaml
         permissions: 
             pull-requests: 
                 write
         with:
-            root_module_path: './infrastructure/${{ needs.guess_deployment_env.outputs.environment }}'
+            root_module_path: './infrastructure/${{ needs.get_deploy_env.outputs.environment }}'

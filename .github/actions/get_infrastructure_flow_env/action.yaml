@@ -1,0 +1,51 @@
+name: Get infrastructure flow environment
+description: |-
+  Composite action to mutualize the logic of getting Github environment on both plan and deploy situations
+
+outputs:
+  deploy_environment: 
+      description: infrastructure deployment associated environment
+      value: ${{ steps.get_deploy_env.outputs.environment }}
+  plan_environment: 
+      description: infrastructure plan associated environment
+      value: ${{ steps.get_plan_env.outputs.environment }}
+
+
+runs:
+    using: composite
+    steps:
+        - if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name) 
+          name: get infrastructure deployment env
+          id: get_deploy_env
+          shell: bash
+          run: |- 
+            if [ ${{ github.ref_name }} = "integration" ]; then
+                echo "integration"
+                echo 'environment=integration' >> "$GITHUB_OUTPUT"
+            elif [ ${{ github.ref_name }} = "staging" ]; then
+                echo "staging"
+                echo 'environment=staging' >> "$GITHUB_OUTPUT"
+            elif [[ ${{ github.ref_name }} = "production" ]]; then
+                echo "production"
+                echo 'environment=production' >> "$GITHUB_OUTPUT"
+            else
+                exit 1
+            fi
+
+        - if: github.event_name == 'pull_request' 
+          name: get infrastructure plan environment
+          id: get_plan_env
+          shell: bash
+          run: |- 
+            if [ ${{ github.ref_name }} = "integration" ]; then
+                echo "integration"
+                echo 'environment=integration' >> "$GITHUB_OUTPUT"
+            elif [ ${{ github.ref_name }} = "staging" ]; then
+                echo "staging"
+                echo 'environment=staging' >> "$GITHUB_OUTPUT"
+            elif [[ ${{ github.ref_name }} = "production" ]]; then
+                echo "production"
+                echo 'environment=production' >> "$GITHUB_OUTPUT"
+            else
+                exit 1
+            fi

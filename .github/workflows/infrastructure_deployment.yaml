@@ -1,5 +1,5 @@
-name: Infrastructure continuous deployment
-run-name: '${{ github.actor }} triggers infrastructure continuous integration'
+name: Infrastructure deployment
+run-name: '${{ github.actor }} triggers infrastructure deployment'
 
 on:
     workflow_call:

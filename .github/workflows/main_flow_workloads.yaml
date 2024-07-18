@@ -19,33 +19,20 @@ on:
     
 jobs:
 
-    guess_env:
+    get_env:
         runs-on: ubuntu-22.04
         outputs:
-            environment: ${{ steps.guess_env.outputs.environment }}
+            environment: ${{ steps.get_env.outputs.environment }}
         steps:
             - name: guess environment
-              id: guess_env
-              shell: bash
-              run: | # this logic is part of our git workflow
-                if [ ${{ github.ref_name }} = "main" ]; then
-                    echo "integration"
-                    echo 'environment=integration' >> "$GITHUB_OUTPUT"
-                elif [ ${{ github.ref_name }} = "release" ]; then
-                    echo "staging"
-                    echo 'environment=staging' >> "$GITHUB_OUTPUT"
-                elif [[ ${{ github.ref_type }} = "tag" && ${{ github.ref_name }} =~ ^v\d*(.\d*.\d*)? ]]; then # TODO: to change: should check the event trigger type which has to be a worklaod dispatch
-                    echo "production"
-                    echo 'environment=production' >> "$GITHUB_OUTPUT"
-                else
-                    echo 'environment="integration"' >> "$GITHUB_OUTPUT"
-                fi
+              id: get_env
+              uses: actions/get_workload_flow_env@v1
 
     # TODO: documenter dans le README pk la CI n'est pas souhaitable pour des contextes où l'output est une image docker agnostique de l'env, alors qu'elle l'est sur la partie infra (config et couts différents par env, )
     # => CCL: lifecycle of terraform and app code should live in their own workflows
     frontend_ci:
-        needs: guess_env
-        if: contains(fromJSON('["integration"]'), needs.guess_env.outputs.environment)
+        needs: get_env
+        if: contains(fromJSON('["integration"]'), needs.get_env.outputs.environment)
         permissions: 
             pull-requests: 
                 write
@@ -53,22 +40,22 @@ jobs:
 
 
     backend_ci:
-        needs: guess_env
-        if: contains(fromJSON('["integration"]'), needs.guess_env.outputs.environment)
+        needs: get_env
+        if: contains(fromJSON('["integration"]'), needs.get_env.outputs.environment)
         uses: ./.github/workflows/backend_ci.yaml
 
 
     container_ci:
-        needs: guess_env
-        if: contains(fromJSON('["integration"]'), needs.guess_env.outputs.environment)
+        needs: get_env
+        if: contains(fromJSON('["integration"]'), needs.get_env.outputs.environment)
         uses: ./.github/workflows/container_ci.yaml
 
     # See comment on 'container_cd' job to understand why we need this taskcontainer_cd
-    collect_env_variables_of_interest:
-            needs: guess_env
+    collect_env_variables_of_interest: # TODO: use get_env_var_of_interest
+            needs: get_env
             runs-on: ubuntu-22.04
             environment:
-                name: ${{ needs.guess_env.outputs.environment }}
+                name: ${{ needs.get_env.outputs.environment }}
             outputs:
                 project_id: ${{ steps.get_project_id.outputs.project_id }}
                 repository_id: ${{ steps.get_repository_id.outputs.repository_id }}

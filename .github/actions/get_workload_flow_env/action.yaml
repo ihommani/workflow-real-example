@@ -1,0 +1,29 @@
+name: Get workload flow environment
+description: |-
+  Composite action to mutualize the logic of getting Github environment 
+
+outputs:
+  environment: 
+      description: associated workflow environment
+      value: ${{ steps.guess_env.outputs.environment }}
+
+
+runs:
+    using: composite
+    steps:
+        - name: guess environment
+          id: guess_env
+          shell: bash
+          run: |
+            if [ ${{ github.ref_name }} = "main" ]; then
+                echo "integration"
+                echo 'environment=integration' >> "$GITHUB_OUTPUT"
+            elif [ ${{ github.ref_name }} = "release" ]; then
+                echo "staging"
+                echo 'environment=staging' >> "$GITHUB_OUTPUT"
+            elif [[ ${{ github.ref_type }} = "tag" && ${{ github.ref_name }} =~ ^v\d*(.\d*.\d*)? ]]; then # TODO: to change: should check the event trigger type which has to be a worklaod dispatch
+                echo "production"
+                echo 'environment=production' >> "$GITHUB_OUTPUT"
+            else
+                echo 'environment="integration"' >> "$GITHUB_OUTPUT"
+            fi
