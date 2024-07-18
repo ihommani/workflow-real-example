@@ -18,8 +18,9 @@ jobs:
     
     infrastructure_plan:
       permissions: 
-        pull-requests:  
-          write
+        pull-requests: write
+        contents: read
+        id-token: write
       uses: ./.github/workflows/_terraform_planning.yaml
       with:
         terraform-version: ${{ inputs.terraform_version }}

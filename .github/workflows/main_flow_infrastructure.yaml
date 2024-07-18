@@ -56,8 +56,9 @@ jobs:
         needs: [get_plan_env]
         uses: ./.github/workflows/infrastructure_plan.yaml
         permissions: 
-            pull-requests: 
-                write
+            pull-requests: write
+            contents: read
+            id-token: write
         with:
             targeted_environment: './infrastructure/${{ needs.get_plan_env.outputs.environment }}'   
 
@@ -75,12 +76,14 @@ jobs:
               id: get_env
               uses: ./.github/actions/get_infrastructure_flow_env
 
+
     infrastructure_deployment:
         needs: [get_deploy_env]
         if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
         uses: ./.github/workflows/infrastructure_deployment.yaml
         permissions: 
-            pull-requests: 
-                write
+            pull-requests: write
+            contents: read
+            id-token: write
         with:
             root_module_path: './infrastructure/${{ needs.get_deploy_env.outputs.environment }}'

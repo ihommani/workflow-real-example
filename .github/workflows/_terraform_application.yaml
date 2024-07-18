@@ -14,19 +14,50 @@ on:
                 type: string
 
 jobs:
+
+    extract_environment_from_module_path:
+      runs-on: ubuntu-22.04
+      outputs:
+          environment: ${{ steps.extract_environment.outputs.environment }}
+      defaults:
+          run:
+              working-directory: ${{ inputs.root-module-path }}
+      steps:
+        - name: Checkout sources
+          uses: actions/checkout@v4
+
+        - name: extract environment
+          id: extract_environment
+          run: |-
+            echo $(basename $(pwd))
+            echo "environment=$(basename $(pwd))" >> $GITHUB_OUTPUT
+
     terraform-apply:
+        needs: extract_environment_from_module_path
+        environment: 
+          name: ${{ needs.extract_environment_from_module_path.outputs.environment }}
         runs-on: ubuntu-22.04
         defaults:
             run:
                 working-directory: ${{ inputs.root-module-path }}
         permissions: 
             pull-requests: write
+            contents: read
+            id-token: write
         steps:
             - uses: actions/checkout@v4
 
             - uses: hashicorp/setup-terraform@v3
               with:
                 terraform_version: ${{ inputs.terraform-version }}
+
+            - name: Authenticate to gcp workload identity pool
+              id: auth_to_google
+              uses: 'google-github-actions/auth@v2'
+              with:
+                  workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+                  service_account: ${{ vars.SA_TO_IMPERSONATE }}
+                  create_credentials_file: true 
                 
             - name: Terraform init
               id: init
