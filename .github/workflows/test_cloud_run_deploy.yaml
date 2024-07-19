@@ -22,5 +22,10 @@ jobs:
               with:
                   workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
                   service_account: ${{ vars.SA_TO_IMPERSONATE }}
-                  create_credentials_file: true 
+                  create_credentials_file: true
+
+            - uses: 'google-github-actions/deploy-cloudrun@v2'
+              with:
+                  image: 'gcr.io/cloudrun/hello'
+                  service: 'hello-cloud-run'
   
