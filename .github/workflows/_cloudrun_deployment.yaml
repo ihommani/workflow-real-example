@@ -6,7 +6,7 @@ on:
     workflow_call: 
         inputs:
             service_name:
-                description: Cloud Run service naem to deploy
+                description: Cloud Run service name to deploy
                 type: string
                 required: true
             image:
