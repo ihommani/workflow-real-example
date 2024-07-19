@@ -4,7 +4,7 @@ provider "google" {
 
 resource "null_resource" "default" {
   provisioner "local-exec" {
-    command = "echo 'Hello integration, how are you'"
+    command = "echo 'Hello integration, how are you!!'"
   }
 }
 
@@ -25,7 +25,7 @@ resource "google_project_service" "gce" {
 resource "google_cloud_run_v2_service" "frontend" {
   name     = "cloudrun-service"
   location = "europe-west1"
-  ingress = "INGRESS_TRAFFIC_ALL"
+  ingress  = "INGRESS_TRAFFIC_ALL"
 
   template {
     containers {
