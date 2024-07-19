@@ -24,8 +24,12 @@ jobs:
                   service_account: ${{ vars.SA_TO_IMPERSONATE }}
                   create_credentials_file: true
 
-            - uses: 'google-github-actions/deploy-cloudrun@v2'
+
+            - name: 'Set up Cloud SDK'
+              uses: 'google-github-actions/setup-gcloud@v2'
               with:
-                  image: 'gcr.io/cloudrun/hello'
-                  service: 'hello-cloud-run'
+                version: '>= 363.0.0'
+
+            - name: 'Use gcloud CLI'
+              run: 'gcloud info'
   
