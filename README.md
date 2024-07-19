@@ -1,3 +1,5 @@
+[![Infrastructure main workflow](https://github.com/ihommani/workflow-real-example/actions/workflows/main_flow_infrastructure.yaml/badge.svg?branch=integration)](https://github.com/ihommani/workflow-real-example/actions/workflows/main_flow_infrastructure.yaml)
+
 # workflow-real-example
 Test github action workflow strategy using the following guidance elements:  
 * Workflow reuse to mutualize logic
