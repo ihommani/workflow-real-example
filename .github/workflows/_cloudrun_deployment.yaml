@@ -5,7 +5,10 @@ run-name: '${{ github.event_name }} needs to look for source changes'
 on:
     workflow_call: 
         inputs:
-            service_name:
+            type:
+                description: 'Cloud run type: service or job. Possible values are "job" or "service"'
+                type: string
+            name:
                 description: Cloud Run service name to deploy
                 type: string
                 required: true
@@ -13,8 +16,14 @@ on:
                 description: fully qualified name of the image associated to the service
                 type: string
                 required: true
+            
 
 jobs:
+
+    # list all the services name
+    # list all the jobs name
+    # for each list, do the matrix strategy for each service or job
+
     deploy_service:
         runs-on: ubuntu-22.04
         steps:
