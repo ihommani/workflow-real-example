@@ -111,7 +111,8 @@ jobs:
             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
 
 
-    ## TODO: to complete. Set as input the environment. if env is production, the triggering event is to be a workflow dispatch. Otherwise, push. And if production, the dispatch must be done on a tag abiding by the pattern: vx.y.z 
+    # TODO: to complete. Set as input the environment. if env is production, the triggering event is to be a workflow dispatch.
+    # Otherwise, push. And if production, the dispatch must be done on a tag abiding by the pattern: vx.y.z 
     workloads_deployment:
         needs: container_cd
         uses: ./.github/workflows/workloads_deployment.yaml
