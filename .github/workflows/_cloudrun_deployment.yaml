@@ -26,9 +26,16 @@ jobs:
         steps:
             - name: Get Cloud Run type
               id: cloud_run_type
-              # TODO: implement the logic here
               run: |-
-                echo "type=job" >> $GITHUB_OUTPUT
+                if [[ ${{ inputs.docker_file_path }} =~ '^.*/Dockerfile$' ]]
+                    echo "service"
+                    echo "type=service" >> $GITHUB_OUTPUT
+                elif [[ ${{ inputs.docker_file_path }} =~ '^.*/Dockerfile_.*$' ]]
+                    echo "job"
+                    echo "type=job" >> $GITHUB_OUTPUT
+                else
+                    echo "Path ${{ inputs.docker_file_path }} is not valid. Should end with 'Dockerfile' or 'Dockerfile_[job_name]'"
+                fi          
 
 
     get_env_variable_path:
