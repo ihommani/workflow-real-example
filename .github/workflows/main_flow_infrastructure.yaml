@@ -1,6 +1,5 @@
 
-name: Infrastructure main workflow
-
+name: Infrastructure continuous integration and deployment
 run-name: '${{ github.actor }} triggered Infrastructure workflow'
 
 on:
@@ -87,3 +86,5 @@ jobs:
             id-token: write
         with:
             root_module_path: './infrastructure/${{ needs.get_deploy_env.outputs.environment }}'
+
+    # TODO: final job : push the badge status. This task should always run even in case of previous task failure

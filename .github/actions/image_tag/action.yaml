@@ -15,7 +15,10 @@ inputs:
         description: |-
           Tagged image name
         required: true
-
+    semver_tag:
+      description: |-
+        Semver compliant tag to apply
+      required: false
 
 runs:
     using: "composite"
@@ -49,13 +52,30 @@ runs:
           id: delete_tag_latest_if_exist
           continue-on-error: true
           shell: bash
-          run: |
+          run: |-
             echo "Deleting tag latest"
             gcloud artifacts docker tags delete ${{ inputs.image_name }}:latest
 
         - name: Align tag latest to the current sha1 tag
           id: align_tag_latest
           shell: bash
-          run: |
+          run: |-
             echo "Align tag latest to the current sha1 tag"
             gcloud artifacts docker tags add ${{ inputs.image_name }}:${{ github.sha }} ${{ inputs.image_name }}:latest
+          
+        - name: Delete semver tag if exist
+          if: inputs.semver_tag != ''
+          id: delete_semver
+          continue-on-error: true
+          shell: bash
+          run: |-
+            echo "Trying to delete tag ${{ inputs.semver_tag }}"
+            gcloud artifacts docker tags delete ${{ inputs.image_name }}:${{ inputs.semver_tag }}
+
+        - name: Adding semver tag if exist
+          if: inputs.semver_tag != ''
+          id: adding_semver_tag
+          shell: bash
+          run: |-
+            echo "Adding tag ${{ inputs.semver_tag }}"
+            gcloud artifacts docker tags add ${{ inputs.image_name }}:${{ inputs.semver_tag }}

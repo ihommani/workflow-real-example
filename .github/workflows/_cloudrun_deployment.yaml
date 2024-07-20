@@ -5,29 +5,67 @@ run-name: '${{ github.event_name }} needs to look for source changes'
 on:
     workflow_call: 
         inputs:
-            type:
-                description: 'Cloud run type: service or job. Possible values are "job" or "service"'
+            environment: 
+                description: 'On which environment to deploy the '
                 type: string
-            name:
-                description: Cloud Run service name to deploy
+            tag:
+                description: 'which tag to apply'
                 type: string
-                required: true
-            image:
-                description: fully qualified name of the image associated to the service
+                required: false
+                default: latest
+            docker_file_path:
+                description: 'File path reprensenting the service or job to deploy. Needed to infer the real service/job name.'
                 type: string
-                required: true
-            
+
 
 jobs:
+    get_cloud_run_type: # job or service
+        runs-on: ubuntu
+        outputs:
+            cloud_run_type: ${{ steps.cloud_run_type.outputs.type }}
+        steps:
+            - name: Get Cloud Run type
+              id: cloud_run_type
+              # TODO: implement the logic here
+              run: |-
+                echo "type=job" >> $GITHUB_OUTPUT
 
-    # list all the services name
-    # list all the jobs name
-    # for each list, do the matrix strategy for each service or job
 
-    deploy_service:
+    get_env_variable_path:
+        runs-on: ubuntu
+        outputs:
+            cloud_run_type: ${{ steps.definition_file.outputs.path }}
+        steps:
+            - name: Get Cloud Run env variable definition file
+              id: definition_file
+              # TODO: implement the logic here
+              run: |-
+                echo "path=.env.cloudrun.int" >> $GITHUB_OUTPUT
+
+    get_service_or_job_name:
+        needs: get_cloud_run_type
+        environment: # Needed for the gcloud command --project and artifactory id
+          name: ${{ inputs.environment }}
+        runs-on: ubuntu-22.04
+        outputs:
+            name: ${{ steps.get_service_name.outputs.name }}
+        steps:
+          - name: get service name
+            id: get_service_name
+            # we list jobs or services with format='csv(name)' option and grep the name in the list. If none is found we fail. "Contact infrastructure team"
+            run: |-
+              echo "name=toto" >> $GITHUB_OUTPUT
+
+    # altough we have a market place action, it has not enough added value to justify its usage: https://github.com/google-github-actions/deploy-cloudrun
+    deploy_service_or_job:
+        needs: get_service_or_job_name
+        environment: 
+            name: ${{ inputs.environment }}
         runs-on: ubuntu-22.04
         steps:
-            - name: todo
-              run: |-
-                echo "TODO" #https://github.com/google-github-actions/deploy-cloudrun
+            - name: deploying cloud run
+              id: deploy_cloud_run
+              run: |- # on production, we do not not redirect traffic. Must be done through the console first. Later would be done by a dedicated workload.
+                echo "deploting cloud run"
             
+# final task: set the badge with the deployed version tag for each jobs and service 

@@ -1,7 +1,7 @@
 name: Containers continuous delivery
 run-name: '${{ github.actor }} triggers containers continuous delivery'
 
-# TODO: export this file in _docker_delivery.yaml and encapsulate it's call here.
+# TODO: export this file in _docker_delivery.yaml and encapsulate it's call here. --> maybe an exception here
 on:
     workflow_call:
       inputs:
@@ -37,6 +37,13 @@ on:
             Region of the concrete artifactory service
           required: true
           type: string
+        environment: 
+          description: |-
+            Context of the deployment
+          required: true
+          type: string
+        # set envinronment as input to compute the semver tag and set it. Computation should take as input the {major, minor, patch} elemnet
+        # from somewhere. Commit message of the merge commit ? --> could be. By default it's minor
 
 jobs:
     check_sources_change:
@@ -131,7 +138,7 @@ jobs:
 
     build_push_image:
       runs-on: ubuntu-22.04
-      needs: [get_docker_files, build_status_per_dockerfile, matrix_read]
+      needs: [get_docker_files, build_status_per_dockerfile, matrix_read] # TODO: check if we can remote build_status_per_docker_file from the list. Normally yes
       permissions: 
         contents: 'read'
         id-token: 'write'
@@ -183,6 +190,16 @@ jobs:
             registry_id: ${{ inputs.region }}-docker.pkg.dev
             access_token: ${{ steps.auth_to_google.outputs.access_token }}
 
+        # TODO: if environment is staging, compute and set the version tag vx.y.z. get the commit message content to decide the computation
+        # https://github.com/ietf-tools/semver-action?tab=readme-ov-file#example-workflow
+        - name: Compute semver next version
+          id: compute_semver_next_version
+          if: contains('staging', inputs.environment) 
+          uses: ietf-tools/semver-action@v1
+          with:
+            token: ${{ github.token }}
+            branch: release 
+          
         - name: Image tagging
           id: image_tagging
           uses: ./.github/actions/image_tag
@@ -190,3 +207,4 @@ jobs:
             workload_identity_provider: ${{ inputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }}
             image_name: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ steps.infer-image-name.outputs.image_name }}
+            semver_tag:  ${{ steps.compute_semver_next_version.outputs.next }}

@@ -1,5 +1,5 @@
-name: Backend continuous integration
-run-name: '${{ github.actor }} triggers backend continuous integration'
+name: Backend integration
+run-name: '${{ github.actor }} triggers backend integration'
 
 on:
     push: 
