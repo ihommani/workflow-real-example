@@ -11,5 +11,5 @@ jobs:
       uses: ./.github/workflows/_cloudrun_deployment.yaml
       with:
           environment: integration
-          tag: tag
+          tag: latest
           docker_file_path: ./frontend/Dockerfile

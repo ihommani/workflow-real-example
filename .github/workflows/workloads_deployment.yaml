@@ -32,8 +32,6 @@ jobs:
     uses: ./github/workflows/_cloudrun_deployment.yaml
 
 
-  
-
     # list all the services name --> we take the assumption that there is only 2 service : frontend and backend
     # whatever happens, we deploy on the current sha1
     # we have as env variable FRONTEND_SERVICE_NAME, BACKEND_SERVICE_NAME

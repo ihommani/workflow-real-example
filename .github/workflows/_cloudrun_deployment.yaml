@@ -5,7 +5,7 @@ run-name: '${{ github.event_name }} needs to look for source changes'
 on:
     workflow_call: 
         inputs:
-            environment: 
+            environment: # TODO: replace witht the env variable name of interest
                 description: 'On which environment to deploy the '
                 type: string
             tag:
@@ -19,27 +19,28 @@ on:
 
 
 jobs:
-    get_cloud_run_type: # job or service
-        runs-on: ubuntu
+    get_cloud_run_type: 
+        runs-on: ubuntu-22.04
         outputs:
             cloud_run_type: ${{ steps.cloud_run_type.outputs.type }}
         steps:
             - name: Get Cloud Run type
               id: cloud_run_type
               run: |-
-                if [[ ${{ inputs.docker_file_path }} =~ '^.*/Dockerfile$' ]]
+                if [[ ${{ inputs.docker_file_path }} =~ ^.*/Dockerfile$ ]]; then
                     echo "service"
                     echo "type=service" >> $GITHUB_OUTPUT
-                elif [[ ${{ inputs.docker_file_path }} =~ '^.*/Dockerfile_.*$' ]]
+                elif [[ ${{ inputs.docker_file_path }} =~ ^.*/Dockerfile_.*$ ]]; then
                     echo "job"
                     echo "type=job" >> $GITHUB_OUTPUT
                 else
-                    echo "Path ${{ inputs.docker_file_path }} is not valid. Should end with 'Dockerfile' or 'Dockerfile_[job_name]'"
+                    echo "Path '${{ inputs.docker_file_path }}' is not valid. Should end with 'Dockerfile' or 'Dockerfile_[job_name]'"
+                    exit 1
                 fi          
 
 
     get_env_variable_path:
-        runs-on: ubuntu
+        runs-on: ubuntu-22.04
         outputs:
             cloud_run_type: ${{ steps.definition_file.outputs.path }}
         steps:
@@ -47,32 +48,98 @@ jobs:
               id: definition_file
               # TODO: implement the logic here
               run: |-
-                echo "path=.env.cloudrun.int" >> $GITHUB_OUTPUT
+                base_path=$(dirname ${{ inputs.docker_file_path }})
+                path=${base_path}/.env.cloud.${{ inputs.environment }}
+                echo ${path}
+                [ -f ${path} ] && echo "path=$path" >> $GITHUB_OUTPUT || echo "path=''" >> $GITHUB_OUTPUT
 
-    get_service_or_job_name:
+
+    get_service_or_job_base_name:
         needs: get_cloud_run_type
-        environment: # Needed for the gcloud command --project and artifactory id
-          name: ${{ inputs.environment }}
         runs-on: ubuntu-22.04
         outputs:
-            name: ${{ steps.get_service_name.outputs.name }}
+            name: ${{ steps.get_base_name.outputs.name }}
         steps:
-          - name: get service name
-            id: get_service_name
+          - name: get base name
+            id: get_base_name
+            shell: bash
             # we list jobs or services with format='csv(name)' option and grep the name in the list. If none is found we fail. "Contact infrastructure team"
             run: |-
-              echo "name=toto" >> $GITHUB_OUTPUT
+              if [ ${{ needs.get_cloud_run_type.outputs.cloud_run_type }} = job ]; then
+                docker_path=${{ inputs.docker_file_path }}
+                name=${docker_path##*Dockerfile_}
+                echo "job name: '${name}'"
+                echo "name=$name" >> $GITHUB_OUTPUT
+              elif [ ${{ needs.get_cloud_run_type.outputs.cloud_run_type }} = service ]; then
+                name=$(basename $(dirname ${{ inputs.docker_file_path }}))
+                echo "service name: '${name}'"
+                echo "name=$name" >> $GITHUB_OUTPUT
+              else
+                echo "'${{ needs.get_cloud_run_type.outputs.cloud_run_type }}' is no valid cloud run type. Should be 'service' or 'job'"
+                exit 1
+              fi
 
     # altough we have a market place action, it has not enough added value to justify its usage: https://github.com/google-github-actions/deploy-cloudrun
     deploy_service_or_job:
-        needs: get_service_or_job_name
+        needs: [get_cloud_run_type, get_service_or_job_base_name, get_env_variable_path]
+        runs-on: ubuntu-22.04
         environment: 
             name: ${{ inputs.environment }}
-        runs-on: ubuntu-22.04
+        permissions: 
+            contents: read
+            id-token: write
         steps:
-            - name: deploying cloud run
-              id: deploy_cloud_run
+
+            - uses: actions/checkout@v4
+
+            # TODO: set in the dockerignore, the file name generaget
+            - name: Authenticate to gcp workload identity pool
+              id: auth_to_google
+              uses: 'google-github-actions/auth@v2'
+              with:
+                workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }} # TODO: to replace with inputs
+                service_account: ${{ vars.SA_TO_IMPERSONATE }}
+                create_credentials_file: true 
+
+            - name: Get Cloud Run name
+              id: get_cloud_run_name
               run: |- # on production, we do not not redirect traffic. Must be done through the console first. Later would be done by a dedicated workload.
-                echo "deploting cloud run"
+                if [ '${{needs.get_cloud_run_type.outputs.cloud_run_type }}' = 'job' ]; then
+                    matching=$(gcloud run jobs list --format='csv(name)' --project='${{ vars.PROJECT_ID }}' | grep '${{ needs.get_service_or_job_base_name.outputs.name }}')
+                    echo "job name: '${matching}'"
+                    echo "matching=${matching}" >> $GITHUB_OUTPUT
+                elif [ '${{needs.get_cloud_run_type.outputs.cloud_run_type }}' = 'service' ]; then
+                    matching=$(gcloud run services list --format='csv(name)' --project='${{ vars.PROJECT_ID }}' | grep 'hello')
+                    echo "service name: '${matching}'"
+                    echo "matching=${matching}" >> $GITHUB_OUTPUT
+                else
+                    echo "Wrong cloud run type: '${{needs.get_cloud_run_type.outputs.cloud_run_type }}'"
+                    exit 1
+                fi
+            
+            - name: Check service or job image existence
+              id: image_existence
+              run: |-
+                image_path=${{ vars.CLOUD_REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY_ID }}/${{ needs.get_service_or_job_base_name.outputs.name }}:${{ inputs.tag }}
+                gcloud artifacts docker images describe ${image_path}
+                echo "image_path=$image_path" >> $GITHUB_OUTPUT
+
+            - name: Deploy Cloud Run
+              id: deploy_run
+              run: |-
+                image='${{ vars.CLOUD_REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY_ID }}/${{ needs.get_service_or_job_base_name.outputs.name }}:${{ inputs.tag }}'
+                if [ ${{needs.get_cloud_run_type.outputs.cloud_run_type }} = job ]; then
+                    echo "Deploying job '${{ needs.get_service_or_job_base_name.outputs.name }}' on tag ${{ inputs.tag }}"
+                    gcloud run jobs deploy ${{ steps.get_cloud_run_name.outputs.matching }} --project=${{ vars.PROJECT_ID }} --image=${{ steps.image_existence.outputs.image_path }} --region=${{ vars.CLOUD_REGION }}
+                elif [ ${{needs.get_cloud_run_type.outputs.cloud_run_type }} = service && '${{ inputs.environment }}' = 'production' ]; then
+                    echo "Deploying service '${{ needs.get_service_or_job_base_name.outputs.name }}' on tag ${{ inputs.tag }}. Production case: we do not redirect traffic. To be done manually"
+                    gcloud run deploy ${{ steps.get_cloud_run_name.outputs.matching }} --project=${{ vars.PROJECT_ID }} --no-traffic='true' --image=${{ steps.image_existence.outputs.image_path }} --region=${{ vars.CLOUD_REGION }}
+                elif [ ${{needs.get_cloud_run_type.outputs.cloud_run_type }} = service ]; then
+                    echo "Deploying service '${{ needs.get_service_or_job_base_name.outputs.name }}' on tag ${{ inputs.tag }}"
+                    gcloud run deploy ${{ steps.get_cloud_run_name.outputs.matching }} --project='${{ vars.PROJECT_ID }}' --image=${{ steps.image_existence.outputs.image_path }} --region=${{ vars.CLOUD_REGION }}
+                else
+                    echo "Problem while detecting cloud run type. Can only be 'service' or 'job'"
+                    exit 1
+                fi
             
 # final task: set the badge with the deployed version tag for each jobs and service 
