@@ -96,11 +96,11 @@ jobs:
 
     # TODO: to complete. Set as input the environment. if env is production, the triggering event is to be a workflow dispatch.
     # Otherwise, push. And if production, the dispatch must be done on a tag abiding by the pattern: vx.y.z 
-    workloads_deployment:
-        if: github.ref_name == 'main' || github.ref_name == 'release' || (github.event_name == 'workflow_dispatch') #TODO: check also that the dispatch is done on a comitish of form vx.y.z
-        needs: [container_delivery, get_env]
-        uses: ./.github/workflows/workloads_deployment.yaml
-        with:
-            environment: ${{ needs.get_env.outputs.environment }}
+    # workloads_deployment:
+    #     if: github.ref_name == 'main' || github.ref_name == 'release' || (github.event_name == 'workflow_dispatch') #TODO: check also that the dispatch is done on a comitish of form vx.y.z
+    #     needs: [container_delivery, get_env]
+    #     uses: ./.github/workflows/workloads_deployment.yaml
+    #     with:
+    #         environment: ${{ needs.get_env.outputs.environment }}
 
     # TODO: final job : push the badge status. This task should always run even in case of previous task failure
