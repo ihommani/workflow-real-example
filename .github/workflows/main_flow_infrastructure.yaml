@@ -50,6 +50,7 @@ jobs:
               id: get_env
               uses: ./.github/actions/get_infrastructure_flow_env
 
+              
     infrastructure_plan:
         if: github.event_name == 'pull_request'
         needs: [get_plan_env]

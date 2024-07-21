@@ -1,5 +1,5 @@
-name: Frontend continuous integration
-run-name: '${{ github.actor }} triggers Frontend continuous integration'
+name: Frontend integration
+run-name: '${{ github.actor }} triggers Frontend integration'
 
 on:
     push: 

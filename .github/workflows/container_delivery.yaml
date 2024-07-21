@@ -1,5 +1,5 @@
-name: Containers continuous delivery
-run-name: '${{ github.actor }} triggers containers continuous delivery'
+name: Containers delivery
+run-name: '${{ github.actor }} triggers containers delivery'
 
 # TODO: export this file in _docker_delivery.yaml and encapsulate it's call here. --> maybe an exception here
 on:
@@ -54,30 +54,16 @@ jobs:
         get_folders : true
         dir_names_max_depth: 1
 
-
     get_docker_files:
       runs-on: ubuntu-22.04
       outputs:
-        docker_files: ${{ steps.docker_files_list.outputs.docker_files }}
-
+        docker_files: ${{ steps.list_docker_file_path.outputs.docker_files }}
       steps:
+        - uses: actions/checkout@v4
 
-        - name: Checkout sources
-          id: checkout_sources
-          uses: actions/checkout@v4
-
-        - name: Get Docker files from sources
-          id: get_docker_files
-          uses: tj-actions/glob@v22
-          with:
-            separator: ','
-            files: |
-              **/Dockerfile*
-
-        - name: Render Docker files list Json compatible
-          id: docker_files_list
-          run: |
-            echo "docker_files=[$(echo ${{ steps.get_docker_files.outputs.paths }} | sed 's/[^,][^,]*/"&"/g')]" >> $GITHUB_OUTPUT
+        - name: list_docker_file_path
+          id: list_docker_file_path
+          uses: ./.github/actions/get_docker_files
 
 
     build_status_per_dockerfile:
