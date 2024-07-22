@@ -1,7 +1,7 @@
 name: Workload deployment
 run-name: '${{ github.actor }} triggers workload deployment'
-
-#TODO: to document: # whatever happens, we deploy on the current sha1
+ 
+# TODO: to document: # whatever happens, we deploy on the current sha1
 # to document: service name take the name of the folder containing "Dockerfile". It's a contract we have with the infrastructure. Cloud run service must already exists.
 # Same thing with the job. They must exist and their name is on the "Dockerfile_[job_name]" itself
 
@@ -46,6 +46,21 @@ jobs:
           uses: .github/actions/get_env_var_of_interest 
 
     get_images_common_tag:
+      runs-on: ubuntu-22.04
+      outputs:
+        common_tag_to_deploy: $${{ steps.common_tag.outputs.common_tag }}
+      steps:
+        - name: Get common tag for deployment
+          id: common_tag
+          run: |-
+            # Si workflow call --> sha1 if dispatch git ref
+            if [ ${{ github.event_name }} = workflow_call ]; then
+              common_tag_to_deploy=${{ github.ref }}"
+            elif [ ${{ github.event_name }} = workflow_call ]; then
+              common_tag_to_deploy=${{ github.ref_name }}"
+            fi
+            echo "${common_tag_to_deploy}"
+            echo "common_tag_to_deploy=${common_tag_to_deploy}" >> $GITHUB_OUTPUT
     
 
     get_docker_files:

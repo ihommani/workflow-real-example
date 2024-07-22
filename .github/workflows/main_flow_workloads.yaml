@@ -1,4 +1,4 @@
-name: Workloads continuous integration, delivery and deployment
+name: Workloads integration, delivery and deployment
 run-name: "${{ github.actor }} triggered global workload CI/CD"
 
 on:
@@ -84,13 +84,12 @@ jobs:
             service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
 
-    # TODO: to complete. Set as input the environment. if env is production, the triggering event is to be a workflow dispatch.
-    # Otherwise, push. And if production, the dispatch must be done on a tag abiding by the pattern: vx.y.z 
-    workloads_deployment:  #TODO: check also that the dispatch is done on a comitish of form vx.y.z
+    workloads_deployment:
         if: github.ref_name == 'main' || github.ref_name == 'release'
         needs: [container_delivery, get_env]
         uses: ./.github/workflows/workloads_deployment.yaml
         with:
             environment: ${{ needs.get_env.outputs.environment }}
+            tag: ${{ github.sha }}
 
     # TODO: final job : push the badge status. This task should always run even in case of previous task failure
