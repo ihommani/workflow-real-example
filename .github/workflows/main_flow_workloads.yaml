@@ -25,9 +25,11 @@ jobs:
         outputs:
             environment: ${{ steps.get_env.outputs.environment }}
         steps:
+            - uses: actions/checkout@v4 
+
             - name: guess environment
               id: get_env
-              uses: actions/get_workload_flow_env@v1
+              uses: ./.github/actions/get_workload_flow_env
 
     # TODO: documenter dans le README pk la CI n'est pas souhaitable pour des contextes où l'output est une image docker agnostique de l'env, alors qu'elle l'est sur la partie infra (config et couts différents par env, )
     frontend_integration:
@@ -53,23 +55,13 @@ jobs:
     collect_env_variables_of_interest:
         if: github.event_name != 'workflow_dispatch'
         needs: get_env
-        runs-on: ubuntu-22.04
-        environment:
-            name: ${{ needs.get_env.outputs.environment }}
-        outputs:
-            project_id: ${{ steps.get_env_var.outputs.project_id }}
-            repository_id: ${{ steps.get_env_var.outputs.repository_id }}
-            workload_identity_provider: ${{ steps.get_env_var.outputs.workload_identity_provider }}
-            service_account_to_impersonate: ${{ steps.get_env_var.outputs.service_account_to_impersonate }}
-            region: ${{ steps.get_env_var.outputs.region }}
-        steps:
-            - name: get env vars
-              id: get_env_var
-              uses: actions/get_workload_flow_env@v1
+        uses: ./.github/workflows/_get_env_var_of_interest.yaml
+        with:
+          environment: ${{ needs.get_env.outputs.environment }}
 
         
     container_delivery:
-        needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration]
+        needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration, get_env]
         uses: ./.github/workflows/container_delivery.yaml
         # environment: --> cannot be used in a job calling a subworkflow. Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below
         with:
@@ -83,11 +75,12 @@ jobs:
             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
+            environment: ${{ needs.get_env.outputs.environment }}
 
     workloads_deployment:
         if: github.ref_name == 'main' || github.ref_name == 'release'
         needs: [container_delivery, get_env]
-        uses: ./.github/workflows/workloads_deployment.yaml
+        uses: ./.github/workflows/workload_deployment.yaml
         with:
             environment: ${{ needs.get_env.outputs.environment }}
             tag: ${{ github.sha }}

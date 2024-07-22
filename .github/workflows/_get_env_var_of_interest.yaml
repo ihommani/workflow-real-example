@@ -1,0 +1,74 @@
+# Ideally, it's a composite action. Will not work since composite actions cannot acces the 'vars' context: https://github.com/orgs/community/discussions/49689
+name: Get env variables flow environment
+run-name: '${{ github.actor }} run Terraform code integration'
+
+on:
+    workflow_call:
+        inputs:
+            environment:
+              description: Github action environment name
+              type: string
+              required: true
+        outputs:
+            project_id: 
+                description: associated workflow environment
+                value: ${{ jobs.get_env_variables_of_intesrest.outputs.project_id }}
+            repository_id: 
+                description: associated workflow environment
+                value: ${{ jobs.get_env_variables_of_intesrest.outputs.repository_id }}
+            workload_identity_provider: 
+                description: associated workflow environment
+                value: ${{ jobs.get_env_variables_of_intesrest.outputs.workload_identity_provider }}
+            service_account_to_impersonate: 
+                description: associated workflow environment
+                value: ${{ jobs.get_env_variables_of_intesrest.outputs.service_account_to_impersonate }}
+            region: 
+                description: associated workflow environment
+                value: ${{ jobs.get_env_variables_of_intesrest.outputs.region }}
+
+jobs:
+    get_env_variables_of_intesrest:
+      runs-on: ubuntu-22.04
+      environment: 
+        name: ${{ inputs.environment }}
+      outputs:
+        project_id: ${{ steps.get_project_id.outputs.project_id }}
+        repository_id: ${{ steps.get_repository_id.outputs.repository_id }}
+        workload_identity_provider: ${{ steps.get_workload_identity_provider.outputs.workload_identity_provider }}
+        service_account_to_impersonate: ${{ steps.get_sa_to_impersonate.outputs.service_account_to_impersonate }}
+        region: ${{ steps.get_region.outputs.region }}
+      steps:
+        - name: Getting project id
+          shell: bash
+          id: get_project_id
+          run: |-
+            echo "${{ vars.PROJECT_ID }}"
+            echo "project_id=${{ vars.PROJECT_ID }}" >> "$GITHUB_OUTPUT"
+
+        - name: Getting repository id
+          shell: bash
+          id: get_repository_id
+          run: |-
+            echo "${{ vars.REPOSITORY_ID }}"
+            echo "repository_id=${{ vars.REPOSITORY_ID }}" >> "$GITHUB_OUTPUT"
+
+        - name: Getting workload identity provider
+          shell: bash
+          id: get_workload_identity_provider
+          run: |-
+            echo "${{ vars.WORKLOAD_IDENTITY_PROVIDER }}"
+            echo "workload_identity_provider=${{ vars.WORKLOAD_IDENTITY_PROVIDER }}" >> "$GITHUB_OUTPUT"
+
+        - name: Getting service account to impersonate
+          shell: bash
+          id: get_sa_to_impersonate
+          run: |-
+            echo "${{ vars.SA_TO_IMPERSONATE }}"
+            echo "service_account_to_impersonate=${{ vars.SA_TO_IMPERSONATE }}" >> "$GITHUB_OUTPUT"
+            
+        - name: Getting region
+          shell: bash
+          id: get_region
+          run: |-
+            echo "${{ vars.CLOUD_REGION }}"
+            echo "region=${{ vars.CLOUD_REGION }}" >> "$GITHUB_OUTPUT"

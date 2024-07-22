@@ -30,20 +30,10 @@ on:
           default: latest
 
 jobs:
-    get_deployment_input:
-      runs-on: ubuntu-22.04
-      environment: 
-        name: ${{ github.event.inputs.environment }}
-      outputs:
-        workload_identity_provider: ${{ steps.get_env_variables.outputs.workload_identity_provider }}
-        service_account_to_impersonate: ${{ steps.get_env_variables.outputs.service_account_to_impersonate }}
-        cloud_region: ${{ steps.get_env_variables.outputs.region }}
-        project_id: ${{ steps.get_env_variables.outputs.project_id }}
-        repository_id: ${{ steps.get_env_variables.outputs.repository_id }}
-      steps:
-        - name: Get env variables
-          id: get_env_variables
-          uses: .github/actions/get_env_var_of_interest 
+    get_env_var_of_interest:
+      uses: ./.github/workflows/_get_env_var_of_interest.yaml
+      with:
+        environment: ${{ inputs.environment }}
 
     get_images_common_tag:
       runs-on: ubuntu-22.04
@@ -76,17 +66,17 @@ jobs:
 
       
     workloads_deployment:
-      needs: [get_docker_files, get_deployment_input]
+      needs: [get_docker_files, get_env_var_of_interest]
       uses: ./.github/workflows/_cloudrun_deployment.yaml
       strategy:
           matrix:
             docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
       with:
           environment: ${{ inputs.environment }}
-          workload_identity_provider: ${{ needs.get_deployment_input.outputs.workload_identity_provider }}
-          service_account_to_impersonate: ${{ needs.get_deployment_input.outputs.service_account_to_impersonate }}
-          cloud_region: ${{ needs.get_deployment_input.outputs.cloud_region }}
-          project_id: ${{ needs.get_deployment_input.outputs.project_id }}
-          repository_id: ${{ needs.get_deployment_input.outputs.repository_id }}
+          workload_identity_provider: ${{ needs.get_env_var_of_interest.outputs.workload_identity_provider }}
+          service_account_to_impersonate: ${{ needs.get_env_var_of_interest.outputs.service_account_to_impersonate }}
+          cloud_region: ${{ needs.get_env_var_of_interest.outputs.cloud_region }}
+          project_id: ${{ needs.get_env_var_of_interest.outputs.project_id }}
+          repository_id: ${{ needs.get_env_var_of_interest.outputs.repository_id }}
           tag: ${{ github.ref_name }}
           docker_file_path: ${{ matrix.docker_file_path }}

@@ -1,3 +1,4 @@
+# Cannot work since composite actions cannot acces the 'vars' context
 name: Get workload flow environment
 description: |-
   Composite action to mutualize the logic of getting Github environment 
