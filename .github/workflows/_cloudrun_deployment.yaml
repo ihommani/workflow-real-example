@@ -113,12 +113,12 @@ jobs:
           - name: Allow unauthenticated
             id: allow_unauthenticated
             run: |-
-                [ ${{ needs.get_service_or_job_base_name.outputs.name }} = frontend ] && echo "allow_unauthenticated=true" >> $GITHUB_OUTPUT || "allow_unauthenticated=false" >> $GITHUB_OUTPUT
+                [ ${{ needs.get_service_or_job_base_name.outputs.name }} = frontend ] & [ ${{ needs.get_cloud_run_type.outputs.cloud_run_type }} = service ] && echo "allow_unauthenticated=true" >> $GITHUB_OUTPUT || echo "allow_unauthenticated=false" >> $GITHUB_OUTPUT
 
           - name: No migrate traffic
             id: no_traffic
             run: |-
-                [ ${{ inputs.environment }} = production ] & [ ${{ needs.get_cloud_run_type.outputs.cloud_run_type }} = service ] && echo "no-migrate-traffic=true" >> $GITHUB_OUTPUT || "no-migrate-traffic=false" >> $GITHUB_OUTPUT
+                [ ${{ inputs.environment }} = production ] & [ ${{ needs.get_cloud_run_type.outputs.cloud_run_type }} = service ] && echo "no-migrate-traffic=true" >> $GITHUB_OUTPUT || echo "no-migrate-traffic=false" >> $GITHUB_OUTPUT
 
 
     # altough we have a market place action, it has not enough added value to justify its usage: https://github.com/google-github-actions/deploy-cloudrun
