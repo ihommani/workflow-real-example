@@ -107,8 +107,8 @@ jobs:
         runs-on: ubuntu-22.04
         needs: [get_service_or_job_base_name, get_cloud_run_type]
         outputs:
-            allow_unauthenticated: ${{ steps.allow_unauthenticated.outputs }}
-            no_traffic: ${{ steps.no_traffic.outputs }}    
+            allow_unauthenticated: ${{ steps.allow_unauthenticated.outputs.allow_unauthenticated }}
+            no_traffic: ${{ steps.no_traffic.outputs.no-migrate-traffic }}    
         steps:
           - name: Allow unauthenticated
             id: allow_unauthenticated

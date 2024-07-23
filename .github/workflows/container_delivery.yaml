@@ -42,8 +42,6 @@ on:
             Context of the deployment
           required: true
           type: string
-        # set envinronment as input to compute the semver tag and set it. Computation should take as input the {major, minor, patch} elemnet
-        # from somewhere. Commit message of the merge commit ? --> could be. By default it's minor
 
 jobs:
     check_sources_change:
@@ -68,8 +66,8 @@ jobs:
 
     build_status_per_dockerfile:
       runs-on: ubuntu-22.04
-      needs: [check_sources_change, get_docker_files]
-      if: needs.check_sources_change.outputs.is_modified_files == 'true'
+      needs: [check_sources_change, get_docker_files] # TODO: put the below condition at the steps level instead
+      #if: needs.check_sources_change.outputs.is_modified_files == 'true'
 
       strategy:
         fail-fast: false
@@ -122,7 +120,7 @@ jobs:
         - run: echo "${{ steps.matrix_read.outputs.result }}"
 
 
-    build_push_image:
+    build_push_image: # TODO: is to be triggered on all push on main
       runs-on: ubuntu-22.04
       needs: [get_docker_files, build_status_per_dockerfile, matrix_read] # TODO: check if we can remote build_status_per_docker_file from the list. Normally yes
       permissions: 
@@ -186,7 +184,7 @@ jobs:
             token: ${{ github.token }}
             branch: release 
           
-        - name: Image tagging
+        - name: Image tagging 
           id: image_tagging
           uses: ./.github/actions/image_tag
           with:

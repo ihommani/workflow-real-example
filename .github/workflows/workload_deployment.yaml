@@ -38,18 +38,17 @@ jobs:
     get_images_common_tag:
       runs-on: ubuntu-22.04
       outputs:
-        common_tag_to_deploy: $${{ steps.common_tag.outputs.common_tag }}
+        common_tag_to_deploy: ${{ steps.common_tag.outputs.common_tag_to_deploy }}
       steps:
         - name: Get common tag for deployment
           id: common_tag
-          run: |-
-            # Si workflow call --> sha1 if dispatch git ref
-            if [ ${{ github.event_name }} = workflow_call ]; then
-              common_tag_to_deploy=${{ github.ref }}"
-            elif [ ${{ github.event_name }} = workflow_call ]; then
+          run: |- # TODO: to check on dispath what is the event_name
+            if [ ${{ github.event_name }} = push ]; then
+              common_tag_to_deploy=${{ github.sha }}"
+            elif [ ${{ github.event_name }} = workflow_dispatch ]; then
               common_tag_to_deploy=${{ github.ref_name }}"
             fi
-            echo "${common_tag_to_deploy}"
+            echo "common tag to deploy: ${common_tag_to_deploy}"
             echo "common_tag_to_deploy=${common_tag_to_deploy}" >> $GITHUB_OUTPUT
     
 
@@ -66,7 +65,7 @@ jobs:
 
       
     workloads_deployment:
-      needs: [get_docker_files, get_env_var_of_interest]
+      needs: [get_docker_files, get_env_var_of_interest, get_images_common_tag]
       uses: ./.github/workflows/_cloudrun_deployment.yaml
       strategy:
           matrix:
@@ -75,8 +74,8 @@ jobs:
           environment: ${{ inputs.environment }}
           workload_identity_provider: ${{ needs.get_env_var_of_interest.outputs.workload_identity_provider }}
           service_account_to_impersonate: ${{ needs.get_env_var_of_interest.outputs.service_account_to_impersonate }}
-          cloud_region: ${{ needs.get_env_var_of_interest.outputs.cloud_region }}
+          cloud_region: ${{ needs.get_env_var_of_interest.outputs.region }}
           project_id: ${{ needs.get_env_var_of_interest.outputs.project_id }}
           repository_id: ${{ needs.get_env_var_of_interest.outputs.repository_id }}
-          tag: ${{ github.ref_name }}
+          tag: ${{ needs.get_images_common_tag.outputs.common_tag_to_deploy }}
           docker_file_path: ${{ matrix.docker_file_path }}

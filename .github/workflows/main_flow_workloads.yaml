@@ -11,13 +11,14 @@ on:
         paths: 
             - frontend/**
             - backend/**
+
+        #TODO: ignore markdown path. Create dedicated flow for all markdown in the repo
+        
     # workflow_dispatch: # TODO : integrate the production logic inside this workflow. (too many if ? )
     # What can be done with workflow_run event ? 
 
 
     #TODO: we miss the next version bump definition. 
-
-    
 
 jobs:
     get_env:
@@ -52,8 +53,7 @@ jobs:
         needs: get_env
         uses: ./.github/workflows/container_integration.yaml
 
-    collect_env_variables_of_interest:
-        if: github.event_name != 'workflow_dispatch'
+    collect_env_variables_of_interest: # TODO: maybe to encapsulate in container_delivery instead --> yes better
         needs: get_env
         uses: ./.github/workflows/_get_env_var_of_interest.yaml
         with:
