@@ -79,8 +79,9 @@ jobs:
             environment: ${{ needs.get_env.outputs.environment }}
 
     workloads_deployment: #TODO: change ref_name by environement
-        if: github.ref_name == 'main' || github.ref_name == 'release' 
         needs: [container_delivery, get_env]
+        #if: github.ref_name == 'main' || needs.get_env.outputs.environment == 'staging' # not working on the releas ebranch
+        if: always()
         uses: ./.github/workflows/workload_deployment.yaml
         with:
             environment: ${{ needs.get_env.outputs.environment }}
