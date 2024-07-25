@@ -62,6 +62,7 @@ jobs:
         
     container_delivery:
         needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration, get_env]
+        if: always() # so that even when integration jobs are skipped (on staging env for instance) we can still 
         uses: ./.github/workflows/container_delivery.yaml
         # environment: --> cannot be used in a job calling a subworkflow. Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below
         with:
@@ -77,8 +78,8 @@ jobs:
             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
             environment: ${{ needs.get_env.outputs.environment }}
 
-    workloads_deployment:
-        if: github.ref_name == 'main' || github.ref_name == 'release'
+    workloads_deployment: #TODO: change ref_name by environement
+        if: github.ref_name == 'main' || github.ref_name == 'release' 
         needs: [container_delivery, get_env]
         uses: ./.github/workflows/workload_deployment.yaml
         with:
