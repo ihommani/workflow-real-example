@@ -178,12 +178,6 @@ jobs:
                 echo ${cli_flags}
                 echo "cli_flags=$cli_flags" >> $GITHUB_OUTPUT
 
-            - name: Ensure traffic is set to latest outside from production
-              id: ensure_traffic_to_latest
-              if: inputs.environment != 'production' && needs.get_cloud_run_type.outputs.cloud_run_type == 'service'
-              run: |-
-                gcloud run services update-traffic ${{ steps.get_cloud_run_name.outputs.matching }} --region=europe-west1  --to-latest
-
             - name: Deploy Cloud Run
               id: deploy_run
               run: |-
@@ -197,5 +191,11 @@ jobs:
                     echo "Problem while detecting cloud run type. Can only be 'service' or 'job'"
                     exit 1
                 fi
+
+            - name: Ensure traffic is set to latest outside from production
+              id: ensure_traffic_to_latest
+              if: inputs.environment != 'production' && needs.get_cloud_run_type.outputs.cloud_run_type == 'service'
+              run: |-
+                gcloud run services update-traffic ${{ steps.get_cloud_run_name.outputs.matching }} --region='${{ inputs.cloud_region }}' --to-latest
             
 # final task: set the badge with the deployed version tag for each jobs and service --> not here. In the calling workflow
