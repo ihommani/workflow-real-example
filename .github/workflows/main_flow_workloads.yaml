@@ -12,7 +12,7 @@ on:
             - frontend/**
             - backend/**
 
-        #TODO: ignore markdown path. Create dedicated flow for all markdown in the repo
+    #TODO: ignore markdown path. Create dedicated flow for all markdown in the repo
         
     # workflow_dispatch: # TODO : integrate the production logic inside this workflow. (too many if ? )
     # What can be done with workflow_run event ? 
