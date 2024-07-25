@@ -78,4 +78,4 @@ runs:
           shell: bash
           run: |-
             echo "Adding tag ${{ inputs.semver_tag }}"
-            gcloud artifacts docker tags add ${{ inputs.image_name }}:${{ inputs.semver_tag }}
+            gcloud artifacts docker tags add ${{ inputs.image_name }}:${{ github.sha }} ${{ inputs.image_name }}:${{ inputs.semver_tag }}
