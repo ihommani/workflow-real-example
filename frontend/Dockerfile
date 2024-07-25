@@ -58,7 +58,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-# indicative only
 EXPOSE 8080
 
 ENV PORT 8080
