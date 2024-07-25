@@ -9,6 +9,8 @@ on:
              - integration
              - staging
              - production
+        paths: 
+            - infrastructure/**.tf
     pull_request: 
         branches: 
             - integration
