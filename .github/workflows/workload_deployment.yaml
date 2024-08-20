@@ -17,7 +17,8 @@ on:
             type: choice
             required: true
             default: integration
-  workflow_call: # TODO : set the environemnt as an input.along with repository id and so on. 
+  workflow_call: # TODO : set the environemnt as an input.along with artifact repository id and so on. TODO: in fact we need to separate the logic between dispatch and call. Otherwise we will have to many if to distinguish both case. the dispacth case is a first level workflow type.
+  # the call case is a second level workflow requiring more inputs to define the contract of the flow.
     inputs:
       environment:
           description: Environment where we deploy
@@ -42,11 +43,11 @@ jobs:
       steps:
         - name: Get common tag for deployment
           id: common_tag
-          run: |- # TODO: to check on dispath what is the event_name
+          run: |- # TODO: to check on dispath what is the event_name --> it's "worflow_dispatch" ? not needed anymore 
             if [ ${{ github.event_name }} = push ]; then
               common_tag_to_deploy=${{ github.sha }}
             elif [ ${{ github.event_name }} = workflow_dispatch ]; then
-              common_tag_to_deploy=${{ github.ref_name }}
+              common_tag_to_deploy=${{ github.ref_name }} 
             fi
             echo "common tag to deploy: ${common_tag_to_deploy}"
             echo "common_tag_to_deploy=${common_tag_to_deploy}" >> $GITHUB_OUTPUT
