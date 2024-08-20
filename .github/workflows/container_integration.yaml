@@ -23,7 +23,7 @@ jobs:
 
     output_source_changed:
       needs: check_sources_change
-      if: needs.check_sources_change.outputsss.is_modified_files == 'true'
+      if: needs.check_sources_change.outputs.is_modified_files == 'true'
       uses: ./.github/workflows/_docker_integration.yaml
       strategy:
         fail-fast: false
