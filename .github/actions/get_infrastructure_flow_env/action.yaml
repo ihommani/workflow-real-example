@@ -2,6 +2,7 @@ name: Get infrastructure flow environment
 description: |-
   Composite action to mutualize the logic of getting Github environment on both plan and deploy situations
 
+# TODO: can be simplify to a single output: 'environment'
 outputs:
   deploy_environment: 
       description: infrastructure deployment associated environment
@@ -11,9 +12,11 @@ outputs:
       value: ${{ steps.get_plan_env.outputs.environment }}
 
 
+# TODO: can be simplify with a single step with no trigger condition. Condition is up to the caller of this composite action
 runs:
     using: composite
     steps:
+        # TODO: as a rule of thumb, a composite action should not contain conditions. Up to the caller to implement itself the condition logic to call or not the composite action
         - if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name) 
           name: get infrastructure deployment env
           id: get_deploy_env

@@ -1,4 +1,4 @@
-name: Terraform application integration
+name: Terraform modules integration
 run-name: '${{ github.actor }} run Terraform code integration'
 
 on:
@@ -55,8 +55,8 @@ jobs:
               id: fmt
               run: terraform fmt -check
               continue-on-error: false
-
-            - name: Authenticate to gcp workload identity pool
+            
+            - name: Authenticate to gcp workload identity pool to abide by Google provider auth requirements
               id: auth_to_google
               uses: 'google-github-actions/auth@v2'
               with:
