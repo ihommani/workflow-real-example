@@ -1,5 +1,5 @@
 
-name: Infrastructure continuous integration and deployment
+name: Infrastructure integration and deployment
 run-name: '${{ github.actor }} triggered Infrastructure workflow'
 
 on:
@@ -11,6 +11,7 @@ on:
              - production
         paths: 
             - infrastructure/**.tf
+    # Note: we require branch protection on "environment" branches to require push from pull requests only
     pull_request: 
         branches: 
             - integration
