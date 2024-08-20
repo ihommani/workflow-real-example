@@ -1,6 +1,6 @@
 name: Gcloud Tag images
 description: |
- Ensure we have the tag corresponding to trigger event's sha1 if no new image have been pushed. Assign the tag 'lates' to the current event's sha1
+ Ensure we have the tag corresponding to trigger event's sha1 if no new image have been pushed. Assign tag 'latest' to the current event's sha1
 
 inputs:
     workload_identity_provider:

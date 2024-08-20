@@ -5,8 +5,6 @@ on:
     push: 
         branches-ignore: 
             - main
-            - release
-            - release/**
             - integration
             - staging
             - production
@@ -43,7 +41,7 @@ jobs:
         matrix:
           root_module_path: ${{ fromJSON(needs.check_sources_change.outputs.all_changed_files) }}
       with:
-        terraform-version: ${{ inputs.terraform_version != '' && inputs.terraform_version || '1.7' }}
+        terraform-version: ${{ inputs.terraform_version != '' && inputs.terraform_version || '1.7' }} # TODO: remove the last part 1.7 (already default)
         root-module-path : ${{ matrix.root_module_path }}
           
       

@@ -132,7 +132,7 @@ jobs:
 
             - uses: actions/checkout@v4
 
-            # TODO: set in the dockerignore, the file name generaget
+            # TODO: set in the dockerignore, the file name generaget. See the action documentation
             - name: Authenticate to gcp workload identity pool
               id: auth_to_google
               uses: 'google-github-actions/auth@v2'
