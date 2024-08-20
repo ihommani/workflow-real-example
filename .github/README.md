@@ -1,4 +1,7 @@
-# 
+<!-- # TODO: document that a "concrete" workflow will never have any condition. Conditions are set at the calling workflow levels only.
+# first level is about trigerring event and path filtering. 
+# second level workflow is about more arbitrary condition level. 
+# second level workflow is not only triggered on workflow-call since it should be able to be optionally triggered by feature branch activity (so we may also filter on event / path) -->
 
 # Tagging strategy
  This action considers that given an image name, it either have:
