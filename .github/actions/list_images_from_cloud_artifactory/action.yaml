@@ -49,5 +49,5 @@ runs:
           run: |
             echo "If not exist, adding sha1 tag at the same level than tag latest"
             package_names=$(gcloud artifacts docker images list europe-west1-docker.pkg.dev/gde-ihommani/to-delete --format="csv(tag)" | uniq)
-            echo ${package_names}
+            echo "${package_names}"
 # package_names output must be compatible with fromJSON
