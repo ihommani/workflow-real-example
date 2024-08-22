@@ -22,7 +22,7 @@ inputs:
 outputs:
   package_names:
     description: List of OCI images available in the selected artifactory repo
-    value: ${{ steps.docker_files_list.outputs.docker_files }}
+    value: ${{ steps.list_images.outputs.package_names }}
 
 
 runs:
@@ -43,11 +43,12 @@ runs:
           id: set_up_gcloud_sdk
           uses: google-github-actions/setup-gcloud@v2
 
-        - name: List images # the image has not been built because no source has changed. Tag latest should exist
+        - name: List images to tag with release version # the image has not been built because no source has changed. Tag latest should exist
           id: list_images
           shell: bash
           run: |
             echo "If not exist, adding sha1 tag at the same level than tag latest"
             package_names=$(gcloud artifacts docker images list europe-west1-docker.pkg.dev/gde-ihommani/to-delete --format="csv(package)" | uniq)
             echo "${package_names}"
+            echo 'package_names=${package_names}' >> $GITHUB_OUTPUT
 # package_names output must be compatible with fromJSON

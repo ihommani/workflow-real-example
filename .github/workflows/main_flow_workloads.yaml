@@ -54,6 +54,7 @@ jobs:
             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
             environment: ${{ needs.get_env.outputs.environment }}
 
+            
     workloads_deployment:
         uses: ./.github/workflows/workload_deployment.yaml
         with:
