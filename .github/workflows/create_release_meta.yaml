@@ -1,0 +1,90 @@
+name: Create release metadat
+run-name: '${{ github.actor }} triggers release metadata creation'
+
+on:
+    workflow_call:
+      inputs:
+        release_version:
+          description: Release version to set on metafile
+          type: string
+          required: true
+
+jobs:
+
+    # tag_release_branch:
+    #   runs-on: ubuntu-22.04
+    #   steps:
+    #     - name: tag release branch
+    #       id: tag_release_branch
+    #       uses: ./.github/tag_github_branches
+    #       with:
+    #         release_version: ${{ inputs.release_version }}
+    
+    create_release_and_associated_note:
+      runs-on: ubuntu-22.04
+      permissions:
+        contents: write
+      steps:
+      - uses: actions/checkout@v3
+
+      - name: Create draft Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          allowUpdates: true
+          draft: true
+          generateReleaseNotes: false
+          makeLatest: true
+          name: ${{ inputs.release_version }}
+          commit: release
+          tag: ${{ inputs.release_version }}
+          body: TO UPDATE
+          token: ${{ github.token }}
+
+      - name: Update or create CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+            token: ${{ github.token }}
+            tag: ${{ inputs.release_version }}
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          allowUpdates: false
+          draft: false
+          generateReleaseNotes: false
+          makeLatest: true
+          name: ${{ inputs.release_version }}
+          body: ${{ steps.changelog.outputs.changes }}
+          token: ${{ github.token }}
+
+      - name: Commit CHANGELOG.md
+        id: commit_changelog
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: main
+          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
+          file_pattern: CHANGELOG.md
+        
+
+    set_release_version_information_on_repo:
+      runs-on: ubuntu-22.04
+      steps:
+        - name: set release version on repo
+          id: set_release_version_information
+          uses: ./.github/badge_github_repo
+          with:
+            release_version: ${{ inputs.release_version }}
+
+          
+
+          
+      
+        
+    
+        
+        
+      
+    
+          
+      

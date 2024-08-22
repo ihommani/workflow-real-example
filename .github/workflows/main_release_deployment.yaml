@@ -1,4 +1,4 @@
-name: Workload deployment on call
+name: Workload deployment on dispatch
 run-name: '${{ github.actor }} triggers workload deployment'
  
 # TODO: to document: # whatever happens, we deploy on the current sha1
@@ -6,40 +6,17 @@ run-name: '${{ github.actor }} triggers workload deployment'
 # Same thing with the job. They must exist and their name is on the "Dockerfile_[job_name]" itself
 
 on: 
-  workflow_call:
+  workflow_dispatch: 
     inputs:
-      environment:
-          description: Environment where we deploy
-          type: string
-          required: true
-      workload_identity_provider:
-          description: |-
-            Identifier of the concrete workload identity provider. 
-          required: true
-          type: string
-      service_account_to_impersonate:
-          description: |-
-            Identity to impersonate through the workload identity provider
-          required: true
-          type: string
-      cloud_region:
-          description: |-
-            Region of the concrete workload cloud hosting service
-          required: true
-          type: string
-      project_id:
-          description: id of the project entity hosting image repository
-          required: true
-          type: string
-      repository_id:
-          description: Image repository id
-          required: true
-          type: string
-      tag:
-          description: 'which tag to apply'
-          type: string
-          required: false
-          default: latest
+        environment:
+            description: On what environment to deploy the targeted version
+            options:
+                - integration
+                - staging
+                - production
+            type: choice
+            required: true
+            default: integration
 
 jobs:
     get_env_var_of_interest:
@@ -52,13 +29,22 @@ jobs:
       outputs:
         common_tag_to_deploy: ${{ steps.common_tag.outputs.common_tag_to_deploy }}
       steps:
+        - name: Validate the triggering reference is of tag type
+          id: check_ref_type
+          run: |-
+            if [ ${{ github.ref_type }} = branch ]
+              echo "You cannot deploy with a branch as reference type. Please choose a release tag"
+              exit 1
+            fi
+
         - name: Get common tag for deployment
           id: common_tag
           run: |-
-            common_tag_to_deploy=${{ github.sha }}
+            common_tag_to_deploy=${{ github.ref_name }} 
             echo "common tag to deploy: ${common_tag_to_deploy}"
             echo "common_tag_to_deploy=${common_tag_to_deploy}" >> $GITHUB_OUTPUT
     
+
     get_docker_files:
       runs-on: ubuntu-22.04
       outputs:
@@ -78,11 +64,11 @@ jobs:
           matrix:
             docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
       with:
-          environment: ${{ inputs.environment }} # should always be 'integration' since continuous deployment is only applied on this env. staging and production are triggered through dispatch
-          workload_identity_provider: ${{ inputs.workload_identity_provider }}
-          service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }} 
-          cloud_region: ${{ inputs.cloud_region }}
-          project_id: ${{ inputs.project_id }}
-          repository_id: ${{ inputs.repository_id }}
+          environment: ${{ inputs.environment }}
+          workload_identity_provider: ${{ needs.get_env_var_of_interest.outputs.workload_identity_provider }}
+          service_account_to_impersonate: ${{ needs.get_env_var_of_interest.outputs.service_account_to_impersonate }}
+          cloud_region: ${{ needs.get_env_var_of_interest.outputs.region }}
+          project_id: ${{ needs.get_env_var_of_interest.outputs.project_id }}
+          repository_id: ${{ needs.get_env_var_of_interest.outputs.repository_id }}
           tag: ${{ needs.get_images_common_tag.outputs.common_tag_to_deploy }}
           docker_file_path: ${{ matrix.docker_file_path }}

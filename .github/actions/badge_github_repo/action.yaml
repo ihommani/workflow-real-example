@@ -1,0 +1,17 @@
+name: badge current repo
+description: |-
+  Return list of images in a given artifact repository
+
+inputs:
+  badge:
+    description: Region of the concrete artifactory service
+    required: true
+
+runs:
+      using: composite
+      steps:
+        - name: setting badge on the readme
+          shell: bash
+          id: setting_badge
+          run: |-
+            echo "modifiying the json file .last_version.json which feed a dynamic badge build with https://shields.io/"

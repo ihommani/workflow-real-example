@@ -1,0 +1,138 @@
+name: Create release
+run-name: '${{ github.actor }} triggers release creation'
+
+on:
+    workflow_call:
+      inputs:
+        next_release_version:
+          description: release version which will serve as tag for the new package
+          required: true
+          type: string 
+        project_id:
+          description: id of the project entity hosting package repository
+          required: true
+          type: string 
+        repository_id:
+          description: Image repository id
+          required: true
+          type: string
+        workload_identity_provider:
+          description: Identifier of the concrete workload identity provider.
+          required: true
+          type: string
+        service_account_to_impersonate:
+          description: Identity to impersonate through the workload identity provider
+          required: true
+          type: string
+        region:
+          description: Region of the concrete artifactory service
+          required: true
+          type: string
+
+jobs:
+    compute_next_release_version:
+      runs-on: ubuntu-22.04
+      steps:
+      # compute and set the version tag vx.y.z. get the commit message content to decide the computation
+      # https://github.com/ietf-tools/semver-action?tab=readme-ov-file#example-workflow
+      - name: Compute next version
+        id: compute_next_version
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: release
+
+
+    list_release_candidate_packages:
+      runs-on: ubuntu-22.04
+      outputs:
+        package_names: ${{ steps.list_release_candidates.outputs.package_names }}
+      steps:
+        - name: list release candidate packages
+          id: list_release_candidates
+          uses: ./.github/actions/list_images_from_cloud_artifactory
+          with:
+            project_id: ${{ inputs.project_id }} 
+            repository_id: ${{ inputs.repository_id }}
+            workload_identity_provider: ${{ inputs.workload_identity_provider }}
+            service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }}
+            region: ${{ inputs.region }}
+
+
+    set_release_version_on_packages:
+      runs-on: ubuntu-22.04
+      needs: [compute_next_release_version, list_release_candidate_packages]
+      strategy:
+          matrix: ${{ fromJson(needs.list_release_candidate_packages.outputs.package_names) }}
+      steps:
+          - name: authenticate to google
+            id: dsfds
+            uses: ./.github/actions/tag_images_from_cloud_artifact
+
+            
+
+    # Below jobs are only needed if we have different artifacto registry repositories per env. 
+    # The best practice is to avoid this situation with image agnostic to the environment and which behavior is configured through environment variables
+    # We should avoid to rebuild images. A single version should transit between environments
+
+
+    # collect_env_variables_of_interest_staging:
+    #     uses: ./.github/workflows/_get_env_var_of_interest.yaml
+    #     with:
+    #       environment: staging
+        
+    # collect_env_variables_of_interest_production:
+    #   uses: ./.github/workflows/_get_env_var_of_interest.yaml
+    #   with:
+    #     environment: production
+        
+    # package_delivery_on_staging:
+    #     needs: [collect_env_variables_of_interest_staging, compute_next_release_version]
+    #     uses: ./.github/workflows/container_delivery.yaml
+    #     # environment: --> cannot be used in a job calling a subworkflow. 
+    #     # Hacky solution: Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below by consuming the ouput of the job
+    #     with:
+    #         files: |           
+    #             ./frontend/**
+    #             ./backend/**
+    #         files_ignore: |
+    #             **/*.md
+    #         project_id: ${{ needs.collect_env_variables_of_interest_staging.outputs.project_id }}
+    #         repository_id: ${{ needs.collect_env_variables_of_interest_staging.outputs.repository_id }} 
+    #         workload_identity_provider: ${{ needs.collect_env_variables_of_interest_staging.outputs.workload_identity_provider }}
+    #         service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest_staging.outputs.service_account_to_impersonate }}
+    #         region: ${{ needs.collect_env_variables_of_interest_staging.outputs.region }}
+    #         environment: staging
+    #         release_tag: ${{ needs.compute_next_semver_version.outputs.next }}
+        
+    # package_delivery_on_production:
+    #     needs: [collect_env_variables_of_interest_production, compute_next_release_version]
+    #     uses: ./.github/workflows/container_delivery.yaml
+    #     # environment: --> cannot be used in a job calling a subworkflow. 
+    #     # Hacky solution: Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below by consuming the ouput of the job
+    #     with:
+    #         files: |           
+    #             ./frontend/**
+    #             ./backend/**
+    #         files_ignore: |
+    #             **/*.md
+    #         project_id: ${{ needs.collect_env_variables_of_interest_production.outputs.project_id }}
+    #         repository_id: ${{ needs.collect_env_variables_of_interest_production.outputs.repository_id }} 
+    #         workload_identity_provider: ${{ needs.collect_env_variables_of_interest_production.outputs.workload_identity_provider }}
+    #         service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest_production.outputs.service_account_to_impersonate }}
+    #         region: ${{ needs.collect_env_variables_of_interest_production.outputs.region }}
+    #         environment: production
+    #         release_tag: ${{ needs.compute_next_semver_version.outputs.next }}
+
+
+
+          
+      
+        
+    
+        
+        
+      
+    
+          
+      
