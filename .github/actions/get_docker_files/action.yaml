@@ -1,6 +1,6 @@
-name: Get workload flow environment
+name: Get dockerfile path
 description: |-
-  Composite action to mutualize the logic of getting Github environment 
+  List dockerfiles path in the entire repository
 
 inputs:
   environment:

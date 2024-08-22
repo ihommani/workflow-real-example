@@ -1,4 +1,4 @@
-# Cannot work since composite actions cannot acces the 'vars' context --> TODO: to confirm.
+# Cannot work since composite actions cannot acces the 'vars' context --> replaced by the 'concrete' workflow _get_env_var_of_interest.yaml which as a workflow has no issue to get env var
 # https://github.com/orgs/community/discussions/51280
 name: Get workload flow environment
 description: |-

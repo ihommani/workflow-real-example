@@ -1,41 +1,19 @@
 name: Workloads integration, delivery and deployment
-run-name: "${{ github.actor }} triggered global workload CI/CD"
+run-name: "${{ github.actor }} triggered main CI/CD"
 
 on:
     push:
         branches: 
              - main
-             - release
-        tags:
-            - v[0-9]+.[0-9]+.[0-9]+
         paths: 
             - frontend/**
             - backend/**
 
     #TODO: ignore markdown path. Create dedicated flow for all markdown in the repo
-        
-    # workflow_dispatch: # TODO : integrate the production logic inside this workflow. (too many if ? )
-    # What can be done with workflow_run event ? 
-
-
-    #TODO: we miss the next version bump definition. 
 
 jobs:
-    get_env:
-        runs-on: ubuntu-22.04
-        outputs:
-            environment: ${{ steps.get_env.outputs.environment }}
-        steps:
-            - uses: actions/checkout@v4 
-
-            - name: guess environment
-              id: get_env
-              uses: ./.github/actions/get_workload_flow_env
-
     # TODO: documenter dans le README pk la CI n'est pas souhaitable pour des contextes où l'output est une image docker agnostique de l'env, alors qu'elle l'est sur la partie infra (config et couts différents par env, )
     frontend_integration:
-        if: contains(fromJSON('["integration"]'), needs.get_env.outputs.environment)
-        needs: get_env
         permissions: 
             pull-requests: 
                 write
@@ -43,32 +21,26 @@ jobs:
 
 
     backend_integration:
-        if: contains(fromJSON('["integration"]'), needs.get_env.outputs.environment)
-        needs: get_env
         uses: ./.github/workflows/backend_integration.yaml
 
 
     container_integration:
-        if: contains(fromJSON('["integration"]'), needs.get_env.outputs.environment)
-        needs: get_env
         uses: ./.github/workflows/container_integration.yaml
 
     # TODO: document in the README: we collect env variable in the main workflow definition to stream collected values up to the concrete workflow/actions
     # sub level workflow should not call "env" or "vars". they should consume the inputs they declare only. It's a kind of interface of what it needs to work
     # Ease the reuse of the workflow which does not impose to run with specific github environments (we may share the worklaod through dedicated github repo)
     collect_env_variables_of_interest:
-        needs: get_env
         uses: ./.github/workflows/_get_env_var_of_interest.yaml
         with:
-          environment: ${{ needs.get_env.outputs.environment }}
+          environment: integration
 
-        
+    
     container_delivery:
-        needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration, get_env]
-        # so that even when integration jobs are skipped (on staging env for instance) we still deliver an image associated to the current commit
-        if: always() 
+        needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration]
         uses: ./.github/workflows/container_delivery.yaml
-        # environment: --> cannot be used in a job calling a subworkflow. Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below
+        # environment: --> cannot be used in a job calling a subworkflow. 
+        # Hacky solution: Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below by consuming the ouput of the job
         with:
             files: |           
                 ./frontend/**
@@ -82,13 +54,20 @@ jobs:
             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
             environment: ${{ needs.get_env.outputs.environment }}
 
-    workloads_deployment: #TODO: change ref_name by environement
-        needs: [container_delivery, get_env]
-        #if: github.ref_name == 'main' || needs.get_env.outputs.environment == 'staging' # not working on the release branch. In fact maybe we don't need it. If we consider that both 'staging' and 'production' should be deployed by a manual dispatch. (which make sens even for staging which should be stable too)
-        if: always()
+    workloads_deployment:
         uses: ./.github/workflows/workload_deployment.yaml
         with:
             environment: ${{ needs.get_env.outputs.environment }}
+            project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
+            repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }} 
+            workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
+            service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
+            cloud_region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
             tag: ${{ github.sha }}
+
+
+    # TODO: call this same workflow (or an adapted version) that deliver (and not deploy) images on {staging; production} environments
+    # To call only if we need to decorelate artifactory repo between environements --> because image content would depends on the environment and we want to avoid at all cost to put the environment name in the tag.  
+    # tag should be similar between the different repositories
 
     # TODO: final job : push the badge status. This task should always run even in case of previous task failure

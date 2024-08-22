@@ -3,6 +3,8 @@
 # second level workflow is about more arbitrary condition level. 
 # second level workflow is not only triggered on workflow-call since it should be able to be optionally triggered by feature branch activity (so we may also filter on event / path) -->
 
+<!-- TODO: document the fact that we extensively use the notion of github environment coupled with the notion of 'main' workflow to impement the third factor of 12 factors app -->
+
 # Tagging strategy
  This action considers that given an image name, it either have:
  1. a tag with the current triggering event's sha1 --> we need to allign the tag latest with this tag sha1 (creating it if not existing)
@@ -11,7 +13,7 @@
  We should fail if none of these situtations is true.
 
 
- This strategy allows us to consider multi-services deploymnet with a single sha1 commit.
+ This strategy allows us to consider multi-services deployment with a single sha1 commit.
  Note: 
  - Tag latest is not to be referenced. Only to track the 
  - This strategy works if applied on a single branch. Generally the history source of truth for source code: default branch.
