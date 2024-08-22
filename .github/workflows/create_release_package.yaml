@@ -30,24 +30,14 @@ on:
           type: string
 
 jobs:
-    compute_next_release_version:
-      runs-on: ubuntu-22.04
-      steps:
-      # compute and set the version tag vx.y.z. get the commit message content to decide the computation
-      # https://github.com/ietf-tools/semver-action?tab=readme-ov-file#example-workflow
-      - name: Compute next version
-        id: compute_next_version
-        uses: ietf-tools/semver-action@v1
-        with:
-          token: ${{ github.token }}
-          branch: release
-
 
     list_release_candidate_packages:
       runs-on: ubuntu-22.04
       outputs:
         package_names: ${{ steps.list_release_candidates.outputs.package_names }}
       steps:
+        - uses: actions/checkout@v4
+
         - name: list release candidate packages
           id: list_release_candidates
           uses: ./.github/actions/list_images_from_cloud_artifactory
@@ -61,13 +51,15 @@ jobs:
 
     set_release_version_on_packages:
       runs-on: ubuntu-22.04
-      needs: [compute_next_release_version, list_release_candidate_packages]
+      needs: [list_release_candidate_packages]
       strategy:
           matrix: ${{ fromJson(needs.list_release_candidate_packages.outputs.package_names) }}
       steps:
-          - name: authenticate to google
-            id: dsfds
-            uses: ./.github/actions/tag_images_from_cloud_artifact
+        - uses: actions/checkout@v4
+
+        - name: tag packages
+          id: dsfds
+          uses: ./.github/actions/tag_images_from_cloud_artifact
 
             
 
@@ -87,7 +79,7 @@ jobs:
     #     environment: production
         
     # package_delivery_on_staging:
-    #     needs: [collect_env_variables_of_interest_staging, compute_next_release_version]
+    #     needs: [collect_env_variables_of_interest_staging]
     #     uses: ./.github/workflows/container_delivery.yaml
     #     # environment: --> cannot be used in a job calling a subworkflow. 
     #     # Hacky solution: Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below by consuming the ouput of the job
@@ -106,7 +98,7 @@ jobs:
     #         release_tag: ${{ needs.compute_next_semver_version.outputs.next }}
         
     # package_delivery_on_production:
-    #     needs: [collect_env_variables_of_interest_production, compute_next_release_version]
+    #     needs: [collect_env_variables_of_interest_production]
     #     uses: ./.github/workflows/container_delivery.yaml
     #     # environment: --> cannot be used in a job calling a subworkflow. 
     #     # Hacky solution: Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below by consuming the ouput of the job
