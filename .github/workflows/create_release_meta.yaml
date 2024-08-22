@@ -4,7 +4,7 @@ run-name: '${{ github.actor }} triggers release metadata creation'
 on:
     workflow_call:
       inputs:
-        release_version:
+        next_release_version :
           description: Release version to set on metafile
           type: string
           required: true
@@ -18,7 +18,7 @@ jobs:
     #       id: tag_release_branch
     #       uses: ./.github/tag_github_branches
     #       with:
-    #         release_version: ${{ inputs.release_version }}
+    #         release_version: ${{ inputs.next_release_version }}
     
     create_release_and_associated_note:
       runs-on: ubuntu-22.04
@@ -34,9 +34,9 @@ jobs:
           draft: true
           generateReleaseNotes: false
           makeLatest: true
-          name: ${{ inputs.release_version }}
+          name: ${{ inputs.next_release_version }}
           commit: release
-          tag: ${{ inputs.release_version }}
+          tag: ${{ inputs.next_release_version }}
           body: TO UPDATE
           token: ${{ github.token }}
 
@@ -45,7 +45,7 @@ jobs:
         uses: requarks/changelog-action@v1
         with:
             token: ${{ github.token }}
-            tag: ${{ inputs.release_version }}
+            tag: ${{ inputs.next_release_version }}
 
       - name: Create Release
         uses: ncipollo/release-action@v1.14.0
@@ -54,7 +54,7 @@ jobs:
           draft: false
           generateReleaseNotes: false
           makeLatest: true
-          name: ${{ inputs.release_version }}
+          name: ${{ inputs.next_release_version }}
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
 
@@ -74,7 +74,7 @@ jobs:
           id: set_release_version_information
           uses: ./.github/badge_github_repo
           with:
-            release_version: ${{ inputs.release_version }}
+            release_version: ${{ inputs.next_release_version }}
 
           
 
