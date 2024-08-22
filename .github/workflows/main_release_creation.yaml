@@ -25,6 +25,8 @@ jobs:
 
     compute_next_release_version:
         runs-on: ubuntu-22.04
+        outputs:
+            next_release_version: ${{ steps.compute_next_version.outputs.next }}
         steps:
         # compute and set the version tag vx.y.z. get the commit message content to decide the computation
         # https://github.com/ietf-tools/semver-action?tab=readme-ov-file#example-workflow
@@ -40,7 +42,7 @@ jobs:
         needs: [collect_env_variables_of_interest, compute_next_release_version]
         uses: ./.github/workflows/create_release_package.yaml
         with:
-            next_release_version: ${{ needs.compute_next_release_version.outputs.next }}
+            next_release_version: ${{ needs.compute_next_release_version.outputs.next_release_version }}
             project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
             repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }}
             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
@@ -52,4 +54,4 @@ jobs:
         needs: [create_release_package, compute_next_release_version]
         uses: ./.github/workflows/create_release_meta.yaml
         with: 
-            next_release_version: ${{ needs.compute_next_release_version.outputs.next }}
+            next_release_version: ${{ needs.compute_next_release_version.outputs.next_release_version }}
