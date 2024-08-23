@@ -69,14 +69,14 @@ jobs:
           file_pattern: CHANGELOG.md
         
 
-    set_release_version_information_on_repo:
-      runs-on: ubuntu-22.04
-      steps:
-        - name: set release version on repo
-          id: set_release_version_information
-          uses: ./.github/badge_github_repo
-          with:
-            release_version: ${{ inputs.next_release_version }}
+    # set_release_version_information_on_repo:
+    #   runs-on: ubuntu-22.04
+    #   steps:
+    #     - name: set release version on repo
+    #       id: set_release_version_information
+    #       uses: ./.github/badge_github_repo
+    #       with:
+    #         release_version: ${{ inputs.next_release_version }}
 
           
 
