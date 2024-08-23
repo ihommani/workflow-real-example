@@ -17,6 +17,7 @@ on:
             type: choice
             required: true
             default: integration
+        
 
 jobs:
     get_env_var_of_interest:
@@ -59,7 +60,7 @@ jobs:
       
     workloads_deployment:
       needs: [get_docker_files, get_env_var_of_interest, get_images_common_tag]
-      uses: ./.github/workflows/_cloudrun_deployment.yaml
+      uses: ./.github/workflows/_cloudrun_deployment.yaml # TODO: nope, it's workload deployment we need
       strategy:
           matrix:
             docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
