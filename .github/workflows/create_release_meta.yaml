@@ -10,16 +10,6 @@ on:
           required: true
 
 jobs:
-
-    # tag_release_branch:
-    #   runs-on: ubuntu-22.04
-    #   steps:
-    #     - name: tag release branch
-    #       id: tag_release_branch
-    #       uses: ./.github/tag_github_branches
-    #       with:
-    #         release_version: ${{ inputs.next_release_version }}
-    
     create_release_and_associated_note:
       runs-on: ubuntu-22.04
       permissions:
