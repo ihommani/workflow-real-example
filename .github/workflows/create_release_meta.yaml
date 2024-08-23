@@ -32,7 +32,7 @@ jobs:
         with:
           allowUpdates: true # fake
           draft: false
-          generateReleaseNotes: false
+          generateReleaseNotes: false # fake
           makeLatest: true
           name: ${{ inputs.next_release_version }}
           commit: ihommani-test-release # release TODO: to set back to release branch
