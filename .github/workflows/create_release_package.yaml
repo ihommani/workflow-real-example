@@ -75,7 +75,7 @@ jobs:
             region: ${{ inputs.region }}
             workload_identity_provider: ${{ inputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }}
-            image_name: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ matrix.package_name }}
+            image_name: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ matrix.package_name }} # in fact no need to reconstruct it. The output of `list_release_candidate_packages` should already have the complete URI of the image
             semver_tag: ${{ inputs.next_release_version }}
 
             
