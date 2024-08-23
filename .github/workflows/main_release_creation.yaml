@@ -5,7 +5,7 @@ on:
     pull_request: 
     push: 
         branches: 
-            - ihommani-test-release #release
+            - release
 
 jobs:
     control_pull_request_reference:
