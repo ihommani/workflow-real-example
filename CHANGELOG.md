@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.4.2] - 2024-08-23
+### :bug: Bug Fixes
+- [`cbe9786`](https://github.com/ihommani/workflow-real-example/commit/cbe97869e1064bb09ec746a7ff3e1c0495f0e567) - test *(commit by [@ihommani](https://github.com/ihommani))*
+
+
 ## [v0.4.1] - 2024-08-23
 ### :bug: Bug Fixes
 - [`3aa79f1`](https://github.com/ihommani/workflow-real-example/commit/3aa79f11eca32848ef3e73bf1ba32c52ebaeeec2) - remove code *(commit by [@ihommani](https://github.com/ihommani))*
