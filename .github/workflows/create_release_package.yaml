@@ -59,13 +59,24 @@ jobs:
         id-token: 'write'
       needs: [list_release_candidate_packages]
       strategy:
-          matrix: ${{ fromJson(needs.list_release_candidate_packages.outputs.package_names) }}
+          # matrix: ${{ fromJson(needs.list_release_candidate_packages.outputs.package_names) }}
+          matrix:
+            package_name: [backend, frontend, init-db]
       steps:
         - uses: actions/checkout@v4
 
         - name: tag packages
-          id: dsfds
-          uses: ./.github/actions/tag_images_from_cloud_artifact
+          id: tag_packages
+          # uses: ./.github/actions/tag_images_from_cloud_artifact
+          uses: ./.github/actions/image_tag
+          with:
+            project_id: ${{ inputs.project_id }} 
+            repository_id: ${{ inputs.repository_id }}
+            region: ${{ inputs.region }}
+            workload_identity_provider: ${{ inputs.workload_identity_provider }}
+            service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }}
+            image_name: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ matrix.package_name }}
+            semver_tag: ${{ inputs.next_release_version }}
 
             
 

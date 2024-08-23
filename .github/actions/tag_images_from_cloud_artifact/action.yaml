@@ -1,4 +1,5 @@
-name: List OCI artifacts from cloud artifactories
+# TODO: to remove, already taken into account with the composite action action "image_tag"
+name: Tag existing OCI artifacts from cloud artifactories
 description: |-
   Return list of images in a given artifact repository
 
@@ -18,6 +19,13 @@ inputs:
   region:
     description: Region of the concrete artifactory service
     required: true
+  version_tag:
+    description: Tag to apply
+    required: true
+  level_tag:
+    description: Tag where to apply the version Tag
+    required: true
+
 
 runs:
       using: composite
@@ -41,7 +49,7 @@ runs:
           id: list_images
           shell: bash
           run: |
-            echo "If not exist, adding sha1 tag at the same level than tag latest"
+            echo "If not exist, adding version tag at the same level than tag latest"
             package_names=$(gcloud artifacts docker tags list ${{ inputs.image_name }} --format="csv(tag)")
             echo ${package_names}
 # package_names output must be compatible with fromJSON

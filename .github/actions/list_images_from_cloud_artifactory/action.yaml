@@ -18,10 +18,10 @@ inputs:
   region:
     description: Region of the concrete artifactory service
     required: true
-
+# package_names output must be compatible with fromJSON
 outputs:
   package_names:
-    description: List of OCI images available in the selected artifactory repo
+    description: List of OCI images available in the selected artifactory repo. Is compatible with fromJson method to be consumable from a matrix strategy.
     value: ${{ steps.list_images.outputs.package_names }}
 
 
@@ -51,4 +51,3 @@ runs:
             package_names=$(gcloud artifacts docker images list europe-west1-docker.pkg.dev/gde-ihommani/to-delete --format="csv(package)" | uniq)
             echo "${package_names}"
             echo 'package_names=${package_names}' >> $GITHUB_OUTPUT
-# package_names output must be compatible with fromJSON
