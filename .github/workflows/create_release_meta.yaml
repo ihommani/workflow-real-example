@@ -20,22 +20,22 @@ jobs:
     #       with:
     #         release_version: ${{ inputs.next_release_version }}
     
-    create_release_and_associated_note: # fake
+    create_release_and_associated_note:
       runs-on: ubuntu-22.04
       permissions:
         contents: write
       steps:
       - uses: actions/checkout@v3
 
-      - name: Tag repo # fake
+      - name: Tag repo
         uses: ncipollo/release-action@v1.14.0
         with:
-          allowUpdates: true # fake
+          allowUpdates: true
           draft: false
-          generateReleaseNotes: false # fake
+          generateReleaseNotes: false
           makeLatest: true
           name: ${{ inputs.next_release_version }}
-          commit: ihommani-test-release # release TODO: to set back to release branch
+          commit: ihommani-test-release # release
           tag: ${{ inputs.next_release_version }}
           body: TO UPDATE
           token: ${{ github.token }}
