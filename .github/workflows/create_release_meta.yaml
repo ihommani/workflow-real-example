@@ -67,6 +67,7 @@ jobs:
           branch: main
           commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
           file_pattern: CHANGELOG.md
+          skip_checkout: true
         
 
     # set_release_version_information_on_repo:
