@@ -20,7 +20,7 @@ jobs:
     #       with:
     #         release_version: ${{ inputs.next_release_version }}
     
-    create_release_and_associated_note:
+    create_release_and_associated_note: # fake
       runs-on: ubuntu-22.04
       permissions:
         contents: write
