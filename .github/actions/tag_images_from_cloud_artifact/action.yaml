@@ -1,0 +1,55 @@
+# TODO: to remove, already taken into account with the composite action action "image_tag"
+name: Tag existing OCI artifacts from cloud artifactories
+description: |-
+  Return list of images in a given artifact repository
+
+inputs:
+  project_id:
+    description: id of the project entity hosting package repository
+    required: true 
+  repository_id:
+    description: Image repository id
+    required: true
+  workload_identity_provider:
+    description: Identifier of the concrete workload identity provider.
+    required: true
+  service_account_to_impersonate:
+    description: Identity to impersonate through the workload identity provider
+    required: true
+  region:
+    description: Region of the concrete artifactory service
+    required: true
+  version_tag:
+    description: Tag to apply
+    required: true
+  level_tag:
+    description: Tag where to apply the version Tag
+    required: true
+
+
+runs:
+      using: composite
+      steps:
+
+        - name: Authenticate to gcp workload identity pool
+          id: auth_to_google
+          uses: 'google-github-actions/auth@v2'
+          with:
+              workload_identity_provider: ${{ inputs.workload_identity_provider }}
+              service_account: ${{ inputs.service_account_to_impersonate }}
+              access_token_lifetime: 300s
+              create_credentials_file: true # maybe not needed. Try commented out. 
+
+        # Does not work with access token. Only through credential file. For this reason we can't define an access token as an input and we require the previous auth action
+        - name: Set up Cloud SDK
+          id: set_up_gcloud_sdk
+          uses: google-github-actions/setup-gcloud@v2
+
+        - name: List images # the image has not been built because no source has changed. Tag latest should exist
+          id: list_images
+          shell: bash
+          run: |
+            echo "If not exist, adding version tag at the same level than tag latest"
+            package_names=$(gcloud artifacts docker tags list ${{ inputs.image_name }} --format="csv(tag)")
+            echo ${package_names}
+# package_names output must be compatible with fromJSON

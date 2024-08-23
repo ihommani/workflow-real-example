@@ -1,7 +1,7 @@
 name: Containers delivery
 run-name: '${{ github.actor }} triggers containers delivery'
 
-# TODO: export this file in _docker_delivery.yaml and encapsulate it's call here. --> maybe an exception here
+# TODO: export this file in _docker_delivery.yaml and encapsulate it's call here. --> maybe an exception here because complex. Or at least after everything is working
 on:
     workflow_call:
       inputs:
@@ -15,7 +15,7 @@ on:
           type: string 
           default: ''
         project_id:
-          description: Location of the consumed resources
+          description: id of the project entity hosting image repository
           required: true
           type: string
         repository_id:
@@ -41,6 +41,11 @@ on:
           description: |-
             Context of the deployment
           required: true
+          type: string
+        release_tag:
+          description: |-
+            If provided, the tag to set on all pushed images
+          required: false
           type: string
 
 jobs:
@@ -81,7 +86,7 @@ jobs:
             echo "$(dirname ${{ matrix.docker_file_path }})"
             echo "dirname=$(dirname ${{ matrix.docker_file_path }})" >> $GITHUB_OUTPUT
 
-          # TODO: does not work with subfolder to Dockerfile dirname. To adapt.  --> we need to map dirname  
+          # TODO: does not work with subfolder to Dockerfile dirname. To adapt.  --> we need to map dirname. Note: I think it was fixed with "dir_names_max_depth: 1" 
         - name: Compute rebuild status per Dockerfile. True if sources in Dockerfile dirname changed.
           id: compute_image_to_build_status
           run: |-
@@ -122,7 +127,7 @@ jobs:
 
     build_push_image: # TODO: is to be triggered on all push on main
       runs-on: ubuntu-22.04
-      needs: [get_docker_files, build_status_per_dockerfile, matrix_read] # TODO: check if we can remote build_status_per_docker_file from the list. Normally yes
+      needs: [get_docker_files, build_status_per_dockerfile, matrix_read] # TODO: check if we can remove build_status_per_docker_file from the list. Normally yes
       permissions: 
         contents: 'read'
         id-token: 'write'
@@ -164,31 +169,28 @@ jobs:
             final_name=${tmp_name:1:100} # We remove the leading '_' and take the rest
             echo "image_name=$final_name" >> $GITHUB_OUTPUT
 
+        - name: tag strategy
+          id: tag_name_strategy
+          shell: bash
+          run: |
+            [ ${{ inputs.release_tag }} = '' ] && echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT || echo "tag=${{ inputs.release_tag }}" >> $GITHUB_OUTPUT
+
         - name: Image delivery
-          if: ${{ contains('true', steps.is_image_to_build_status.outputs.to_build) }}
+          if: contains('true', steps.is_image_to_build_status.outputs.to_build)
           id: image_delivery
           uses: ./.github/actions/docker_build_push
           with:
             dockerfile_path: ${{ matrix.docker_file_path }}
-            image_tag: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ steps.infer-image-name.outputs.image_name }}:${{ github.sha }}
+            image_tag: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ steps.infer-image-name.outputs.image_name }}:${{ steps.tag_name_strategy.outputs.tag }}
             registry_id: ${{ inputs.region }}-docker.pkg.dev
             access_token: ${{ steps.auth_to_google.outputs.access_token }}
 
-        # TODO: if environment is staging, compute and set the version tag vx.y.z. get the commit message content to decide the computation
-        # https://github.com/ietf-tools/semver-action?tab=readme-ov-file#example-workflow
-        - name: Compute semver next version
-          id: compute_semver_next_version
-          if: contains('staging', inputs.environment) 
-          uses: ietf-tools/semver-action@v1
-          with:
-            token: ${{ github.token }}
-            branch: release 
-          
         - name: Image tagging 
+          if: inputs.release_tag != ''
           id: image_tagging
           uses: ./.github/actions/image_tag
           with:
             workload_identity_provider: ${{ inputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }}
             image_name: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ steps.infer-image-name.outputs.image_name }}
-            semver_tag:  ${{ steps.compute_semver_next_version.outputs.next }}
+            semver_tag:  ${{ inputs.release_tag }}

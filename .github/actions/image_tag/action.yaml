@@ -1,6 +1,6 @@
 name: Gcloud Tag images
 description: |
- Ensure we have the tag corresponding to trigger event's sha1 if no new image have been pushed. Assign the tag 'lates' to the current event's sha1
+ Ensure we have the tag corresponding to trigger event's sha1 if no new image have been pushed. Assign tag 'latest' to the current event's sha1
 
 inputs:
     workload_identity_provider:
@@ -72,10 +72,10 @@ runs:
             echo "Trying to delete tag ${{ inputs.semver_tag }}"
             gcloud artifacts docker tags delete ${{ inputs.image_name }}:${{ inputs.semver_tag }}
 
-        - name: Adding semver tag if exist
+        - name: Adding semver tag at level latest / current sha1
           if: inputs.semver_tag != ''
           id: adding_semver_tag
           shell: bash
           run: |-
             echo "Adding tag ${{ inputs.semver_tag }}"
-            gcloud artifacts docker tags add ${{ inputs.image_name }}:${{ inputs.semver_tag }}
+            gcloud artifacts docker tags add ${{ inputs.image_name }}:latest ${{ inputs.image_name }}:${{ inputs.semver_tag }}

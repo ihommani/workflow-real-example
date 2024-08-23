@@ -1,0 +1,75 @@
+name: Workload deployment on dispatch
+run-name: '${{ github.actor }} triggers workload deployment'
+ 
+# TODO: to document: # whatever happens, we deploy on the current sha1
+# to document: service name take the name of the folder containing "Dockerfile". It's a contract we have with the infrastructure. Cloud run service must already exists.
+# Same thing with the job. They must exist and their name is on the "Dockerfile_[job_name]" itself
+
+on: 
+  workflow_dispatch: 
+    inputs:
+        environment:
+            description: On what environment to deploy the targeted version
+            options:
+                - integration
+                - staging
+                - production
+            type: choice
+            required: true
+            default: integration
+        
+
+jobs:
+    get_env_var_of_interest:
+      uses: ./.github/workflows/_get_env_var_of_interest.yaml
+      with:
+        environment: ${{ inputs.environment }}
+
+    get_images_common_tag:
+      runs-on: ubuntu-22.04
+      outputs:
+        common_tag_to_deploy: ${{ steps.common_tag.outputs.common_tag_to_deploy }}
+      steps:
+        - name: Validate the triggering reference is of tag type
+          id: check_ref_type
+          run: |-
+            if [ ${{ github.ref_type }} = branch ]
+              echo "You cannot deploy with a branch as reference type. Please choose a release tag"
+              exit 1
+            fi
+
+        - name: Get common tag for deployment
+          id: common_tag
+          run: |-
+            common_tag_to_deploy=${{ github.ref_name }} 
+            echo "common tag to deploy: ${common_tag_to_deploy}"
+            echo "common_tag_to_deploy=${common_tag_to_deploy}" >> $GITHUB_OUTPUT
+    
+
+    get_docker_files:
+      runs-on: ubuntu-22.04
+      outputs:
+        docker_files: ${{ steps.list_docker_file_path.outputs.docker_files }}
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: list_docker_file_path
+          id: list_docker_file_path
+          uses: ./.github/actions/get_docker_files
+
+      
+    workloads_deployment:
+      needs: [get_docker_files, get_env_var_of_interest, get_images_common_tag]
+      uses: ./.github/workflows/_cloudrun_deployment.yaml # TODO: nope, it's workload deployment we need
+      strategy:
+          matrix:
+            docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
+      with:
+          environment: ${{ inputs.environment }}
+          workload_identity_provider: ${{ needs.get_env_var_of_interest.outputs.workload_identity_provider }}
+          service_account_to_impersonate: ${{ needs.get_env_var_of_interest.outputs.service_account_to_impersonate }}
+          cloud_region: ${{ needs.get_env_var_of_interest.outputs.region }}
+          project_id: ${{ needs.get_env_var_of_interest.outputs.project_id }}
+          repository_id: ${{ needs.get_env_var_of_interest.outputs.repository_id }}
+          tag: ${{ needs.get_images_common_tag.outputs.common_tag_to_deploy }}
+          docker_file_path: ${{ matrix.docker_file_path }}
