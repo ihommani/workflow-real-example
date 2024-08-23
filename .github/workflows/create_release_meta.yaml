@@ -27,7 +27,7 @@ jobs:
       steps:
       - uses: actions/checkout@v3
 
-      - name: Tag repo
+      - name: Tag repo # fake
         uses: ncipollo/release-action@v1.14.0
         with:
           allowUpdates: true
