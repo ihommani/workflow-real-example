@@ -59,6 +59,7 @@ jobs:
           token: ${{ github.token }}
           tag: ${{ inputs.next_release_version }}
 
+          
       - name: Commit CHANGELOG.md
         id: commit_changelog
         uses: stefanzweifel/git-auto-commit-action@v4
