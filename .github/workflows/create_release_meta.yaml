@@ -25,7 +25,7 @@ jobs:
           generateReleaseNotes: false
           makeLatest: true
           name: ${{ inputs.next_release_version }}
-          commit: ihommani-test-release # release
+          commit: release
           tag: ${{ inputs.next_release_version }}
           body: TO UPDATE
           token: ${{ github.token }}
@@ -48,7 +48,7 @@ jobs:
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
           tag: ${{ inputs.next_release_version }}
-          commit: ihommani-test-release #release
+          commit: release
 
       # https://keepachangelog.com/en/1.0.0/
       - name: Commit CHANGELOG.md
