@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.6.0] - 2024-08-24
+### :bug: Bug Fixes
+- [`f678ed1`](https://github.com/ihommani/workflow-real-example/commit/f678ed1ed16dc44f64c7328c1ecc24ebb2d2702d) - get back to release branch *(commit by [@ihommani](https://github.com/ihommani))*
+- [`eccdd0d`](https://github.com/ihommani/workflow-real-example/commit/eccdd0da984579ec77f959d3827967d51261d739) - adjust *(commit by [@ihommani](https://github.com/ihommani))*
+- [`cf6b962`](https://github.com/ihommani/workflow-real-example/commit/cf6b9628625027623bf949db4487c4d9c0157a97) - branch trigger *(commit by [@ihommani](https://github.com/ihommani))*
+
+
 ## [v0.5.0] - 2024-08-23
 ### :sparkles: New Features
 - [`4d77c24`](https://github.com/ihommani/workflow-real-example/commit/4d77c243d611cbe89b9886ae3a1178937d8fee9f) - comment out *(commit by [@ihommani](https://github.com/ihommani))*
@@ -75,3 +82,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :bug: Bug Fixes
 - [`1321fed`](https://github.com/ihommani/workflow-real-example/commit/1321fedbb9032679831a7f3dfd3ed0cc36e5a302) - WIP *(commit by [@ihommani](https://github.com/ihommani))*
 [v0.5.0]: https://github.com/ihommani/workflow-real-example/compare/v0.4.3...v0.5.0
+[v0.6.0]: https://github.com/ihommani/workflow-real-example/compare/v0.5.0...v0.6.0
