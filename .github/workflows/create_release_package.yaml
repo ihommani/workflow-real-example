@@ -60,7 +60,7 @@ jobs:
       needs: [list_release_candidate_packages]
       strategy:
           matrix: 
-            artifact_to_tag: ${{ fromJson(needs.list_release_candidate_packages.outputs.package_names) }}
+            artifact_to_tag: ${{ needs.list_release_candidate_packages.outputs.package_names }}
       steps:
         - uses: actions/checkout@v4
 
