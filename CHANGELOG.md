@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.7.0] - 2024-08-24
+### :sparkles: New Features
+- [`b02624d`](https://github.com/ihommani/workflow-real-example/commit/b02624d992b0ccbf31ed43c2d2d1e24f212db6dd) - ignore markdown *(commit by [@ihommani](https://github.com/ihommani))*
+- [`6328177`](https://github.com/ihommani/workflow-real-example/commit/6328177942dd1f9b162b43e11a2a38661cf2de94) - WIP *(commit by [@ihommani](https://github.com/ihommani))*
+- [`e193f69`](https://github.com/ihommani/workflow-real-example/commit/e193f6924e2148594a8fca6abad50dde1953f620) - WIP *(commit by [@ihommani](https://github.com/ihommani))*
+- [`82a95af`](https://github.com/ihommani/workflow-real-example/commit/82a95af7e2978daf84fdccf6d18d4f06de6f8284) - toto *(commit by [@ihommani](https://github.com/ihommani))*
+
+### :bug: Bug Fixes
+- [`95b819f`](https://github.com/ihommani/workflow-real-example/commit/95b819f2dd2816e3535bb0697c70177d1f37b2c4) - test *(commit by [@ihommani](https://github.com/ihommani))*
+- [`c5beaa9`](https://github.com/ihommani/workflow-real-example/commit/c5beaa9331bbafe8b626bc705e95411eab124e81) - test *(commit by [@ihommani](https://github.com/ihommani))*
+- [`848b0f8`](https://github.com/ihommani/workflow-real-example/commit/848b0f82bbffc3867e7632aa7e5aace05e6b1a16) - test *(commit by [@ihommani](https://github.com/ihommani))*
+- [`9962585`](https://github.com/ihommani/workflow-real-example/commit/996258577f0ad1f000db65324db5ea3596c78685) - test *(commit by [@ihommani](https://github.com/ihommani))*
+- [`04ca0d7`](https://github.com/ihommani/workflow-real-example/commit/04ca0d71f8905bd562d2dd874f5b4407a01f372c) - test *(commit by [@ihommani](https://github.com/ihommani))*
+- [`1d3ff97`](https://github.com/ihommani/workflow-real-example/commit/1d3ff97580fa457257a488115c253783eea9b072) - test *(commit by [@ihommani](https://github.com/ihommani))*
+- [`62f982f`](https://github.com/ihommani/workflow-real-example/commit/62f982f56ac5d9336f562fb697322c136e2c250b) - test *(commit by [@ihommani](https://github.com/ihommani))*
+- [`3e3f052`](https://github.com/ihommani/workflow-real-example/commit/3e3f0520511f4b3731a1b4ac5f789924b3ea644f) - test *(commit by [@ihommani](https://github.com/ihommani))*
+
+
 ## [v0.6.0] - 2024-08-24
 ### :bug: Bug Fixes
 - [`f678ed1`](https://github.com/ihommani/workflow-real-example/commit/f678ed1ed16dc44f64c7328c1ecc24ebb2d2702d) - get back to release branch *(commit by [@ihommani](https://github.com/ihommani))*
@@ -83,3 +101,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`1321fed`](https://github.com/ihommani/workflow-real-example/commit/1321fedbb9032679831a7f3dfd3ed0cc36e5a302) - WIP *(commit by [@ihommani](https://github.com/ihommani))*
 [v0.5.0]: https://github.com/ihommani/workflow-real-example/compare/v0.4.3...v0.5.0
 [v0.6.0]: https://github.com/ihommani/workflow-real-example/compare/v0.5.0...v0.6.0
+[v0.7.0]: https://github.com/ihommani/workflow-real-example/compare/v0.6.0...v0.7.0
