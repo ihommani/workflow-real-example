@@ -8,8 +8,7 @@ on:
         paths: 
             - frontend/**
             - backend/**
-
-    #TODO: ignore markdown path. Create dedicated flow for all markdown in the repo
+            - '!*.md'
 
 jobs:
     # TODO: documenter dans le README pk la CI n'est pas souhaitable pour des contextes où l'output est une image docker agnostique de l'env, alors qu'elle l'est sur la partie infra (config et couts différents par env, )
@@ -70,5 +69,6 @@ jobs:
     # TODO: call this same workflow (or an adapted version) that deliver (and not deploy) images on {staging; production} environments
     # To call only if we need to decorelate artifactory repo between environements --> because image content would depends on the environment and we want to avoid at all cost to put the environment name in the tag.  
     # tag should be similar between the different repositories
+    # --> NOPE: this is taken into account by the release creation workflow. Artifactory other than integration would contains only release tags
 
     # TODO: final job : push the badge status. This task should always run even in case of previous task failure

@@ -33,7 +33,7 @@ jobs:
         - name: Validate the triggering reference is of tag type
           id: check_ref_type
           run: |-
-            if [ ${{ github.ref_type }} = branch ];
+            if [ ${{ github.ref_type }} = branch ]; then
               echo "You cannot deploy with a branch as reference type. Please choose a release tag"
               exit 1
             fi
@@ -57,4 +57,3 @@ jobs:
           project_id: ${{ needs.get_env_var_of_interest.outputs.project_id }}
           repository_id: ${{ needs.get_env_var_of_interest.outputs.repository_id }}
           tag: ${{ needs.get_images_common_tag.outputs.common_tag_to_deploy }}
-          docker_file_path: ${{ matrix.docker_file_path }}

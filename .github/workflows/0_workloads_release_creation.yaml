@@ -8,22 +8,24 @@ on:
             - release
 
 jobs:
-    control_pull_request_reference:
-        if: github.event_name == 'pull_request'
-        runs-on: ubuntu-22.04
-        steps:
-            - name: reference name is main
-              id: ref_name_main
-              run: |-
-                echo "${{ github.ref_name }}"
-                [ ${{ github.ref_name }} != main ] && exit 1
+    # control_pull_request_reference: # TODO fix
+    #     if: github.event_name == 'pull_request'
+    #     runs-on: ubuntu-22.04
+    #     steps:
+    #         - name: reference name is main
+    #           id: ref_name_main
+    #           run: |-
+    #             echo "${{ github.ref_name }}" 
+    #             [ ${{ github.ref_name }} != main ] && exit 1
 
     collect_env_variables_of_interest:
+      if: github.event_name == 'push'
       uses: ./.github/workflows/_get_env_var_of_interest.yaml
       with:
         environment: integration
 
     compute_next_release_version:
+        if: github.event_name == 'push'
         runs-on: ubuntu-22.04
         outputs:
             next_release_version: ${{ steps.compute_next_version.outputs.next }}

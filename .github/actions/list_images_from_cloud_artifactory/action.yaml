@@ -48,6 +48,6 @@ runs:
           shell: bash
           run: |
             echo "If not exist, adding sha1 tag at the same level than tag latest"
-            package_names=$(gcloud artifacts docker images list europe-west1-docker.pkg.dev/gde-ihommani/to-delete --format="csv(package)" | uniq)
+            package_names=$(gcloud artifacts docker images list ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }} --format=json | jq -c '[.[].package] | unique')
             echo "${package_names}"
-            echo 'package_names=${package_names}' >> $GITHUB_OUTPUT
+            echo "package_names=$package_names" >> $GITHUB_OUTPUT

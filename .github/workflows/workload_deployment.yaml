@@ -61,7 +61,7 @@ jobs:
           matrix:
             docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
       with:
-          environment: ${{ inputs.environment }} # should always be 'integration' since continuous deployment is only applied on this env. staging and production are triggered through dispatch
+          environment: ${{ inputs.environment }}
           workload_identity_provider: ${{ inputs.workload_identity_provider }}
           service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }} 
           cloud_region: ${{ inputs.cloud_region }}

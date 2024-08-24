@@ -37,7 +37,7 @@ jobs:
             token: ${{ github.token }}
             tag: ${{ inputs.next_release_version }}
 
-      - name: Create Release # fake
+      - name: Create Release
         uses: ncipollo/release-action@v1.14.0
         with:
           allowUpdates: true
@@ -45,10 +45,10 @@ jobs:
           generateReleaseNotes: false
           makeLatest: true
           name: ${{ inputs.next_release_version }}
+          commit: release
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
           tag: ${{ inputs.next_release_version }}
-          commit: release
 
       # https://keepachangelog.com/en/1.0.0/
       - name: Commit CHANGELOG.md
