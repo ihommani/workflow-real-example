@@ -5,7 +5,7 @@ on:
     pull_request: 
     push: 
         branches: 
-            - ihommani-test-release #release
+            - release
 
 jobs:
     control_pull_request_reference:
@@ -35,7 +35,7 @@ jobs:
           uses: ietf-tools/semver-action@v1
           with:
             token: ${{ github.token }}
-            branch: ihommani-test-release #release
+            branch: release
 
     create_release_package:
         if: github.event_name == 'push'
