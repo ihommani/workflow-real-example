@@ -19,6 +19,7 @@ jobs:
     #             [ ${{ github.ref_name }} != main ] && exit 1
 
     collect_env_variables_of_interest:
+      if: github.event_name == 'push'
       uses: ./.github/workflows/_get_env_var_of_interest.yaml
       with:
         environment: integration
