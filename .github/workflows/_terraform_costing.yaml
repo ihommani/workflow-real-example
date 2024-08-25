@@ -1,4 +1,4 @@
-name: Terraform planning
+name: Terraform infracstructure cost forcast
 run-name: '${{ github.actor }} run Terraform code integration'
 
 on:
