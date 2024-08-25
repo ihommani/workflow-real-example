@@ -1,0 +1,59 @@
+name: Deploy release
+run-name: '${{ github.actor }} triggers workload deployment for environment ${{ github.action_ref }}'
+ 
+# TODO: to document: # whatever happens, we deploy on the current sha1
+# to document: service name take the name of the folder containing "Dockerfile". It's a contract we have with the infrastructure. Cloud run service must already exists.
+# Same thing with the job. They must exist and their name is on the "Dockerfile_[job_name]" itself
+
+on: 
+  workflow_dispatch: 
+    inputs:
+        environment:
+            description: On what environment to deploy the targeted version
+            options:
+                - integration
+                - staging
+                - production
+            type: choice
+            required: true
+            default: integration
+        
+
+jobs:
+    get_env_var_of_interest:
+      uses: ./.github/workflows/_get_env_var_of_interest.yaml
+      with:
+        environment: ${{ inputs.environment }}
+
+    get_images_common_tag:
+      runs-on: ubuntu-22.04
+      outputs:
+        common_tag_to_deploy: ${{ steps.common_tag.outputs.common_tag_to_deploy }}
+      steps:
+        - name: Validate the triggering reference is of tag type
+          id: check_ref_type
+          run: |-
+            if [ ${{ github.ref_type }} = branch ]; then
+              echo "You cannot deploy with a branch as reference type. Please choose a release tag"
+              exit 1
+            fi
+
+        - name: Get common tag for deployment
+          id: common_tag
+          run: |-
+            common_tag_to_deploy=${{ github.ref_name }} 
+            echo "common tag to deploy: ${common_tag_to_deploy}"
+            echo "common_tag_to_deploy=${common_tag_to_deploy}" >> $GITHUB_OUTPUT
+    
+
+    workloads_deployment:
+      needs: [get_env_var_of_interest, get_images_common_tag]
+      uses: ./.github/workflows/workload_deployment.yaml
+      with:
+          environment: ${{ inputs.environment }}
+          workload_identity_provider: ${{ needs.get_env_var_of_interest.outputs.workload_identity_provider }}
+          service_account_to_impersonate: ${{ needs.get_env_var_of_interest.outputs.service_account_to_impersonate }}
+          cloud_region: ${{ needs.get_env_var_of_interest.outputs.region }}
+          project_id: ${{ needs.get_env_var_of_interest.outputs.project_id }}
+          repository_id: ${{ needs.get_env_var_of_interest.outputs.repository_id }}
+          tag: ${{ needs.get_images_common_tag.outputs.common_tag_to_deploy }}

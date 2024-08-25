@@ -8,6 +8,7 @@ on:
                 description: Path of the terraform root module to apply linting on
                 type: string
                 required: true
+            # TODO: maybe not needed
             terraform-version:
                 description: Terraform version to install
                 required: true

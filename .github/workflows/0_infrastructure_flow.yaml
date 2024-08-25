@@ -1,6 +1,5 @@
 
-name: Infrastructure main workflow
-
+name: Infrastructure integration and deployment
 run-name: '${{ github.actor }} triggered Infrastructure workflow'
 
 on:
@@ -10,6 +9,9 @@ on:
              - integration
              - staging
              - production
+        paths: 
+            - infrastructure/**.tf
+    # Note: we require branch protection on "environment" branches to require push from pull requests only
     pull_request: 
         branches: 
             - integration
@@ -51,6 +53,7 @@ jobs:
               id: get_env
               uses: ./.github/actions/get_infrastructure_flow_env
 
+              
     infrastructure_plan:
         if: github.event_name == 'pull_request'
         needs: [get_plan_env]
@@ -87,3 +90,5 @@ jobs:
             id-token: write
         with:
             root_module_path: './infrastructure/${{ needs.get_deploy_env.outputs.environment }}'
+
+    # TODO: final job : push the badge status. This task should always run even in case of previous task failure

@@ -1,0 +1,83 @@
+name: Create release metadat
+run-name: '${{ github.actor }} triggers release metadata creation'
+
+on:
+    workflow_call:
+      inputs:
+        next_release_version :
+          description: Release version to set on metafile
+          type: string
+          required: true
+
+jobs:
+    create_release_and_associated_note:
+      runs-on: ubuntu-22.04
+      permissions:
+        contents: write
+      steps:
+      - uses: actions/checkout@v3
+
+      - name: Tag repo
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          allowUpdates: true
+          draft: false
+          generateReleaseNotes: false
+          makeLatest: true
+          name: ${{ inputs.next_release_version }}
+          commit: release
+          tag: ${{ inputs.next_release_version }}
+          body: TO UPDATE
+          token: ${{ github.token }}
+
+      - name: Update or create CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+            token: ${{ github.token }}
+            tag: ${{ inputs.next_release_version }}
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          allowUpdates: true
+          draft: false
+          generateReleaseNotes: false
+          makeLatest: true
+          name: ${{ inputs.next_release_version }}
+          commit: release
+          body: ${{ steps.changelog.outputs.changes }}
+          token: ${{ github.token }}
+          tag: ${{ inputs.next_release_version }}
+
+      # https://keepachangelog.com/en/1.0.0/
+      - name: Commit CHANGELOG.md
+        id: commit_changelog
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          #branch: release # Cannot be a different branch from the one where the changelog.md has been generated, otherwise git checkout will complain of the risk to override change. The README should link to this file from the release branche
+          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
+          file_pattern: CHANGELOG.md
+        
+
+    # set_release_version_information_on_repo:
+    #   runs-on: ubuntu-22.04
+    #   steps:
+    #     - name: set release version on repo
+    #       id: set_release_version_information
+    #       uses: ./.github/badge_github_repo
+    #       with:
+    #         release_version: ${{ inputs.next_release_version }}
+
+          
+
+          
+      
+        
+    
+        
+        
+      
+    
+          
+      

@@ -8,6 +8,12 @@ resource "null_resource" "default" {
   }
 }
 
+resource "null_resource" "echo_smthg" {
+  provisioner "local-exec" {
+    command = "echo 'I have my poney course'"
+  }
+}
+
 resource "google_project_service" "project" {
   project = "gde-ihommani"
   service = "run.googleapis.com"

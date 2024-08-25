@@ -1,0 +1,36 @@
+name: Get dockerfile path
+description: |-
+  List dockerfiles path in the entire repository
+
+inputs:
+  environment:
+    description: Github action environment name
+    required: true
+
+outputs:
+  docker_files:
+    description: Json list of Dockerfile paths in the entire repo. To consume with fromJson()
+    value: ${{ steps.docker_files_list.outputs.docker_files }}
+
+
+runs:
+      using: composite
+      steps:
+
+        - name: Checkout sources
+          id: checkout_sources
+          uses: actions/checkout@v4
+
+        - name: Get Docker files from sources
+          id: get_docker_files
+          uses: tj-actions/glob@v22
+          with:
+            separator: ','
+            files: |
+              **/Dockerfile*
+
+        - name: Render Docker files list Json compatible
+          shell: bash
+          id: docker_files_list
+          run: |
+            echo "docker_files=[$(echo ${{ steps.get_docker_files.outputs.paths }} | sed 's/[^,][^,]*/"&"/g')]" >> $GITHUB_OUTPUT

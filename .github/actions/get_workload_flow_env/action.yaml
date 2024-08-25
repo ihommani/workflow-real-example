@@ -1,3 +1,4 @@
+# TODO: To remove. We don't care anymore since deployment on staging on production are done through dispatch. integration is the only candidate for continuous integration.
 name: Get workload flow environment
 description: |-
   Composite action to mutualize the logic of getting Github environment 
@@ -6,7 +7,6 @@ outputs:
   environment: 
       description: associated workflow environment
       value: ${{ steps.guess_env.outputs.environment }}
-
 
 runs:
     using: composite

@@ -1,33 +1,201 @@
-name: Cloud Run service deployment
-run-name: '${{ github.event_name }} needs to look for source changes'
+name: Cloud Run service or job deployment
+run-name: '${{ github.event_name }} triggers cloud run service/job deployment'
 
 
 on:
     workflow_call: 
         inputs:
-            type:
-                description: 'Cloud run type: service or job. Possible values are "job" or "service"'
-                type: string
-            name:
-                description: Cloud Run service name to deploy
+            environment:
+                description: Environment where we deploy
                 type: string
                 required: true
-            image:
-                description: fully qualified name of the image associated to the service
+            workload_identity_provider:
+                description: Google Workload identity pool's provider id.
+                required: true
+                type: string
+            service_account_to_impersonate:
+                description: Service account that the GIthub principal is allowed to impersonate
+                required: true
+                type: string
+            cloud_region:
+                description: Cloud region where to deploy the workloads
                 type: string
                 required: true
-            
+            project_id:
+                description: Google project id where to deploy the workloads
+                type: string
+                required: true
+            repository_id:
+                description: Google Artifact registry repository id
+                type: string
+                required: true
+            tag:
+                description: 'which tag to apply'
+                type: string
+                required: false
+                default: latest
+            docker_file_path:
+                description: File path reprensenting the service or job to deploy. Needed to infer the real service/job name.
+                type: string
 
+
+#TODO: document the logic of Dockerfile's convention naming 
 jobs:
-
-    # list all the services name
-    # list all the jobs name
-    # for each list, do the matrix strategy for each service or job
-
-    deploy_service:
+    get_cloud_run_type: 
         runs-on: ubuntu-22.04
+        outputs:
+            cloud_run_type: ${{ steps.cloud_run_type.outputs.type }}
         steps:
-            - name: todo
+            - name: Get Cloud Run type
+              id: cloud_run_type
               run: |-
-                echo "TODO" #https://github.com/google-github-actions/deploy-cloudrun
+                if [[ ${{ inputs.docker_file_path }} =~ ^.*/Dockerfile$ ]]; then
+                    echo "service"
+                    echo "type=service" >> $GITHUB_OUTPUT
+                elif [[ ${{ inputs.docker_file_path }} =~ ^.*/Dockerfile_.*$ ]]; then
+                    echo "job"
+                    echo "type=job" >> $GITHUB_OUTPUT
+                else
+                    echo "Path '${{ inputs.docker_file_path }}' is not valid. Should end with 'Dockerfile' or 'Dockerfile_[job_name]'"
+                    exit 1
+                fi          
+
+    # TODO: document the capacity to control env variables on the cloud run environment from dedicated files
+    get_env_variable_path: 
+        runs-on: ubuntu-22.04
+        outputs:
+            env_file_path: ${{ steps.definition_file.outputs.path }}
+        steps:
+
+            - uses: actions/checkout@v4 
+
+            - name: Get Cloud Run env variable definition file
+              id: definition_file
+              run: |-
+                base_path=$(dirname ${{ inputs.docker_file_path }})
+                path=${base_path}/.env.cloud.${{ inputs.environment }}
+                [ -f "${path}" ] && echo "$path" || echo "/no/file/exist.txt"
+                [ -f "${path}" ] && echo "path=$path" >> $GITHUB_OUTPUT || echo "path=/no/file/exist.txt" >> $GITHUB_OUTPUT
+
+
+    get_service_or_job_base_name:
+        needs: get_cloud_run_type
+        runs-on: ubuntu-22.04
+        outputs:
+            name: ${{ steps.get_base_name.outputs.name }}
+        steps:
+          - name: get base name
+            id: get_base_name
+            shell: bash
+            run: |-
+              if [ ${{ needs.get_cloud_run_type.outputs.cloud_run_type }} = job ]; then
+                docker_path=${{ inputs.docker_file_path }}
+                name=${docker_path##*Dockerfile_}
+                echo "job name: '${name}'"
+                echo "name=$name" >> $GITHUB_OUTPUT
+              elif [ ${{ needs.get_cloud_run_type.outputs.cloud_run_type }} = service ]; then
+                name=$(basename $(dirname ${{ inputs.docker_file_path }}))
+                echo "service name: '${name}'"
+                echo "name=$name" >> $GITHUB_OUTPUT
+              else
+                echo "'${{ needs.get_cloud_run_type.outputs.cloud_run_type }}' is no valid cloud run type. Should be 'service' or 'job'"
+                exit 1
+              fi
+
+    get_network_worload_option:
+        runs-on: ubuntu-22.04
+        needs: [get_service_or_job_base_name, get_cloud_run_type]
+        outputs:
+            allow_unauthenticated: ${{ steps.allow_unauthenticated.outputs.allow_unauthenticated }}
+            no_traffic: ${{ steps.no_traffic.outputs.no-migrate-traffic }}    
+        steps:
+          - name: Allow unauthenticated
+            id: allow_unauthenticated
+            run: |-
+                [ ${{ needs.get_service_or_job_base_name.outputs.name }} = frontend ] & [ ${{ needs.get_cloud_run_type.outputs.cloud_run_type }} = service ] && echo "allow_unauthenticated=true" >> $GITHUB_OUTPUT || echo "allow_unauthenticated=false" >> $GITHUB_OUTPUT
+
+          - name: No migrate traffic
+            id: no_traffic
+            run: |-
+                [ ${{ inputs.environment }} = production ] & [ ${{ needs.get_cloud_run_type.outputs.cloud_run_type }} = service ] && echo "no-migrate-traffic=true" >> $GITHUB_OUTPUT || echo "no-migrate-traffic=false" >> $GITHUB_OUTPUT
+
+
+    # altough we have a market place action, it has not enough added value to justify its usage: https://github.com/google-github-actions/deploy-cloudrun
+    deploy_service_or_job:
+        needs: [get_cloud_run_type, get_env_variable_path, get_service_or_job_base_name, get_network_worload_option]
+        runs-on: ubuntu-22.04
+        permissions: 
+            contents: read
+            id-token: write
+        steps:
+
+            - uses: actions/checkout@v4
+
+            # TODO: set in the dockerignore, the file name generaget. See the action documentation
+            - name: Authenticate to gcp workload identity pool
+              id: auth_to_google
+              uses: 'google-github-actions/auth@v2'
+              with:
+                workload_identity_provider: ${{ inputs.workload_identity_provider }} # TODO: to replace with inputs
+                service_account: ${{ inputs.service_account_to_impersonate }}
+                create_credentials_file: true 
+
+            - name: Get Cloud Run name
+              id: get_cloud_run_name
+              shell: bash
+              # we list jobs or services with format='csv(name)' option and grep the name in the list. If none is found we fail. "Contact infrastructure team"
+              run: |-
+                if [ ${{needs.get_cloud_run_type.outputs.cloud_run_type }} = job ]; then
+                    matching=$(gcloud run jobs list --format='csv(name)' --project='${{ inputs.project_id }}' --region='${{ inputs.cloud_region }}' | grep '${{ needs.get_service_or_job_base_name.outputs.name }}')
+                    echo "job name: '${matching}'"
+                    echo "matching=${matching}" >> $GITHUB_OUTPUT
+                elif [ ${{needs.get_cloud_run_type.outputs.cloud_run_type }} = service ]; then
+                    matching=$(gcloud run services list --format='csv(name)' --project='${{ inputs.project_id }}' --region='${{ inputs.cloud_region }}' | grep '${{ needs.get_service_or_job_base_name.outputs.name }}')
+                    echo "service name: '${matching}'"
+                    echo "matching=${matching}" >> $GITHUB_OUTPUT
+                else
+                    echo "Wrong cloud run type: '${{needs.get_cloud_run_type.outputs.cloud_run_type }}'"
+                    exit 1
+                fi
             
+            - name: Check service or job image existence
+              id: image_existence
+              run: |-
+                image_path=${{ inputs.cloud_region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ needs.get_service_or_job_base_name.outputs.name }}:${{ inputs.tag }}
+                gcloud artifacts docker images describe ${image_path}
+                echo "image_path=$image_path" >> $GITHUB_OUTPUT
+
+            - name: Define Cloud Run CLI flags
+              id: cloud_run_flags
+              run: |- # on production, we do not not redirect traffic. Must be done through the console first. Later would be done by a dedicated workload.
+                project="--project=${{ inputs.project_id }}"
+                region="--region=${{ inputs.cloud_region }}"
+                image="--image=${{ steps.image_existence.outputs.image_path }}"
+                env_var_file=$([ -f "${{ needs.get_env_variable_path.outputs.env_file_path }}" ] && echo "--env-vars-file=${{ needs.get_env_variable_path.outputs.env_file_path }}" || echo "")
+                migrate_traffic=$([ ${{needs.get_cloud_run_type.outputs.cloud_run_type }} = service ] && [ ${{ needs.get_network_worload_option.outputs.no_traffic }} = true ] && echo "--no-traffic" || echo "")
+                allow_unauthenticated=$([ ${{needs.get_cloud_run_type.outputs.cloud_run_type }} = service ] && [ ${{ needs.get_network_worload_option.outputs.allow_unauthenticated  }} = true ] && echo "--allow-unauthenticated" || echo "")
+                cli_flags="${project} ${region} ${image} ${env_var_file} ${migrate_traffic} ${allow_unauthenticated}"
+                echo ${cli_flags}
+                echo "cli_flags=$cli_flags" >> $GITHUB_OUTPUT
+
+            - name: Deploy Cloud Run
+              id: deploy_run
+              run: |-
+                if [ ${{needs.get_cloud_run_type.outputs.cloud_run_type }} = job ]; then
+                    echo "Deploying job '${{ needs.get_service_or_job_base_name.outputs.name }}' on tag ${{ inputs.tag }}"
+                    gcloud run jobs deploy ${{ steps.get_cloud_run_name.outputs.matching }} ${{ steps.cloud_run_flags.outputs.cli_flags }}
+                elif [ ${{needs.get_cloud_run_type.outputs.cloud_run_type }} = service ]; then
+                    echo "Deploying service '${{ needs.get_service_or_job_base_name.outputs.name }}' on tag ${{ inputs.tag }}"
+                    gcloud run deploy ${{ steps.get_cloud_run_name.outputs.matching }} ${{ steps.cloud_run_flags.outputs.cli_flags }}
+                else
+                    echo "Problem while detecting cloud run type. Can only be 'service' or 'job'"
+                    exit 1
+                fi
+
+            - name: Ensure traffic is set to latest outside from production
+              id: ensure_traffic_to_latest
+              if: inputs.environment != 'production' && needs.get_cloud_run_type.outputs.cloud_run_type == 'service'
+              run: |-
+                gcloud run services update-traffic ${{ steps.get_cloud_run_name.outputs.matching }} --region='${{ inputs.cloud_region }}' --to-latest
+            
+# final task: set the badge with the deployed version tag for each jobs and service --> not here. In the calling workflow
