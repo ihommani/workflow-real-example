@@ -173,7 +173,7 @@ jobs:
           id: tag_name_strategy
           shell: bash
           run: |
-            [ ${{ inputs.release_tag }} = '' ] && echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT || echo "tag=${{ inputs.release_tag }}" >> $GITHUB_OUTPUT
+            [ -z ${{ inputs.release_tag }} ] && echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT || echo "tag=${{ inputs.release_tag }}" >> $GITHUB_OUTPUT
 
         - name: Image delivery
           if: contains('true', steps.is_image_to_build_status.outputs.to_build)
@@ -185,12 +185,12 @@ jobs:
             registry_id: ${{ inputs.region }}-docker.pkg.dev
             access_token: ${{ steps.auth_to_google.outputs.access_token }}
 
-        - name: Image tagging 
-          if: inputs.release_tag != ''
+        - name: set tag to docker image 
           id: image_tagging
           uses: ./.github/actions/image_tag
           with:
             workload_identity_provider: ${{ inputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }}
             image_name: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.repository_id }}/${{ steps.infer-image-name.outputs.image_name }}
-            semver_tag:  ${{ inputs.release_tag }}
+            # semver_tag:  ${{ inputs.release_tag }}
+            tag:  ${{ steps.tag_name_strategy.outputs.tag }}
