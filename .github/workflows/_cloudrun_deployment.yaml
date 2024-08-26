@@ -136,7 +136,7 @@ jobs:
               id: auth_to_google
               uses: 'google-github-actions/auth@v2'
               with:
-                workload_identity_provider: ${{ inputs.workload_identity_provider }} # TODO: to replace with inputs
+                workload_identity_provider: ${{ inputs.workload_identity_provider }}
                 service_account: ${{ inputs.service_account_to_impersonate }}
                 create_credentials_file: true 
 

@@ -1,5 +1,5 @@
-name: Workload deployment on dispatch
-run-name: '${{ github.actor }} triggers workload deployment'
+name: Deploy release
+run-name: '${{ github.actor }} triggers workload deployment for environment ${{ github.action_ref }}'
  
 # TODO: to document: # whatever happens, we deploy on the current sha1
 # to document: service name take the name of the folder containing "Dockerfile". It's a contract we have with the infrastructure. Cloud run service must already exists.

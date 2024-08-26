@@ -1,8 +1,11 @@
 name: Create a new release for the different workload
 run-name: ${{ github.actor }} triggered a release creation
 
+# https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#onpull_requestpull_request_targetbranchesbranches-ignore
 on:
-    pull_request: 
+    pull_request:
+        branches: 
+            - release 
     push: 
         branches: 
             - release

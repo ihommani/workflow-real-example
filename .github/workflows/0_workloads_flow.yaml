@@ -32,9 +32,8 @@ jobs:
     collect_env_variables_of_interest:
         uses: ./.github/workflows/_get_env_var_of_interest.yaml
         with:
-          environment: integration
+          environment: integration # we consider 'integration' as the default environment in this main workflow
 
-    
     container_delivery:
         needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration]
         uses: ./.github/workflows/container_delivery.yaml
@@ -51,13 +50,14 @@ jobs:
             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
-            environment: ${{ needs.get_env.outputs.environment }}
+            environment: integration
 
             
     workloads_deployment:
+        needs: [collect_env_variables_of_interest, container_delivery]
         uses: ./.github/workflows/workload_deployment.yaml
         with:
-            environment: ${{ needs.get_env.outputs.environment }}
+            environment: integration
             project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
             repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }} 
             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
