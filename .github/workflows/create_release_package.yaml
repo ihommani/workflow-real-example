@@ -1,4 +1,4 @@
-name: Create release
+name: Create release packages
 run-name: '${{ github.actor }} triggers release creation'
 
 on:
@@ -66,8 +66,7 @@ jobs:
 
         - name: tag packages
           id: tag_packages
-          # uses: ./.github/actions/tag_images_from_cloud_artifact
-          uses: ./.github/actions/image_tag
+          uses: ./.github/actions/tag_image
           with:
             project_id: ${{ inputs.project_id }} 
             repository_id: ${{ inputs.repository_id }}
@@ -75,7 +74,7 @@ jobs:
             workload_identity_provider: ${{ inputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }}
             image_name: ${{ matrix.artifact_to_tag }}
-            semver_tag: ${{ inputs.next_release_version }}
+            tag: ${{ inputs.next_release_version }}
 
             
 

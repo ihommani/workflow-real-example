@@ -42,7 +42,7 @@ on:
 
 jobs:
     
-    get_docker_files:
+    list_docker_files:
       runs-on: ubuntu-22.04
       outputs:
         docker_files: ${{ steps.list_docker_file_path.outputs.docker_files }}
@@ -51,15 +51,15 @@ jobs:
 
         - name: list_docker_file_path
           id: list_docker_file_path
-          uses: ./.github/actions/get_docker_files
+          uses: ./.github/actions/list_docker_files
 
       
     workloads_deployment:
-      needs: [get_docker_files]
+      needs: [list_docker_files]
       uses: ./.github/workflows/_cloudrun_deployment.yaml
       strategy:
           matrix:
-            docker_file_path: ${{ fromJson(needs.get_docker_files.outputs.docker_files) }}
+            docker_file_path: ${{ fromJson(needs.list_docker_files.outputs.docker_files) }}
       with:
           environment: ${{ inputs.environment }}
           workload_identity_provider: ${{ inputs.workload_identity_provider }}

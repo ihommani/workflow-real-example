@@ -15,9 +15,9 @@ inputs:
         description: |-
           Tagged image name
         required: true
-    semver_tag:
+    tag:
       description: |-
-        Semver compliant tag to apply
+        specific tag to apply. e.g: a semver compliant tag
       required: false
 
 runs:
@@ -63,19 +63,19 @@ runs:
             echo "Align tag latest to the current sha1 tag"
             gcloud artifacts docker tags add ${{ inputs.image_name }}:${{ github.sha }} ${{ inputs.image_name }}:latest
           
-        - name: Delete semver tag if exist
-          if: inputs.semver_tag != ''
-          id: delete_semver
+        - name: Delete tag if exist
+          if: inputs.tag != ''
+          id: delete_tag
           continue-on-error: true
           shell: bash
           run: |-
-            echo "Trying to delete tag ${{ inputs.semver_tag }}"
-            gcloud artifacts docker tags delete ${{ inputs.image_name }}:${{ inputs.semver_tag }}
+            echo "Trying to delete tag ${{ inputs.tag }}"
+            gcloud artifacts docker tags delete ${{ inputs.image_name }}:${{ inputs.tag }}
 
-        - name: Adding semver tag at level latest / current sha1
-          if: inputs.semver_tag != ''
-          id: adding_semver_tag
+        - name: Adding tag at level latest / current sha1
+          if: inputs.tag != ''
+          id: adding_tag
           shell: bash
           run: |-
-            echo "Adding tag ${{ inputs.semver_tag }}"
-            gcloud artifacts docker tags add ${{ inputs.image_name }}:latest ${{ inputs.image_name }}:${{ inputs.semver_tag }}
+            echo "Adding tag ${{ inputs.tag }}"
+            gcloud artifacts docker tags add ${{ inputs.image_name }}:latest ${{ inputs.image_name }}:${{ inputs.tag }}
