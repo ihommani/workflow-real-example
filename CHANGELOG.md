@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.8.1] - 2024-08-26
+### :bug: Bug Fixes
+- [`aaf9b3a`](https://github.com/ihommani/workflow-real-example/commit/aaf9b3a793bfc20db8bf780d4296cc9ad464de15) - test *(commit by [@ihommani](https://github.com/ihommani))*
+
+### :wrench: Chores
+- [`139676a`](https://github.com/ihommani/workflow-real-example/commit/139676a8290ef13d4244b21de25af4a471055d2a) - update workflow name *(commit by [@ihommani](https://github.com/ihommani))*
+- [`0df4c47`](https://github.com/ihommani/workflow-real-example/commit/0df4c47d6d050cf3dbea62aa163d27b373efabe5) - control workflow name and run name *(commit by [@ihommani](https://github.com/ihommani))*
+- [`5ec40fd`](https://github.com/ihommani/workflow-real-example/commit/5ec40fd33b7b7f41270ff60e35910ad965278b93) - remove todo and useless workflow code *(commit by [@ihommani](https://github.com/ihommani))*
+- [`8e56744`](https://github.com/ihommani/workflow-real-example/commit/8e567445e96bb56c86ab7c51c2ba32878e10037b) - testing *(commit by [@ihommani](https://github.com/ihommani))*
+- [`e5f119b`](https://github.com/ihommani/workflow-real-example/commit/e5f119bbbf6515346574140ad63d211d823ee33d) - update the terraform upper version *(commit by [@ihommani](https://github.com/ihommani))*
+- [`94ed373`](https://github.com/ihommani/workflow-real-example/commit/94ed3734242f16ad82b9001a4ff25083971f991b) - toto *(commit by [@ihommani](https://github.com/ihommani))*
+
+
 ## [v0.8.0] - 2024-08-26
 ### :sparkles: New Features
 - [`1a76579`](https://github.com/ihommani/workflow-real-example/commit/1a765795a42670073278af6c53e2ff58412dc23b) - new infrastructure element *(commit by [@ihommani](https://github.com/ihommani))*
@@ -113,3 +126,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.6.0]: https://github.com/ihommani/workflow-real-example/compare/v0.5.0...v0.6.0
 [v0.7.0]: https://github.com/ihommani/workflow-real-example/compare/v0.6.0...v0.7.0
 [v0.8.0]: https://github.com/ihommani/workflow-real-example/compare/v0.7.0...v0.8.0
+[v0.8.1]: https://github.com/ihommani/workflow-real-example/compare/v0.8.0...v0.8.1
