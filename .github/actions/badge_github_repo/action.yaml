@@ -7,6 +7,7 @@ inputs:
     description: Region of the concrete artifactory service
     required: true
 
+# TODO: not doing anything currently
 runs:
       using: composite
       steps:
@@ -14,4 +15,4 @@ runs:
           shell: bash
           id: setting_badge
           run: |-
-            echo "modifiying the json file .last_version.json which feed a dynamic badge build with https://shields.io/"
+            echo "modifiying the json file .last_version.json which feed a dynamic badge build with https://shields.io/ and commit it on the default branch with stefanzweifel/git-auto-commit-action@v4"

@@ -187,7 +187,7 @@ jobs:
 
         - name: set tag to docker image 
           id: image_tagging
-          uses: ./.github/actions/image_tag
+          uses: ./.github/actions/tag_image
           with:
             workload_identity_provider: ${{ inputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ inputs.service_account_to_impersonate }}

@@ -1,6 +1,6 @@
-name: Get dockerfile path
+name: Get dockerfile paths
 description: |-
-  List dockerfiles path in the entire repository
+  List dockerfile paths in the entire repository
 
 inputs:
   environment:
