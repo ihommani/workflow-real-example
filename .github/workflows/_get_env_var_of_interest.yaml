@@ -1,4 +1,7 @@
-# Ideally, it's a composite action. Will not work since composite actions cannot acces the 'vars' context: https://github.com/orgs/community/discussions/49689
+# Ideally, it's a composite action. Will not work since composite actions cannot acces the 'vars' context:
+# https://github.com/orgs/community/discussions/49689
+# https://github.com/orgs/community/discussions/51280
+
 name: Get env variables flow environment
 run-name: '${{ github.actor }} run Terraform code integration'
 

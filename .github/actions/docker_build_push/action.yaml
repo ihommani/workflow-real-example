@@ -1,6 +1,6 @@
 name: Docker build and push
 description: |-
-  Composite action to build and push docker images. Image tag is taken from the sha1 associated to the triggering event. 
+  Build and push docker images
 
 inputs:
     dockerfile_path:

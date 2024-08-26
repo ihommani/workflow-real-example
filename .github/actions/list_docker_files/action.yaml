@@ -1,6 +1,6 @@
-name: Get dockerfile path
+name: List dockerfile paths
 description: |-
-  List dockerfiles path in the entire repository
+  List dockerfile paths in the entire repository
 
 inputs:
   environment:
@@ -21,8 +21,8 @@ runs:
           id: checkout_sources
           uses: actions/checkout@v4
 
-        - name: Get Docker files from sources
-          id: get_docker_files
+        - name: List Docker files from sources
+          id: list_docker_files
           uses: tj-actions/glob@v22
           with:
             separator: ','
@@ -33,4 +33,4 @@ runs:
           shell: bash
           id: docker_files_list
           run: |
-            echo "docker_files=[$(echo ${{ steps.get_docker_files.outputs.paths }} | sed 's/[^,][^,]*/"&"/g')]" >> $GITHUB_OUTPUT
+            echo "docker_files=[$(echo ${{ steps.list_docker_files.outputs.paths }} | sed 's/[^,][^,]*/"&"/g')]" >> $GITHUB_OUTPUT

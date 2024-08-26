@@ -16,7 +16,7 @@ outputs:
 runs:
     using: composite
     steps:
-        # TODO: as a rule of thumb, a composite action should not contain conditions. Up to the caller to implement itself the condition logic to call or not the composite action
+        # TODO: document:  as a rule of thumb, a composite action should not contain conditions. Up to the caller to implement itself the condition logic to call or not the composite action
         - if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name) 
           name: get infrastructure deployment env
           id: get_deploy_env
