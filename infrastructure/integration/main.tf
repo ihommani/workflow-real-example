@@ -14,6 +14,12 @@ resource "null_resource" "echo_smthg" {
   }
 }
 
+resource "null_resource" "echo_smthg_more" {
+  provisioner "local-exec" {
+    command = "echo 'I have swimming pool'"
+  }
+}
+
 resource "google_project_service" "project" {
   project = "gde-ihommani"
   service = "run.googleapis.com"
