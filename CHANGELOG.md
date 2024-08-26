@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.8.0] - 2024-08-26
+### :sparkles: New Features
+- [`1a76579`](https://github.com/ihommani/workflow-real-example/commit/1a765795a42670073278af6c53e2ff58412dc23b) - new infrastructure element *(commit by [@ihommani](https://github.com/ihommani))*
+
+### :bug: Bug Fixes
+- [`4cfd4d4`](https://github.com/ihommani/workflow-real-example/commit/4cfd4d45f5e6458417631fcc8973de4f195ef106) - fdsf *(commit by [@ihommani](https://github.com/ihommani))*
+- [`c65fd87`](https://github.com/ihommani/workflow-real-example/commit/c65fd87c4875f0d157ef88dfc2b8c83b9433891f) - test *(commit by [@ihommani](https://github.com/ihommani))*
+- [`e5486dc`](https://github.com/ihommani/workflow-real-example/commit/e5486dceaff8f8a1aed73ac170b86a950c3a8e7f) - test *(commit by [@ihommani](https://github.com/ihommani))*
+
+
 ## [v0.7.0] - 2024-08-24
 ### :sparkles: New Features
 - [`b02624d`](https://github.com/ihommani/workflow-real-example/commit/b02624d992b0ccbf31ed43c2d2d1e24f212db6dd) - ignore markdown *(commit by [@ihommani](https://github.com/ihommani))*
@@ -102,3 +112,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.5.0]: https://github.com/ihommani/workflow-real-example/compare/v0.4.3...v0.5.0
 [v0.6.0]: https://github.com/ihommani/workflow-real-example/compare/v0.5.0...v0.6.0
 [v0.7.0]: https://github.com/ihommani/workflow-real-example/compare/v0.6.0...v0.7.0
+[v0.8.0]: https://github.com/ihommani/workflow-real-example/compare/v0.7.0...v0.8.0
