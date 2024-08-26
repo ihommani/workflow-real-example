@@ -1,5 +1,5 @@
-name: Containers continuous integration
-run-name: '${{ github.actor }} triggers containers continuous integration'
+name: Containers integration
+run-name: '${{ github.actor }} triggers containers integration'
 
 on:
     push: 

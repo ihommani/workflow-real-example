@@ -1,4 +1,4 @@
-name: Create release metadat
+name: Create release metadata
 run-name: '${{ github.actor }} triggers release metadata creation'
 
 on:

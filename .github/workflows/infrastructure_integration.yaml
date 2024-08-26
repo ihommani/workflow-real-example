@@ -1,5 +1,5 @@
-name: Infrastructure continuous integration
-run-name: '${{ github.actor }} triggers infrastructure continuous integration'
+name: Infrastructure integration
+run-name: '${{ github.actor }} triggers infrastructure integration'
 
 on:
     push: 
