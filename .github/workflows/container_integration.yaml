@@ -19,7 +19,6 @@ jobs:
       with:
         files: |
           **/Dockerfile*
-          **/Dockerfile*
 
     output_source_changed:
       needs: check_sources_change

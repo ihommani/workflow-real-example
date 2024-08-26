@@ -24,7 +24,7 @@ jobs:
           frontend/Dockerfile*
           frontend/.dockerignore
 
-    next_application_integration:
+    frontend_integration:
       permissions: 
         pull-requests: 
           write

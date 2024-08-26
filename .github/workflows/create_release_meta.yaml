@@ -55,7 +55,7 @@ jobs:
         id: commit_changelog
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          #branch: release # Cannot be a different branch from the one where the changelog.md has been generated, otherwise git checkout will complain of the risk to override change. The README should link to this file from the release branche
+          #branch: release # Cannot be a different branch from the one where the changelog.md has been generated, otherwise git checkout will complain of the risk to override change. The README should link to this file from the release branch, which is ususally the branch where this workflow is triggered.
           commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
           file_pattern: CHANGELOG.md
         
