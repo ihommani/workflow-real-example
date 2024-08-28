@@ -1,4 +1,4 @@
-name: 	":arrow_forward: Deploy workloads releases"
+name: 	":blush: Deploy workloads releases"
 run-name: '${{ github.actor }} triggers workload deployment for environment ${{ github.action_ref }}'
  
 # TODO: to document: # whatever happens, we deploy on the current sha1
