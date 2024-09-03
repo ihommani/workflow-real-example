@@ -5,8 +5,51 @@
 
 <!-- TODO: document the fact that we extensively use the notion of github environment coupled with the notion of 'main' workflow to impement the third factor of 12 factors app -->
 
-# Tagging strategy
- This action considers that given an image name, it either have:
+# Github Action
+
+## Overall understanding
+
+Please read the main [README](./../README.md) to understand the best practices we try to illustrate
+
+## Github action targets
+
+This repository is a monorepo mixing sources from frontend and backend application along with Infrastructure As Code.   
+Mixing frontend and backend is ok as they usually share a common lifecycle. It is not the case of the IaC.   
+Although Git is powerfull enough to separate lifecycle event in a common repo (branching and Github actions allowing to segregates Git flows), we would still mix concerns during the Pull Requests.   
+We choose to still mix sources for the sake of demonstration purpose on GHA usage in applicative and infrastructure context.
+
+### IaC sources
+
+### Application sources
+
+### Needed environment variables
+
+## Github Actions strategies
+
+Defined GHA workflows illustrates *clean code* concepts:   
+* Naming
+* Separation of concerns
+* Hierarchic separation, which is a specialized kind of separation of concerns
+* Strategic conditionning taking advantage of the hierachic separation so that "concrete" workflow (the ones which does not focus on orchestration but launch actual jobs) will hardly require `if` keyword 
+* Usage of Github environment, not only for deployment concerns
+
+# Git flow
+
+## Infrastructure
+
+## Application
+
+## How to read workflows
+
+Because of the hierachical separation, we multiply the number of files which clearly does not help readability.  
+File naming convention may help. Here is the proposed convention:   
+
+* Pipeline entry point are files prefixed by **0_** prefix
+* Concrete workflow (doing the actual job and only callable) are prefixed by **_** 
+* Unprefixed workflow are the one which are callable but also triggered by Github events. (e.g: for feature branches controls)
+
+# Applicative packages tagging strategy
+ This action considers that given an image name, it either has:
  1. a tag with the current triggering event's sha1 --> we need to allign the tag latest with this tag sha1 (creating it if not existing)
  2. a tag 'latest' exists but no tag named after trigerring event sha1 --> We need to allign the sha1 tag with the existing 'latest' tag
  
