@@ -13,7 +13,7 @@ on:
             - infrastructure/**.tf
     # Note: we require branch protection on "environment" branches to require push from pull requests only
     pull_request: 
-        branches: 
+        branches:  # TODO: remove. only main
             - integration
             - staging
             - production
@@ -39,7 +39,7 @@ jobs:
                     exit 1
                 fi
 
-
+    # TODO: target branch must be "main"
     get_plan_env:
         if: github.event_name == 'pull_request'
         runs-on: ubuntu-22.04
