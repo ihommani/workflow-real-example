@@ -4,6 +4,10 @@ run-name: '${{ github.actor }} run Terraform code integration'
 on:
     workflow_call:
         inputs:
+            environment:
+                description: Targeted environment for infrastructure deployment
+                type: string
+                required: true
             root-module-path:
                 description: Path of the terraform root module to apply linting on
                 type: string
@@ -14,22 +18,6 @@ on:
                 type: string
 
 jobs:
-    extract_environment_from_module_path:
-      runs-on: ubuntu-22.04
-      outputs:
-          environment: ${{ steps.extract_environment.outputs.environment }}
-      defaults:
-          run:
-              working-directory: ${{ inputs.root-module-path }}
-      steps:
-        - name: Checkout sources
-          uses: actions/checkout@v4
-
-        - name: extract environment
-          id: extract_environment
-          run: |-
-            echo $(basename $(pwd))
-            echo "environment=$(basename $(pwd))" >> $GITHUB_OUTPUT
 
     updated-infrastructure-cost:
         runs-on: ubuntu-22.04
@@ -41,9 +29,8 @@ jobs:
           # TODO infracost https://github.com/infracost/actions
 
     terraform-planification:
-        needs: extract_environment_from_module_path
         environment: 
-          name: ${{ needs.extract_environment_from_module_path.outputs.environment }}
+          name: ${{ inputs.environment }}
         runs-on: ubuntu-22.04
         defaults:
             run:

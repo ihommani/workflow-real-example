@@ -81,6 +81,11 @@ This brings several benefits:
 * We control the global workflow execution by conditioning the "sub-workflows" calls   
 * We can add concerns to "level" of workflow. e.g: Level 0 being the orchestration level of level 1 workflow. Level 1 are CI/CD step related tasks (linting, formating, dependency scan, ...), while level 3 workflows are concreted actions calls.   
 
+
+**Note**:   
+A corollary of the conditionning of subworkflow calls is that concrete workflows and/or composites action hardly need to condition their jobs/steps executions which matches our previous tip *Condition in workflows rather than in actions*   
+
+
 ## Use Github environment by default
 
 GHA environment are documented in the context of deployment purpose.   
@@ -99,7 +104,7 @@ Ideally the pipeline is a DAG of actions we only consumes. Coding should be the 
 
 # Missing pieces
 
-GHA, while proposing interesting feature, falls short for some simple features.   
+GHA, while proposing interesting features, falls short for some simple features.   
 
 ## No ctrl+click in the extension
 

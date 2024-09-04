@@ -1,0 +1,54 @@
+name: Deploy infrastructure
+run-name: '${{ github.actor }} triggers infrastructure deployment for environment ${{ github.action_ref }}'
+ 
+on: 
+  workflow_dispatch: 
+    inputs:
+        environment:
+            description: On what environment to deploy the targeted infrastructure
+            options:
+                - integration
+                - staging
+                - production
+            type: choice
+            required: true
+            default: integration
+        
+
+jobs:
+
+    infrastructure_integration:
+      uses: ./.github/workflows/infrastructure_integration.yaml
+      with:
+        terraform_version: '1.9'
+        environment: ${{inputs.environment}}
+        root_module_path: './infrastructure/${{inputs.environment}}'
+
+
+    infrastructure_plan:
+        needs: [infrastructure_integration]
+        permissions: 
+          pull-requests: write
+          contents: read
+          id-token: write
+        uses: ./.github/workflows/infrastructure_plan.yaml
+        with:
+          terraform_version: '1.9'
+          environment: ${{ inputs.environment }}
+          root_module_path: './infrastructure/${{inputs.environment}}'
+
+          
+    infrastructure_deployment:
+      needs: [infrastructure_integration, infrastructure_plan]
+      uses: ./.github/workflows/infrastructure_deployment.yaml
+      permissions: 
+          pull-requests: write
+          contents: read
+          id-token: write
+      with:
+          terraform-version: '1.9'
+          environment: ${{ inputs.environment }}
+          root_module_path: './infrastructure/${{ inputs.environment }}'
+          #TODO: issue's body, comming from 'infrastructure_integration', 'infrastructure_plan' 
+
+# TODO: final job : push the badge status. This task should always run even in case of previous task failure
