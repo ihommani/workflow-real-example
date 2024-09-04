@@ -37,7 +37,7 @@ jobs:
           environment: ${{ inputs.environment }}
           root_module_path: './infrastructure/${{inputs.environment}}'
 
-          
+
     infrastructure_deployment:
       needs: [infrastructure_integration, infrastructure_plan]
       uses: ./.github/workflows/infrastructure_deployment.yaml
@@ -46,7 +46,7 @@ jobs:
           contents: read
           id-token: write
       with:
-          terraform-version: '1.9'
+          terraform_version: '1.9'
           environment: ${{ inputs.environment }}
           root_module_path: './infrastructure/${{ inputs.environment }}'
           #TODO: issue's body, comming from 'infrastructure_integration', 'infrastructure_plan' 
