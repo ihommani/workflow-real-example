@@ -20,12 +20,6 @@ resource "null_resource" "echo_smthg_more" {
   }
 }
 
-resource "null_resource" "echo_smthg_useful" {
-  provisioner "local-exec" {
-    command = "echo 'I have poney'"
-  }
-}
-
 resource "google_project_service" "project" {
   project = "gde-ihommani"
   service = "run.googleapis.com"
