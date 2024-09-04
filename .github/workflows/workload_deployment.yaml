@@ -1,7 +1,7 @@
 name: Workload deployment
 run-name: '${{ github.actor }} triggers workload deployment'
  
-# to document: service name take the name of the folder containing "Dockerfile". It's a contract we have with the infrastructure. Cloud run service must already exists.
+# TODO: to document: service name take the name of the folder containing "Dockerfile". It's a contract we have with the infrastructure. Cloud run service must already exists.
 # Same thing with the job. They must exist and their name is on the "Dockerfile_[job_name]" itself
 
 on: 

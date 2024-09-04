@@ -8,24 +8,50 @@ on:
           description: Terraform version to install
           type: string
           required: false
-          default: '1.7.0'
-        targeted_environment:
+          default: '1.9.0'
+        environment:
           description: Environment from where we need to plan
           type: string
-          required: true
+          required: false
+          default: ''
+        root_module_path:
+            description: Absolute path from the root git context to the root module to apply
+            type: string
+            required: true
+      # outputs: TODO: the plan and the cost output of the 'infrastructure_plan' & 'infrastructure_cost' workflow
+        
 
 jobs:
+
+    guess_environment_from_root_module_path:
+      if: inputs.environment == ''
+      runs-on: ubuntu-22.04
+      outputs:
+        environment: ${{ steps.extract_environment.outputs.environment }}
+      steps:
+        - name: Checkout sources
+          uses: actions/checkout@v4
+
+        - name: extract environment
+          id: extract_environment
+          run: |-
+            echo $(basename ${{ inputs.root_module_path }}))
+            echo "environment=$(basename ${{ inputs.root_module_path }})" >> $GITHUB_OUTPUT
+
     
     infrastructure_plan:
+      needs: guess_environment_from_root_module_path
       permissions: 
         pull-requests: write
         contents: read
         id-token: write
       uses: ./.github/workflows/_terraform_planning.yaml
       with:
+        environment: ${{ needs.guess_environment_from_root_module_path.outputs.environment }}
         terraform-version: ${{ inputs.terraform_version }}
-        root-module-path : ${{ inputs.targeted_environment }}
+        root-module-path : ${{ inputs.root_module_path }}
 
+        
     infrastructure_cost:
       permissions: 
         pull-requests:  
@@ -33,7 +59,7 @@ jobs:
       uses: ./.github/workflows/_terraform_costing.yaml
       with:
         terraform-version: ${{ inputs.terraform_version }}
-        root-module-path : ${{ inputs.targeted_environment }}
+        root-module-path : ${{ inputs.root_module_path }}
 
           
       

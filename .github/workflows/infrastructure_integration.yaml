@@ -2,14 +2,6 @@ name: Infrastructure integration
 run-name: '${{ github.actor }} triggers infrastructure integration'
 
 on:
-    push: 
-        branches-ignore: 
-            - main
-            - integration
-            - staging
-            - production
-        paths: 
-            - infrastructure/**
     workflow_call:
       inputs:
         terraform_version:
@@ -17,10 +9,21 @@ on:
           type: string
           required: false
           default: '1.9.0'
+        environment:
+          description: Which environment sources to consider to launch integration
+          type: string
+          required: false
+          default: ''
+        root_module_path:
+          description: Absolute path from the root git context to the root module to apply
+          type: string
+          required: true
+          default: ''
 
 jobs:
     
-    check_source_changes:
+    check_infrastructure_source_changes:
+      if: inputs.environment == ''
       uses: ./.github/workflows/_check_source_changes.yaml
       with:
         files: |
@@ -28,9 +31,9 @@ jobs:
         get_folders: true
 
         
-    infrastructure_integration:
-      needs: check_source_changes
-      if: needs.check_source_changes.outputs.is_modified_files == 'true'
+    infrastructure_integration_on_changed_environments:
+      needs: check_infrastructure_source_changes
+      if: inputs.environment == ''  && needs.check_source_changes.outputs.is_modified_files == 'true'
       permissions: 
         pull-requests: write
         contents: read
@@ -43,6 +46,15 @@ jobs:
       with:
         terraform-version: ${{ inputs.terraform_version }}
         root-module-path : ${{ matrix.root_module_path }}
+
+
+    infrastructure_integration_on_specific_environment:
+      if: inputs.environment != '' && contains(fromJSON('["integration", "staging", "production"]'), inputs.environment) && inputs.root_module_path != ''
+      uses: ./.github/workflows/_terraform_integration.yaml
+      with:
+        terraform-version: ${{ inputs.terraform_version }}
+        root-module-path : ${{ inputs.root_module_path }}
+
           
       
         

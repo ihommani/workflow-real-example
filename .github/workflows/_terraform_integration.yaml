@@ -12,8 +12,10 @@ on:
                 description: Terraform version to install
                 required: true
                 type: string
+    # TODO: output to set: { kicks output, validation status, }
 
 jobs:
+
     extract_environment_from_module_path:
         runs-on: ubuntu-22.04
         outputs:

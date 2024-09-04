@@ -4,6 +4,10 @@ run-name: '${{ github.actor }} run Terraform code apply'
 on:
     workflow_call:
         inputs:
+            environment:
+                description: Targeted environment for infrastructure deployment
+                type: string
+                required: true
             root-module-path:
                 description: Path of the terraform root module to apply linting on
                 type: string
@@ -15,27 +19,9 @@ on:
 
 jobs:
 
-    extract_environment_from_module_path:
-      runs-on: ubuntu-22.04
-      outputs:
-          environment: ${{ steps.extract_environment.outputs.environment }}
-      defaults:
-          run:
-              working-directory: ${{ inputs.root-module-path }}
-      steps:
-        - name: Checkout sources
-          uses: actions/checkout@v4
-
-        - name: extract environment
-          id: extract_environment
-          run: |-
-            echo $(basename $(pwd))
-            echo "environment=$(basename $(pwd))" >> $GITHUB_OUTPUT
-
     terraform-apply:
-        needs: extract_environment_from_module_path
         environment: 
-          name: ${{ needs.extract_environment_from_module_path.outputs.environment }}
+          name: ${{ inputs.environment }}
         runs-on: ubuntu-22.04
         defaults:
             run:
@@ -45,6 +31,20 @@ jobs:
             contents: read
             id-token: write
         steps:
+
+
+            #TODO: get body input containing the plan, kick report and cost
+            # - uses: trstringer/manual-approval@v1
+            #   with:
+            #     secret: ${{ github.TOKEN }}
+            #     approvers: user1,user2,org-team1
+            #     minimum-approvals: 1
+            #     issue-title: "Deploying infrastructure to prod from ${{ inputs.environment }}"
+            #     issue-body: "Please approve or deny the deployment of version v1.3.5."
+            #     exclude-workflow-initiator-as-approver: false
+            #     additional-approved-words: ''
+            #     additional-denied-words: ''
+
             - uses: actions/checkout@v4
 
             - uses: hashicorp/setup-terraform@v3

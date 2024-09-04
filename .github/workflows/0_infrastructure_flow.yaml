@@ -1,94 +1,47 @@
-
 name: Infrastructure integration and deployment
 run-name: '${{ github.actor }} triggered Infrastructure workflow'
 
 on:
     push:
-        branches:
-             - main 
-             - integration
-             - staging
-             - production
         paths: 
             - infrastructure/**.tf
-    # Note: we require branch protection on "environment" branches to require push from pull requests only
+        branches-ignore: 
+            - main
     pull_request: 
-        branches:  # TODO: remove. only main
-            - integration
-            - staging
-            - production
+        branches:
+            - main
         paths: 
             - infrastructure/**.tf
 
 jobs:
 
     infrastructure_integration:
-        if: github.event_name == 'push' && github.ref_name == 'main'
+        if: github.event_name == 'push'
         uses: ./.github/workflows/infrastructure_integration.yaml
 
 
-    forbid_pull_request_to_env_branches_from_other_branch_than_main:
-        if: github.event_name == 'pull_request'
-        runs-on: ubuntu-22.04
-        steps:
-            - name: Forbid random branches to merge into env branches 
-              id: not_allowed_source_branch
-              shell: bash
-              run: |-
-                if [ "${{ github.head_ref }}" != "main" ]; then
-                    exit 1
-                fi
+    check_infrastructure_source_changes:
+        needs: infrastructure_integration
+        uses: ./.github/workflows/_check_source_changes.yaml
+        with:
+          files: |
+            **/*.tf
+          get_folders: true
 
-    # TODO: target branch must be "main"
-    get_plan_env:
-        if: github.event_name == 'pull_request'
-        runs-on: ubuntu-22.04
-        outputs:
-            environment: ${{ steps.get_env.outputs.plan_environment }}
-        steps:
-            - name: Checkout sources
-              uses: actions/checkout@v4
 
-            - name: get environment
-              id: get_env
-              uses: ./.github/actions/get_infrastructure_flow_env
-
-              
     infrastructure_plan:
-        if: github.event_name == 'pull_request'
-        needs: [get_plan_env]
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        needs: check_infrastructure_source_changes
         uses: ./.github/workflows/infrastructure_plan.yaml
         permissions: 
             pull-requests: write
             contents: read
             id-token: write
+        strategy:
+            fail-fast: false
+            matrix:
+              root_module_path: ${{ fromJSON(needs.check_infrastructure_source_changes.outputs.all_changed_files) }}
         with:
-            targeted_environment: './infrastructure/${{ needs.get_plan_env.outputs.environment }}'   
+            root_module_path : ${{ matrix.root_module_path }}
 
-
-    get_deploy_env:
-        if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
-        runs-on: ubuntu-22.04
-        outputs:
-            environment: ${{ steps.get_env.outputs.deploy_environment }}
-        steps:
-            - name: Checkout sources
-              uses: actions/checkout@v4
-
-            - name: get environment
-              id: get_env
-              uses: ./.github/actions/get_infrastructure_flow_env
-
-
-    infrastructure_deployment:
-        needs: [get_deploy_env]
-        if: github.event_name == 'push' && contains(fromJSON('["integration", "staging", "production"]'), github.ref_name)
-        uses: ./.github/workflows/infrastructure_deployment.yaml
-        permissions: 
-            pull-requests: write
-            contents: read
-            id-token: write
-        with:
-            root_module_path: './infrastructure/${{ needs.get_deploy_env.outputs.environment }}'
-
-    # TODO: final job : push the badge status. This task should always run even in case of previous task failure
+    # TODO: if pull request, push the content of plan workflow output in the PR comment
