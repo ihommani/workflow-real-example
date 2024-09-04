@@ -21,6 +21,7 @@ jobs:
 
 
     check_infrastructure_source_changes:
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
         needs: infrastructure_integration
         uses: ./.github/workflows/_check_source_changes.yaml
         with:
