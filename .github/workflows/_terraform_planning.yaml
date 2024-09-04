@@ -67,7 +67,7 @@ jobs:
 
               # TODO: adapt to call in a higher level workflow and to condition to the github event. 
             - uses: actions/github-script@v7  
-              if: false
+              if: true
               env: 
                 PLAN: "terraform\n${{ steps.terraform_plan.outputs.stdout }}"
               with:
