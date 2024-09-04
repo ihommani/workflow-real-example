@@ -26,6 +26,12 @@ resource "null_resource" "echo_smthg_useful" {
   }
 }
 
+resource "null_resource" "echo_smthg_useful2" {
+  provisioner "local-exec" {
+    command = "echo 'I have a pney'"
+  }
+}
+
 resource "google_project_service" "project" {
   project = "gde-ihommani"
   service = "run.googleapis.com"
