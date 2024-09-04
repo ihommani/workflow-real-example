@@ -16,7 +16,6 @@ on:
 jobs:
 
     infrastructure_integration:
-        if: github.event_name == 'push'
         uses: ./.github/workflows/infrastructure_integration.yaml
 
 
