@@ -17,7 +17,7 @@ on:
         root_module_path:
           description: Absolute path from the root git context to the root module to apply
           type: string
-          required: true
+          required: false
           default: ''
 
 jobs:

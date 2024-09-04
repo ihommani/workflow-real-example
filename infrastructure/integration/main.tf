@@ -22,7 +22,13 @@ resource "null_resource" "echo_smthg_more" {
 
 resource "null_resource" "echo_smthg_useful" {
   provisioner "local-exec" {
-    command = "echo 'I have poney'"
+    command = "echo 'I have'"
+  }
+}
+
+resource "null_resource" "echo_smthg_useful2" {
+  provisioner "local-exec" {
+    command = "echo 'I have a pney'"
   }
 }
 
