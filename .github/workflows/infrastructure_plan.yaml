@@ -34,7 +34,7 @@ jobs:
         - name: extract environment
           id: extract_environment
           run: |-
-            echo $(basename ${{ inputs.root_module_path }}))
+            echo $(basename ${{ inputs.root_module_path }})
             echo "environment=$(basename ${{ inputs.root_module_path }})" >> $GITHUB_OUTPUT
 
     

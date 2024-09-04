@@ -13,7 +13,6 @@ on:
             type: choice
             required: true
             default: integration
-        
 
 jobs:
 
