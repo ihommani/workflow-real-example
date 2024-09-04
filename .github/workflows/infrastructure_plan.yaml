@@ -24,7 +24,6 @@ on:
 jobs:
 
     guess_environment_from_root_module_path:
-      if: inputs.environment == ''
       runs-on: ubuntu-22.04
       outputs:
         environment: ${{ steps.extract_environment.outputs.environment }}
