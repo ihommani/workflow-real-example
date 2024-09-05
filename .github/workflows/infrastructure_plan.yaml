@@ -19,6 +19,10 @@ on:
             type: string
             required: true
       # outputs: TODO: the plan and the cost output of the 'infrastructure_plan' & 'infrastructure_cost' workflow
+      outputs:
+        infrastructure_plan:
+          description: "List of changes to the targeted infrastructure environment"
+          value: ${{ jobs.infrastructure_plan.outputs.terraform_plan }}
         
 
 jobs:

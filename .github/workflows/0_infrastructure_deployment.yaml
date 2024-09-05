@@ -2,7 +2,7 @@ name: Deploy infrastructure
 run-name: '${{ github.actor }} triggers infrastructure deployment for environment ${{ github.action_ref }}'
  
 on: 
-  workflow_dispatch: 
+  workflow_dispatch:
     inputs:
         environment:
             description: On what environment to deploy the targeted infrastructure
@@ -37,19 +37,24 @@ jobs:
           root_module_path: './infrastructure/${{inputs.environment}}'
 
 
+    #TODO: issue's body, comming from 'infrastructure_integration', 'infrastructure_plan'
     manual_validation:
       needs: [infrastructure_plan, infrastructure_integration]
       runs-on: ubuntu-22.04
+      environment: ${{ inputs.environment }}
       steps:
         - name: require validation
           id: require_validation
           uses: trstringer/manual-approval@v1
           with:
             secret: ${{ github.TOKEN }}
-            approvers: ihommani
+            approvers: ihommani # to replace with data from vars
             minimum-approvals: 1
-            issue-title: "Deploying infrastructure to ${{ inputs.environment }}"
-            issue-body: "Please approve or deny the deployment of version v1.3.5."
+            issue-title: "Deploying infrastructure to ${{ inputs.environment }} on ${{ vars.PROJECT_ID }}"
+            # issue-body: "Please approve or deny the infrastructure deployment on ${{ vars.PROJECT_ID }}"
+            issue-body: |-
+              "Please approve or deny the infrastructure deployment on ${{ vars.PROJECT_ID }}.
+              ${{ needs.infrastructure_plan.outputs.infrastructure_plan }}"
             exclude-workflow-initiator-as-approver: false
             additional-approved-words: ''
             additional-denied-words: ''
@@ -65,6 +70,5 @@ jobs:
           terraform_version: '1.9'
           environment: ${{ inputs.environment }}
           root_module_path: './infrastructure/${{ inputs.environment }}'
-          #TODO: issue's body, comming from 'infrastructure_integration', 'infrastructure_plan' 
 
 # TODO: final job : push the badge status. This task should always run even in case of previous task failure

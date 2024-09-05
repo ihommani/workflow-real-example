@@ -16,6 +16,10 @@ on:
                 description: Terraform version to install
                 required: true
                 type: string
+        outputs:
+          terraform_plan:
+            description: "List of changes to the targeted infrastructure environment"
+            value: ${{ jobs.terraform-planification.outputs.terraform_plan_output }}
 
 jobs:
 
@@ -39,6 +43,8 @@ jobs:
             pull-requests: write
             contents: read
             id-token: write
+        outputs:
+          terraform_plan_output: ${{ steps.terraform_plan.outcome }}
         steps:
             - uses: actions/checkout@v4
 
