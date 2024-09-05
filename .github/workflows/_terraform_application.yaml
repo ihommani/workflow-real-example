@@ -32,19 +32,6 @@ jobs:
             id-token: write
         steps:
 
-
-            #TODO: get body input containing the plan, kick report and cost
-            # - uses: trstringer/manual-approval@v1
-            #   with:
-            #     secret: ${{ github.TOKEN }}
-            #     approvers: user1,user2,org-team1
-            #     minimum-approvals: 1
-            #     issue-title: "Deploying infrastructure to prod from ${{ inputs.environment }}"
-            #     issue-body: "Please approve or deny the deployment of version v1.3.5."
-            #     exclude-workflow-initiator-as-approver: false
-            #     additional-approved-words: ''
-            #     additional-denied-words: ''
-
             - uses: actions/checkout@v4
 
             - uses: hashicorp/setup-terraform@v3

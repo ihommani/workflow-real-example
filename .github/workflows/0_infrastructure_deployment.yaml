@@ -37,8 +37,25 @@ jobs:
           root_module_path: './infrastructure/${{inputs.environment}}'
 
 
+    manual_validation:
+      needs: [infrastructure_plan, infrastructure_integration]
+      runs-on: ubuntu-22.04
+      steps:
+        - name: require validation
+          id: require_validation
+          uses: trstringer/manual-approval@v1
+          with:
+            secret: ${{ github.TOKEN }}
+            approvers: user1,user2,org-team1
+            minimum-approvals: 1
+            issue-title: "Deploying infrastructure to prod from ${{ inputs.environment }}"
+            issue-body: "Please approve or deny the deployment of version v1.3.5."
+            exclude-workflow-initiator-as-approver: false
+            additional-approved-words: ''
+            additional-denied-words: ''
+
     infrastructure_deployment:
-      needs: [infrastructure_integration, infrastructure_plan]
+      needs: [manual_validation]
       uses: ./.github/workflows/infrastructure_deployment.yaml
       permissions: 
           pull-requests: write
