@@ -44,7 +44,7 @@ jobs:
             contents: read
             id-token: write
         outputs:
-          terraform_plan_output: ${{ steps.terraform_plan.outcome }}
+          terraform_plan_output: ${{ steps.terraform_plan.outputs.stdout }}
         steps:
             - uses: actions/checkout@v4
 
