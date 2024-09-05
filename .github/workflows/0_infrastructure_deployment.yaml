@@ -46,9 +46,9 @@ jobs:
           uses: trstringer/manual-approval@v1
           with:
             secret: ${{ github.TOKEN }}
-            approvers: user1,user2,org-team1
+            approvers: ihommani
             minimum-approvals: 1
-            issue-title: "Deploying infrastructure to prod from ${{ inputs.environment }}"
+            issue-title: "Deploying infrastructure to ${{ inputs.environment }}"
             issue-body: "Please approve or deny the deployment of version v1.3.5."
             exclude-workflow-initiator-as-approver: false
             additional-approved-words: ''
