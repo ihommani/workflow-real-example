@@ -4,6 +4,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0](https://github.com/ihommani/workflow-real-example/compare/v0.5.0...v0.6.0) (2024-09-06)
+
+
+### Features
+
+* ignore markdown ([b02624d](https://github.com/ihommani/workflow-real-example/commit/b02624d992b0ccbf31ed43c2d2d1e24f212db6dd))
+* new infrastructure element ([1a76579](https://github.com/ihommani/workflow-real-example/commit/1a765795a42670073278af6c53e2ff58412dc23b))
+* toto ([82a95af](https://github.com/ihommani/workflow-real-example/commit/82a95af7e2978daf84fdccf6d18d4f06de6f8284))
+* WIP ([e193f69](https://github.com/ihommani/workflow-real-example/commit/e193f6924e2148594a8fca6abad50dde1953f620))
+* WIP ([6328177](https://github.com/ihommani/workflow-real-example/commit/6328177942dd1f9b162b43e11a2a38661cf2de94))
+
+
+### Bug Fixes
+
+* add token ([#37](https://github.com/ihommani/workflow-real-example/issues/37)) ([6a77dd7](https://github.com/ihommani/workflow-real-example/commit/6a77dd7cfb07197447b86793db328508b93c89a5))
+* adjust ([eccdd0d](https://github.com/ihommani/workflow-real-example/commit/eccdd0da984579ec77f959d3827967d51261d739))
+* branch trigger ([cf6b962](https://github.com/ihommani/workflow-real-example/commit/cf6b9628625027623bf949db4487c4d9c0157a97))
+* fdsf ([4cfd4d4](https://github.com/ihommani/workflow-real-example/commit/4cfd4d45f5e6458417631fcc8973de4f195ef106))
+* get back to release branch ([f678ed1](https://github.com/ihommani/workflow-real-example/commit/f678ed1ed16dc44f64c7328c1ecc24ebb2d2702d))
+* set the emoji on workflow file ([2bea6a0](https://github.com/ihommani/workflow-real-example/commit/2bea6a00936cbe7426053691ad1395a320fc6da5))
+* set the emoji on workflow file ([8aaec71](https://github.com/ihommani/workflow-real-example/commit/8aaec718ba9be740d373ebc287d3ac3e94931514))
+* test ([aaf9b3a](https://github.com/ihommani/workflow-real-example/commit/aaf9b3a793bfc20db8bf780d4296cc9ad464de15))
+* test ([e5486dc](https://github.com/ihommani/workflow-real-example/commit/e5486dceaff8f8a1aed73ac170b86a950c3a8e7f))
+* test ([c65fd87](https://github.com/ihommani/workflow-real-example/commit/c65fd87c4875f0d157ef88dfc2b8c83b9433891f))
+* test ([3e3f052](https://github.com/ihommani/workflow-real-example/commit/3e3f0520511f4b3731a1b4ac5f789924b3ea644f))
+* test ([62f982f](https://github.com/ihommani/workflow-real-example/commit/62f982f56ac5d9336f562fb697322c136e2c250b))
+* test ([1d3ff97](https://github.com/ihommani/workflow-real-example/commit/1d3ff97580fa457257a488115c253783eea9b072))
+* test ([04ca0d7](https://github.com/ihommani/workflow-real-example/commit/04ca0d71f8905bd562d2dd874f5b4407a01f372c))
+* test ([9962585](https://github.com/ihommani/workflow-real-example/commit/996258577f0ad1f000db65324db5ea3596c78685))
+* test ([848b0f8](https://github.com/ihommani/workflow-real-example/commit/848b0f82bbffc3867e7632aa7e5aace05e6b1a16))
+* test ([c5beaa9](https://github.com/ihommani/workflow-real-example/commit/c5beaa9331bbafe8b626bc705e95411eab124e81))
+* test ([95b819f](https://github.com/ihommani/workflow-real-example/commit/95b819f2dd2816e3535bb0697c70177d1f37b2c4))
+* toto ([c1a46c3](https://github.com/ihommani/workflow-real-example/commit/c1a46c33f506935e914eb5847ab28d5c36ae363a))
+
 ## [v0.6.0] - 2024-08-24
 ### :bug: Bug Fixes
 - [`f678ed1`](https://github.com/ihommani/workflow-real-example/commit/f678ed1ed16dc44f64c7328c1ecc24ebb2d2702d) - get back to release branch *(commit by [@ihommani](https://github.com/ihommani))*
