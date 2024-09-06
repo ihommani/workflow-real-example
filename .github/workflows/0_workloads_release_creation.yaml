@@ -37,7 +37,7 @@ jobs:
         # https://github.com/ietf-tools/semver-action?tab=readme-ov-file#example-workflow
         - name: Compute next version
           id: compute_next_version
-          uses: ietf-tools/semver-action@v1
+          uses: ietf-tools/semver-action@v1 # TODO: compare with https://github.com/googleapis/release-please-action?tab=readme-ov-file
           with:
             token: ${{ github.token }}
             branch: release

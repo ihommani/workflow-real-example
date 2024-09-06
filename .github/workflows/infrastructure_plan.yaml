@@ -63,14 +63,3 @@ jobs:
       with:
         terraform-version: ${{ inputs.terraform_version }}
         root-module-path : ${{ inputs.root_module_path }}
-
-          
-      
-        
-    
-        
-        
-      
-    
-          
-      
