@@ -19,6 +19,9 @@ inputs:
           Oauth2 access token used to authenticate on the artifactory.
         required: true
 
+
+# TODO: https://github.com/docker/metadata-action?tab=readme-ov-file
+# https://github.com/cloud-pi-native/console/blob/0f9973cfbfcd9cc6c26239b4a8f7098fbbad0f33/.github/workflows/build.yml#L175C15-L175C36
 runs:
     using: composite
     steps:
