@@ -6,7 +6,6 @@ on:
 permissions:
     contents: write
     pull-requests: write
-  
 
 name: release-please
   
@@ -14,6 +13,7 @@ jobs:
     release-please:
       runs-on: ubuntu-latest
       steps:
+        
         - uses: googleapis/release-please-action@v4
           id: release
           with:
@@ -26,6 +26,7 @@ jobs:
             # for more options
             release-type: terraform-module
         - uses: actions/checkout@v4
+
         - name: tag major and minor versions
           if: ${{ steps.release.outputs.release_created }}
           run: |
