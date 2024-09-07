@@ -1,7 +1,9 @@
 {
     "packages": {
       "infrastructure": {
-        "release-type": "terraform-module"
+        "release-type": "terraform-module",
+        "component": "infra",
+        "include-component-in-tag": true
       }
     }
   }
