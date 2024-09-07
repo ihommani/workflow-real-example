@@ -4,6 +4,16 @@
         "release-type": "terraform-module",
         "component": "infra",
         "include-component-in-tag": true
+      },
+      "frontend": {
+        "release-type": "node",
+        "component": "frontend",
+        "include-component-in-tag": true
+      },
+      "backend": {
+        "release-type": "node",
+        "component": "bakckend",
+        "include-component-in-tag": true
       }
     }
   }
