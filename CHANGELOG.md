@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/ihommani/workflow-real-example/compare/v1.0.1...v1.1.0) (2024-09-07)
+
+
+### Features
+
+* testing release please ([73f9a38](https://github.com/ihommani/workflow-real-example/commit/73f9a38cc51ed23ae612ec13e243981307c09d28))
+
+
+### Bug Fixes
+
+* test ([f400016](https://github.com/ihommani/workflow-real-example/commit/f40001685a94b7ed6337744f926120326846399c))
+* update release please config ([8e98d19](https://github.com/ihommani/workflow-real-example/commit/8e98d192101289569a6b4a7b3b4e3ef8d360123a))
+* update release please config ([a98a1c1](https://github.com/ihommani/workflow-real-example/commit/a98a1c1b7e38a9267be4a43f69372cab31bd2e1f))
+* update release please config ([c8a2641](https://github.com/ihommani/workflow-real-example/commit/c8a2641fbded862f42517c667fd50bfc2f653d7f))
+
 ## [1.0.1](https://github.com/ihommani/workflow-real-example/compare/v1.0.0...v1.0.1) (2024-09-06)
 
 
