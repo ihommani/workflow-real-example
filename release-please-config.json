@@ -1,0 +1,9 @@
+{
+    "packages": {
+      "./infrastructure": {
+        "release-type": "terraform",
+        "package-name": "console",
+        "include-component-in-tag": false
+      }
+    }
+  }

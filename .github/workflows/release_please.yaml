@@ -24,7 +24,7 @@ jobs:
             token: ${{ github.token }}
             # this is a built-in strategy in release-please, see "Action Inputs"
             # for more options
-            release-type: terraform-module
+            # release-type: terraform-module
         - uses: actions/checkout@v4
 
         - name: tag major and minor versions
