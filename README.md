@@ -7,6 +7,7 @@ To develop those pipelines, Github imposes a declarative paradigm which expressi
 In particular this syntax adresses the following concerns:   
 
 
+
 1. **Git flow logic**  
 What branch mirrors which maturity level, how it evolves, what action must be taken to release a new code version and so on.   
 We all know the infamous Gitflow, or trunk base development. It is examples of such logics that we can express throught the GHA syntax.  
