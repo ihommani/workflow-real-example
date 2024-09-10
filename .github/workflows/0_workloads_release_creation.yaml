@@ -11,28 +11,7 @@ on:
 
 jobs:
 
-    # TODO: check we are on main branch. otherwise exit 1. 
-
-    collect_env_variables_of_interest:
-      uses: ./.github/workflows/_get_env_var_of_interest.yaml
-      with:
-        environment: integration
-
-    # compute_next_release_version:
-    #     if: github.event_name == 'push'
-    #     runs-on: ubuntu-22.04
-    #     outputs:
-    #         next_release_version: ${{ steps.compute_next_version.outputs.next }}
-    #     steps:
-    #     # compute and set the version tag vx.y.z. get the commit message content to decide the computation
-    #     # https://github.com/ietf-tools/semver-action?tab=readme-ov-file#example-workflow
-    #     - name: Compute next version
-    #       id: compute_next_version
-    #       uses: ietf-tools/semver-action@v1 # TODO: compare with https://github.com/googleapis/release-please-action?tab=readme-ov-file
-    #       with:
-    #         token: ${{ github.token }}
-    #         branch: release
-
+    # TODO: if workflow dispatch check we are on main branch. otherwise exit 1. 
 
     release: 
         permissions:
@@ -65,6 +44,15 @@ jobs:
                   git tag -a v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}"
                   git push origin v${{ steps.release.outputs.major }}
                   git push origin v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}
+
+
+    collect_env_variables_of_interest:
+      if: needs.release.outputs.release_created
+      needs: [release]
+      uses: ./.github/workflows/_get_env_var_of_interest.yaml
+      with:
+        environment: integration
+
 
     create_release_package:
         if: needs.release.outputs.release_created
