@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.3...infra-v0.2.4) (2024-09-10)
+
+
+### Bug Fixes
+
+* helloworld ([bfa45db](https://github.com/ihommani/workflow-real-example/commit/bfa45db5a6a1be82be9c326679c4a8e4b28b72d0))
+
 ## [0.2.3](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.2...infra-v0.2.3) (2024-09-10)
 
 
