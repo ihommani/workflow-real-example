@@ -12,7 +12,7 @@ on:
                 - production
             type: choice
             required: true
-            default: integration
+            default: integration #TODO: the tag of the release is now required too
 
 jobs:
 
@@ -38,7 +38,7 @@ jobs:
 
 
     #TODO: issue's body, comming from 'infrastructure_integration', 'infrastructure_plan'
-    manual_validation:
+    manual_approval:
       needs: [infrastructure_plan, infrastructure_integration]
       runs-on: ubuntu-22.04
       environment: ${{ inputs.environment }}
@@ -59,8 +59,9 @@ jobs:
             additional-approved-words: ''
             additional-denied-words: ''
 
+            
     infrastructure_deployment:
-      needs: [manual_validation]
+      needs: [manual_approval]
       uses: ./.github/workflows/infrastructure_deployment.yaml
       permissions: 
           pull-requests: write
