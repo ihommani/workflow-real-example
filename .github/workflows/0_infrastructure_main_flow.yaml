@@ -42,9 +42,7 @@ jobs:
         with:
             root_module_path : ${{ matrix.root_module_path }}
 
-    # TODO: if pull request, push the content of plan workflow output in the PR comment. Difficulty is we have a matrix job. We can't easily get the output
-    # Maybe too complicated because we need to consume GHA artifact
-        
+
     release: 
         if: github.ref_name == 'main'
         needs: [infrastructure_plan]

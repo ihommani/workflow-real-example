@@ -49,6 +49,7 @@ on:
           type: string
 
 jobs:
+  
     check_source_changes:
       uses: ./.github/workflows/_check_source_changes.yaml
       with:
@@ -57,6 +58,7 @@ jobs:
         get_folders : true
         dir_names_max_depth: 1
 
+        
     list_docker_files:
       runs-on: ubuntu-22.04
       outputs:

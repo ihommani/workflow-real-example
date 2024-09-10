@@ -6,12 +6,12 @@
         "include-component-in-tag": true
       },
       "frontend": {
-        "release-type": "node",
+        "release-type": "simple",
         "component": "frontend",
         "include-component-in-tag": true
       },
       "backend": {
-        "release-type": "node",
+        "release-type": "simple ",
         "component": "bakckend",
         "include-component-in-tag": true
       }

@@ -1,62 +1,79 @@
 name: Create workloads new releases
 run-name: ${{ github.actor }} triggered a release creation
 
-# https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#onpull_requestpull_request_targetbranchesbranches-ignore
+# && workflow dispatch, on main branch only. Maybe not. --> if only push on main, then fuse this with '0_workloads_main_flow'
 on:
-    pull_request:
-        branches: 
-            - release # All of this is nullified thanks to the release please process.
     push: 
         branches: 
-            - release
+            - main
+
+
 
 jobs:
-    # control_pull_request_reference: # TODO fix
-    #     if: github.event_name == 'pull_request'
-    #     runs-on: ubuntu-22.04
-    #     steps:
-    #         - name: reference name is main
-    #           id: ref_name_main
-    #           run: |-
-    #             echo "${{ github.ref_name }}" 
-    #             [ ${{ github.ref_name }} != main ] && exit 1
+
+    # TODO: check we are on main branch. otherwise exit 1. 
 
     collect_env_variables_of_interest:
-      if: github.event_name == 'push'
       uses: ./.github/workflows/_get_env_var_of_interest.yaml
       with:
         environment: integration
 
-    compute_next_release_version:
-        if: github.event_name == 'push'
+    # compute_next_release_version:
+    #     if: github.event_name == 'push'
+    #     runs-on: ubuntu-22.04
+    #     outputs:
+    #         next_release_version: ${{ steps.compute_next_version.outputs.next }}
+    #     steps:
+    #     # compute and set the version tag vx.y.z. get the commit message content to decide the computation
+    #     # https://github.com/ietf-tools/semver-action?tab=readme-ov-file#example-workflow
+    #     - name: Compute next version
+    #       id: compute_next_version
+    #       uses: ietf-tools/semver-action@v1 # TODO: compare with https://github.com/googleapis/release-please-action?tab=readme-ov-file
+    #       with:
+    #         token: ${{ github.token }}
+    #         branch: release
+
+
+    release: 
+        permissions:
+            contents: write
+            pull-requests: write
         runs-on: ubuntu-22.04
         outputs:
-            next_release_version: ${{ steps.compute_next_version.outputs.next }}
+            release_created: ${{ steps.release.outputs.release_created }}
+            tag_name: ${{ steps.release.outputs.tag_name }}
         steps:
-        # compute and set the version tag vx.y.z. get the commit message content to decide the computation
-        # https://github.com/ietf-tools/semver-action?tab=readme-ov-file#example-workflow
-        - name: Compute next version
-          id: compute_next_version
-          uses: ietf-tools/semver-action@v1 # TODO: compare with https://github.com/googleapis/release-please-action?tab=readme-ov-file
-          with:
-            token: ${{ github.token }}
-            branch: release
+
+            - uses: googleapis/release-please-action@v4
+              id: release
+              with:
+                token: ${{ github.token }}
+
+            - uses: actions/checkout@v4
+  
+            - name: tag major and minor versions
+              if: ${{ steps.release.outputs.release_created }}
+              run: |
+                  git config user.name github-actions[bot]
+                  git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+                  git remote add gh-token "https://${{ secrets.GITHUB_TOKEN }}@github.com/googleapis/release-please-action.git"
+                  git tag -d v${{ steps.release.outputs.major }} || true
+                  git tag -d v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} || true
+                  git push origin :v${{ steps.release.outputs.major }} || true
+                  git push origin :v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} || true
+                  git tag -a v${{ steps.release.outputs.major }} -m "Release v${{ steps.release.outputs.major }}"
+                  git tag -a v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}"
+                  git push origin v${{ steps.release.outputs.major }}
+                  git push origin v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}
 
     create_release_package:
-        if: github.event_name == 'push'
-        needs: [collect_env_variables_of_interest, compute_next_release_version]
+        if: needs.release.outputs.release_created
+        needs: [collect_env_variables_of_interest, release]
         uses: ./.github/workflows/create_release_package.yaml
         with:
-            next_release_version: ${{ needs.compute_next_release_version.outputs.next_release_version }}
+            next_release_version: ${{ needs.release.outputs.tag_name }}
             project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
             repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }}
             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
             region: ${{ needs.collect_env_variables_of_interest.outputs.region }}
-
-    create_release_metadata:
-        if: github.event_name == 'push'
-        needs: [create_release_package, compute_next_release_version]
-        uses: ./.github/workflows/create_release_meta.yaml
-        with: 
-            next_release_version: ${{ needs.compute_next_release_version.outputs.next_release_version }}
