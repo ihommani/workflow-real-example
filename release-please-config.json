@@ -6,12 +6,12 @@
         "include-component-in-tag": true
       },
       "frontend": {
-        "release-type": "simple",
+        "release-type": "terraform-module",
         "component": "frontend",
         "include-component-in-tag": true
       },
       "backend": {
-        "release-type": "simple ",
+        "release-type": "terraform-module",
         "component": "bakckend",
         "include-component-in-tag": true
       }
