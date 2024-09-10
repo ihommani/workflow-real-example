@@ -20,12 +20,6 @@ resource "null_resource" "echo_smthg_more" {
   }
 }
 
-resource "null_resource" "echo_smthg_more2" {
-  provisioner "local-exec" {
-    command = "echo 'I have swimming pooldsdsd'"
-  }
-}
-
 resource "null_resource" "echo_smthg_useful" {
   provisioner "local-exec" {
     command = "echo 'I have'"
