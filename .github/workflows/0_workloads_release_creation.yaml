@@ -5,7 +5,7 @@ run-name: ${{ github.actor }} triggered a release creation
 on:
     pull_request:
         branches: 
-            - release 
+            - release # All of this is nullified thanks to the release please process.
     push: 
         branches: 
             - release

@@ -103,6 +103,12 @@ In theory, job's steps can be all defined using bash or python. We all love to c
 Compared to other CI/CD pipeline technology, actions market place is a killer feature. It allows to release worldwide common logics so that "I" don't have to code it. Only to consume it.  
 Ideally the pipeline is a DAG of actions we only consumes. Coding should be the exception.  
 
+One drawback of the market place is that there may be (too) many existing actions for a single need.    
+Not all are equal in terms of feature and usability. Generally an action with below hundred of Github stars is for exploratory purpose while thousand of stars demonstrates production readiness.    
+
+Do not also seek to use too much composability between actions. An action should encapsulate the right level of feature for your need.  
+E.g: action for semver + action for changelog generation VS an action doing both (releas-please-action)
+
 # Missing pieces
 
 GHA, while proposing interesting features, falls short for some simple features.   
