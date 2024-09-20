@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.16](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.15...infra-v0.2.16) (2024-09-20)
+
+
+### Bug Fixes
+
+* sffds ([aac4e14](https://github.com/ihommani/workflow-real-example/commit/aac4e14d6882f38cef02cc4531c7786ff7ce3c53))
+
 ## [0.2.15](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.14...infra-v0.2.15) (2024-09-20)
 
 
