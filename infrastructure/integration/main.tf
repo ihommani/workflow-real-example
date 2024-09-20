@@ -8,6 +8,12 @@ resource "null_resource" "default" {
   }
 }
 
+resource "null_resource" "default" {
+  provisioner "local-exec" {
+    command = "echo 'I'm fine'"
+  }
+}
+
 resource "google_project_service" "project" {
   project = "gde-ihommani"
   service = "run.googleapis.com"
