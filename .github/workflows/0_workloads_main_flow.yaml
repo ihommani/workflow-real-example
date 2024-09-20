@@ -34,6 +34,20 @@ jobs:
         with:
           environment: integration # we consider 'integration' as the default environment in this main workflow
 
+    # TODO: working ? 
+    # expose-vars:
+    #   runs-on: ubuntu-latest
+    #   outputs:
+    #     REGISTRY: ${{ env.REGISTRY }}
+    #     NAMESPACE: ${{ env.NAMESPACE }}
+    #     MULTI_ARCH: ${{ env.MULTI_ARCH }}
+    #     USE_QEMU: ${{ env.USE_QEMU }}
+    #     NODE_VERSION: ${{ env.NODE_VERSION }}
+    #     PNPM_VERSION: ${{ env.PNPM_VERSION }}
+    #   steps:
+    #     - name: Exposing env vars
+    #       run: echo "Exposing env vars"
+
     container_delivery:
         needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration]
         uses: ./.github/workflows/container_delivery.yaml
