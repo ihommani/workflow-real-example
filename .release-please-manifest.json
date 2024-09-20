@@ -1,7 +1,7 @@
 {
     "./infrastructure": "0.0.0",
     ".": "1.1.1",
-    "infrastructure": "0.2.13",
+    "infrastructure": "0.2.14",
     "frontend": "1.0.1",
     "backend": "1.0.1"
 }
