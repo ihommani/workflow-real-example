@@ -46,7 +46,6 @@ jobs:
 
     release: 
         if: github.ref_name == 'main'
-        needs: [infrastructure_plan]
         permissions:
             contents: write
             pull-requests: write
