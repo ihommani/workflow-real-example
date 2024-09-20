@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.7](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.6...infra-v0.2.7) (2024-09-20)
+
+
+### Bug Fixes
+
+* hey you ([dc8fafb](https://github.com/ihommani/workflow-real-example/commit/dc8fafb304f298ab0aee30a0843ff1f20a33e118))
+* rename tf resource ([e97a017](https://github.com/ihommani/workflow-real-example/commit/e97a017854d703bf374d11ed0f4052a2b7f365d6))
+* totot ([bfebb59](https://github.com/ihommani/workflow-real-example/commit/bfebb598426665ed680fddd162251d89767f5b77))
+
 ## [0.2.6](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.5...infra-v0.2.6) (2024-09-20)
 
 
