@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.12](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.11...infra-v0.2.12) (2024-09-20)
+
+
+### Bug Fixes
+
+* titi ([e3039f0](https://github.com/ihommani/workflow-real-example/commit/e3039f0d16f15934428467f0e37e396b70c3a3e1))
+
 ## [0.2.11](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.10...infra-v0.2.11) (2024-09-20)
 
 
