@@ -27,17 +27,8 @@ jobs:
             **/*.tf
           get_folders: true
 
-    toto:
-        needs: check_infrastructure_source_changes
-        runs-on: ubuntu-22.04
-        steps:
-            - name: toto
-              run: |-
-                echo "${{ needs.check_infrastructure_source_changes.outputs.is_modified_files == 'false' }}"
-
     infrastructure_plan:
-        # if: needs.check_infrastructure_source_changes.outputs.is_modified_files && (github.event_name == 'pull_request' || github.ref_name == 'main') 
-        if: needs.check_infrastructure_source_changes.outputs.is_modified_files == 'false' 
+        if: needs.check_infrastructure_source_changes.outputs.is_modified_files == 'true' && (github.event_name == 'pull_request' || github.ref_name == 'main') 
         needs: check_infrastructure_source_changes
         uses: ./.github/workflows/infrastructure_plan.yaml
         permissions: 
