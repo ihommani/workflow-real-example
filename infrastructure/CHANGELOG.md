@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.5](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.4...infra-v0.2.5) (2024-09-20)
+
+
+### Bug Fixes
+
+* test infrastructure release ([ab902e8](https://github.com/ihommani/workflow-real-example/commit/ab902e8c22929c84b668a6a97cd267ef4075bdea))
+
 ## [0.2.4](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.3...infra-v0.2.4) (2024-09-10)
 
 
