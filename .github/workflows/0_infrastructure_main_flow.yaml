@@ -29,7 +29,7 @@ jobs:
 
 
     infrastructure_plan:
-        if: github.event_name == 'pull_request' || github.ref_name == 'main'
+        if: needs.check_infrastructure_source_changes.outputs.is_modified_files && (github.event_name == 'pull_request' || github.ref_name == 'main') 
         needs: check_infrastructure_source_changes
         uses: ./.github/workflows/infrastructure_plan.yaml
         permissions: 
