@@ -33,11 +33,11 @@ jobs:
         steps:
             - name: toto
               run: |-
-                echo "${{ needs.check_infrastructure_source_changes.outputs.is_modified_files }}"
+                echo "${{ needs.check_infrastructure_source_changes.outputs.is_modified_files == 'false' }}"
 
     infrastructure_plan:
         # if: needs.check_infrastructure_source_changes.outputs.is_modified_files && (github.event_name == 'pull_request' || github.ref_name == 'main') 
-        if: needs.check_infrastructure_source_changes.outputs.is_modified_files 
+        if: needs.check_infrastructure_source_changes.outputs.is_modified_files == 'false' 
         needs: check_infrastructure_source_changes
         uses: ./.github/workflows/infrastructure_plan.yaml
         permissions: 
