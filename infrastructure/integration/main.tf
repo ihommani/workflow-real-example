@@ -8,12 +8,6 @@ resource "null_resource" "default" {
   }
 }
 
-resource "null_resource" "echo_smthg" {
-  provisioner "local-exec" {
-    command = "echo 'I have my poney course'"
-  }
-}
-
 resource "null_resource" "echo_smthg_more" {
   provisioner "local-exec" {
     command = "echo 'I have swimming pool'"
