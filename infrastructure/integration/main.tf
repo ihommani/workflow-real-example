@@ -8,7 +8,7 @@ resource "null_resource" "default" {
   }
 }
 
-resource "null_resource" "default" {
+resource "null_resource" "default2" {
   provisioner "local-exec" {
     command = "echo 'I'm fine'"
   }
