@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.6](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.5...infra-v0.2.6) (2024-09-20)
+
+
+### Bug Fixes
+
+* removing swimming pool ([c96cc82](https://github.com/ihommani/workflow-real-example/commit/c96cc824926245e03868253fd44de3e9e251ecd5))
+
 ## [0.2.5](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.4...infra-v0.2.5) (2024-09-20)
 
 
