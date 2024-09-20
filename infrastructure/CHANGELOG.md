@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.8](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.7...infra-v0.2.8) (2024-09-20)
+
+
+### Bug Fixes
+
+* test ([ba75e42](https://github.com/ihommani/workflow-real-example/commit/ba75e42539ffe9158bf4e23d86dce66d12e6745f))
+
 ## [0.2.7](https://github.com/ihommani/workflow-real-example/compare/infra-v0.2.6...infra-v0.2.7) (2024-09-20)
 
 
