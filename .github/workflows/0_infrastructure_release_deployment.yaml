@@ -12,7 +12,7 @@ on:
                 - production
             type: choice
             required: true
-            default: integration #TODO: the tag of the release is now required too
+            default: integration
 
 jobs:
 

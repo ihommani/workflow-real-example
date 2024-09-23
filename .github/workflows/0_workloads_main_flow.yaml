@@ -34,22 +34,18 @@ jobs:
         with:
           environment: integration # we consider 'integration' as the default environment in this main workflow
 
-    # TODO: working ? 
-    # expose-vars:
-    #   runs-on: ubuntu-latest
-    #   outputs:
-    #     REGISTRY: ${{ env.REGISTRY }}
-    #     NAMESPACE: ${{ env.NAMESPACE }}
-    #     MULTI_ARCH: ${{ env.MULTI_ARCH }}
-    #     USE_QEMU: ${{ env.USE_QEMU }}
-    #     NODE_VERSION: ${{ env.NODE_VERSION }}
-    #     PNPM_VERSION: ${{ env.PNPM_VERSION }}
-    #   steps:
-    #     - name: Exposing env vars
-    #       run: echo "Exposing env vars"
+    expose_vars:
+      runs-on: ubuntu-latest
+      # we consider 'integration' as the default environment in this main workflow
+      environment: integration
+      outputs:
+        PROJECT_ID: ${{ vars.PROJECT_ID }}
+      steps:
+        - name: Exposing env vars
+          run: echo "Exposing env vars"
 
     container_delivery:
-        needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration]
+        needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration, expose_vars]
         uses: ./.github/workflows/container_delivery.yaml
         # environment: --> cannot be used in a job calling a subworkflow. 
         # Hacky solution: Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below by consuming the ouput of the job
@@ -59,7 +55,7 @@ jobs:
                 ./backend/**
             files_ignore: |
                 **/*.md
-            project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
+            project_id: ${{ needs.expose_vars.outputs.PROJECT_ID }}
             repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }} 
             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
             service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest.outputs.service_account_to_impersonate }}
