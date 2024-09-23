@@ -36,7 +36,7 @@ jobs:
 
     expose_vars:
       runs-on: ubuntu-latest
-      # we consider 'integration' as the default environment in this main workflow
+      # we consider 'integration' as the associated environment to the default branch
       environment: integration
       outputs:
         PROJECT_ID: ${{ vars.PROJECT_ID }}
@@ -49,7 +49,7 @@ jobs:
           run: echo "Exposing env vars"
 
     container_delivery:
-        needs: [collect_env_variables_of_interest, backend_integration, frontend_integration, container_integration, expose_vars]
+        needs: [expose_vars, backend_integration, frontend_integration, container_integration]
         uses: ./.github/workflows/container_delivery.yaml
         # environment: --> cannot be used in a job calling a subworkflow. 
         # Hacky solution: Needs the 'expose_vars' job to collect env values and inject it below by consuming the ouput of the job
@@ -69,7 +69,7 @@ jobs:
 
             
     workloads_deployment:
-        needs: [collect_env_variables_of_interest, container_delivery]
+        needs: [expose_vars, container_delivery]
         uses: ./.github/workflows/workload_deployment.yaml
         with:
             environment: integration
