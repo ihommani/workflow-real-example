@@ -24,7 +24,8 @@ jobs:
         outputs:
             frontend_release_created: ${{ steps.release.outputs.frontend--release_created }}
             backend_release_created: ${{ steps.release.outputs.backend--release_created }}
-            tag_name: ${{ steps.release.outputs.tag_name }}
+            frontend_tag_name: ${{ steps.release.outputs.frontend--tag_name }}
+            backend_tag_name: ${{ steps.release.outputs.backend--tag_name }}
         steps:
 
             - uses: googleapis/release-please-action@v4
@@ -47,7 +48,7 @@ jobs:
         needs: [collect_env_variables_of_interest, release]
         uses: ./.github/workflows/create_release_package.yaml
         with:
-            next_release_version: ${{ needs.release.outputs.tag_name }}
+            next_release_version: ${{ needs.release.outputs.frontend_tag_name }}
             project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
             repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }}
             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
