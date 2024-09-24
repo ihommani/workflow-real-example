@@ -7,12 +7,7 @@ on:
         branches: 
             - main
         paths: 
-            - application/frontend/**
-            - application/backend/**
-            - application/frontend/CHANGELOG.md
-            - application/backend/CHANGELOG.md
-
-
+            - application/**
 
 jobs:
 
@@ -22,10 +17,8 @@ jobs:
             pull-requests: write
         runs-on: ubuntu-22.04
         outputs:
-            frontend_release_created: ${{ steps.release.outputs.frontend--release_created }}
-            backend_release_created: ${{ steps.release.outputs.backend--release_created }}
-            frontend_tag_name: ${{ steps.release.outputs.frontend--tag_name }}
-            backend_tag_name: ${{ steps.release.outputs.backend--tag_name }}
+            application_release_created: ${{ steps.release.outputs.application--release_created }}
+            application_tag_name: ${{ steps.release.outputs.application--tag_name }}
         steps:
 
             - uses: googleapis/release-please-action@v4
@@ -36,7 +29,7 @@ jobs:
             - uses: actions/checkout@v4
   
     collect_env_variables_of_interest: # TODO: to change with expose_var
-      if: needs.release.outputs.frontend_release_created || needs.release.outputs.frontend_release_created
+      if: needs.release.outputs.application_release_created
       needs: [release]
       uses: ./.github/workflows/_get_env_var_of_interest.yaml
       with:
@@ -44,7 +37,7 @@ jobs:
 
 
     create_release_package:
-        if: needs.release.outputs.frontend_release_created || needs.release.outputs.frontend_release_created
+        if: needs.release.outputs.application_release_created
         needs: [collect_env_variables_of_interest, release]
         uses: ./.github/workflows/create_release_package.yaml
         with:
