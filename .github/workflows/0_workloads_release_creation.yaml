@@ -41,7 +41,7 @@ jobs:
         needs: [collect_env_variables_of_interest, release]
         uses: ./.github/workflows/create_release_package.yaml
         with:
-            next_release_version: ${{ needs.release.outputs.frontend_tag_name }}
+            next_release_version: ${{ needs.release.outputs.application_tag_name }}
             project_id: ${{ needs.collect_env_variables_of_interest.outputs.project_id }}
             repository_id: ${{ needs.collect_env_variables_of_interest.outputs.repository_id }}
             workload_identity_provider: ${{ needs.collect_env_variables_of_interest.outputs.workload_identity_provider }}
