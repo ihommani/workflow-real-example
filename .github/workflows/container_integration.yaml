@@ -30,9 +30,3 @@ jobs:
           docker-file: ${{ fromJSON(needs.check_sources_change.outputs.all_changed_files) }}
       with:
         dockerfile-path: ${{ matrix.docker-file }}
-        
-        
-      
-    
-          
-      

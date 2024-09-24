@@ -27,5 +27,4 @@ jobs:
       if: needs.check-source-changes.outputs.is_modified_files == 'true'
       uses: ./.github/workflows/_nestjs_integration.yaml
       with:
-        application_folder_path: './backend'
-      
+        application_folder_path: './application/backend'
