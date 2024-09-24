@@ -8,7 +8,8 @@ on:
         paths: 
             - frontend/**
             - backend/**
-            - '!*.md'
+            - '!frontend/*.md'
+            - '!backend/*.md'
 
 jobs:
     # TODO: documenter dans le README pk la CI n'est pas souhaitable pour des contextes où l'output est une image docker agnostique de l'env, alors qu'elle l'est sur la partie infra (config et couts différents par env, )

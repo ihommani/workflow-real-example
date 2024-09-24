@@ -22,7 +22,8 @@ jobs:
             pull-requests: write
         runs-on: ubuntu-22.04
         outputs:
-            release_created: ${{ steps.release.outputs.release_created }}
+            frontend_release_created: ${{ steps.release.outputs.frontend--release_created }}
+            backend_release_created: ${{ steps.release.outputs.backend--release_created }}
             tag_name: ${{ steps.release.outputs.tag_name }}
         steps:
 
