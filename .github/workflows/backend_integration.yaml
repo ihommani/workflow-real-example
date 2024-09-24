@@ -16,11 +16,11 @@ jobs:
       uses: ./.github/workflows/_check_source_changes.yaml
       with:
         files: |
-          backend/**
+          application/backend/**
         files_ignore: |
-          backend/*.md
-          backend/Dockerfile*
-          backend/.dockerignore
+          application/backend/*.md
+          application/backend/Dockerfile*
+          application/backend/.dockerignore
 
     nest_application_integration:
       needs: check-source-changes
