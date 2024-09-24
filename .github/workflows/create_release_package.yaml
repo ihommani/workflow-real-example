@@ -83,18 +83,35 @@ jobs:
     # We should avoid to rebuild images. A single version should transit between environments
 
 
-    # collect_env_variables_of_interest_staging:
-    #     uses: ./.github/workflows/_get_env_var_of_interest.yaml
-    #     with:
-    #       environment: staging
-        
+    # expose_sta_vars:
+    #   runs-on: ubuntu-22.04
+    #   environment: staging
+    #   outputs:
+    #     PROJECT_ID: ${{ vars.PROJECT_ID }}
+    #     REPOSITORY_ID: ${{ vars.REPOSITORY_ID }}
+    #     WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+    #     SA_TO_IMPERSONATE: ${{ vars.SA_TO_IMPERSONATE }}
+    #     CLOUD_REGION: ${{ vars.CLOUD_REGION }}
+    #   steps:
+    #     - name: Exposing staging env vars
+    #       run: echo "Exposing staging env vars"
+
     # collect_env_variables_of_interest_production:
-    #   uses: ./.github/workflows/_get_env_var_of_interest.yaml
-    #   with:
-    #     environment: production
+    # expose_prd_vars:
+    #   runs-on: ubuntu-22.04
+    #   environment: production
+    #   outputs:
+    #     PROJECT_ID: ${{ vars.PROJECT_ID }}
+    #     REPOSITORY_ID: ${{ vars.REPOSITORY_ID }}
+    #     WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+    #     SA_TO_IMPERSONATE: ${{ vars.SA_TO_IMPERSONATE }}
+    #     CLOUD_REGION: ${{ vars.CLOUD_REGION }}
+    #   steps:
+    #     - name: Exposing production env vars
+    #       run: echo "Exposing production env vars"
         
     # package_delivery_on_staging:
-    #     needs: [collect_env_variables_of_interest_staging]
+    #     needs: [expose_sta_vars]
     #     uses: ./.github/workflows/container_delivery.yaml
     #     # environment: --> cannot be used in a job calling a subworkflow. 
     #     # Hacky solution: Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below by consuming the ouput of the job
@@ -104,16 +121,16 @@ jobs:
     #             ./backend/**
     #         files_ignore: |
     #             **/*.md
-    #         project_id: ${{ needs.collect_env_variables_of_interest_staging.outputs.project_id }}
-    #         repository_id: ${{ needs.collect_env_variables_of_interest_staging.outputs.repository_id }} 
-    #         workload_identity_provider: ${{ needs.collect_env_variables_of_interest_staging.outputs.workload_identity_provider }}
-    #         service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest_staging.outputs.service_account_to_impersonate }}
-    #         region: ${{ needs.collect_env_variables_of_interest_staging.outputs.region }}
+    #         project_id: ${{ needs.expose_sta_vars.outputs.PROJECT_ID }}
+    #         repository_id: ${{ needs.expose_sta_vars.outputs.REPOSITORY_ID }} 
+    #         workload_identity_provider: ${{ needs.expose_sta_vars.outputs.WORKLOAD_IDENTITY_PROVIDER }}
+    #         service_account_to_impersonate: ${{ needs.expose_sta_vars.outputs.SA_TO_IMPERSONATE }}
+    #         region: ${{ needs.expose_sta_vars.outputs.CLOUD_REGION }}
     #         environment: staging
     #         release_tag: ${{ needs.compute_next_semver_version.outputs.next }}
         
     # package_delivery_on_production:
-    #     needs: [collect_env_variables_of_interest_production]
+    #     needs: [expose_prd_vars]
     #     uses: ./.github/workflows/container_delivery.yaml
     #     # environment: --> cannot be used in a job calling a subworkflow. 
     #     # Hacky solution: Needs the 'collect_env_variables_of_interest' job to collect env values and inject it below by consuming the ouput of the job
@@ -123,12 +140,12 @@ jobs:
     #             ./backend/**
     #         files_ignore: |
     #             **/*.md
-    #         project_id: ${{ needs.collect_env_variables_of_interest_production.outputs.project_id }}
-    #         repository_id: ${{ needs.collect_env_variables_of_interest_production.outputs.repository_id }} 
-    #         workload_identity_provider: ${{ needs.collect_env_variables_of_interest_production.outputs.workload_identity_provider }}
-    #         service_account_to_impersonate: ${{ needs.collect_env_variables_of_interest_production.outputs.service_account_to_impersonate }}
-    #         region: ${{ needs.collect_env_variables_of_interest_production.outputs.region }}
-    #         environment: production
+    #         project_id: ${{ needs.expose_prd_vars.outputs.PROJECT_ID }}
+    #         repository_id: ${{ needs.expose_prd_vars.outputs.REPOSITORY_ID }} 
+    #         workload_identity_provider: ${{ needs.expose_prd_vars.outputs.WORKLOAD_IDENTITY_PROVIDER }}
+    #         service_account_to_impersonate: ${{ needs.expose_prd_vars.outputs.SA_TO_IMPERSONATE }}
+    #         region: ${{ needs.expose_prd_vars.outputs.CLOUD_REGION }}
+    #         environment: staging
     #         release_tag: ${{ needs.compute_next_semver_version.outputs.next }}
 
 

@@ -28,12 +28,6 @@ jobs:
         uses: ./.github/workflows/container_integration.yaml
 
 
-    collect_env_variables_of_interest:
-        uses: ./.github/workflows/_get_env_var_of_interest.yaml
-        with:
-          environment: integration # we consider 'integration' as the default environment in this main workflow
-
-
     # TODO: document in the README: we collect env variable in the main workflow definition to stream collected values up to the concrete workflow/actions
     # sub level workflow should not call "env" or "vars". they should consume the inputs they declare only. It's a kind of interface of what it needs to work
     # Ease the reuse of the workflow which does not impose to run with specific github environments (we may share the worklaod through dedicated github repo)
