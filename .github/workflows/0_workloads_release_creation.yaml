@@ -54,3 +54,5 @@ jobs:
             workload_identity_provider: ${{ needs.expose_vars.outputs.WORKLOAD_IDENTITY_PROVIDER }}
             service_account_to_impersonate: ${{ needs.expose_vars.outputs.SA_TO_IMPERSONATE }}
             region: ${{ needs.expose_vars.outputs.CLOUD_REGION }}
+
+# TODO: final job : push the badge status. This task should always run even in case of previous task failure

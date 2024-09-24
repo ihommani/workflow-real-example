@@ -67,3 +67,5 @@ jobs:
           project_id: ${{ needs.expose_vars.outputs.PROJECT_ID }}
           repository_id: ${{ needs.expose_vars.outputs.REPOSITORY_ID }}
           tag: ${{ needs.get_images_common_tag.outputs.common_tag_to_deploy }}
+
+# TODO: final job : push the badge status. This task should always run even in case of previous task failure
