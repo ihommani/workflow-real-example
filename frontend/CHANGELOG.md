@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/ihommani/workflow-real-example/compare/frontend-v1.0.2...frontend-v1.0.3) (2024-09-24)
+
+
+### Bug Fixes
+
+* test ([2dfafe7](https://github.com/ihommani/workflow-real-example/commit/2dfafe792d19d8ee23e6ab8f5d60d111be519663))
+
 ## [1.0.2](https://github.com/ihommani/workflow-real-example/compare/frontend-v1.0.1...frontend-v1.0.2) (2024-09-23)
 
 
