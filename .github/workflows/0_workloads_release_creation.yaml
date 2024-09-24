@@ -7,10 +7,10 @@ on:
         branches: 
             - main
         paths: 
-            - frontend/**
-            - backend/**
-            - frontend/CHANGELOG.md
-            - backend/CHANGELOG.md
+            - application/frontend/**
+            - application/backend/**
+            - application/frontend/CHANGELOG.md
+            - application/backend/CHANGELOG.md
 
 
 

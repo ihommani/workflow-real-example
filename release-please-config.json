@@ -5,14 +5,9 @@
         "component": "infra",
         "include-component-in-tag": true
       },
-      "frontend": {
-        "release-type": "terraform-module",
-        "component": "frontend",
-        "include-component-in-tag": true
-      },
-      "backend": {
-        "release-type": "terraform-module",
-        "component": "bakckend",
+      "application": {
+        "release-type": "simple",
+        "component": "app",
         "include-component-in-tag": true
       }
     }

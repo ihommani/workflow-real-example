@@ -20,7 +20,7 @@ on:
         
 
 jobs:
-    get_env_var_of_interest:
+    get_env_var_of_interest: # TODO: to change with expose_var
       uses: ./.github/workflows/_get_env_var_of_interest.yaml
       with:
         environment: ${{ inputs.environment }}

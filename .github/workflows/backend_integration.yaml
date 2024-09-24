@@ -8,7 +8,7 @@ on:
             - release
             - release/**
         paths: 
-            - backend/**
+            - application/backend/**
     workflow_call: 
 
 jobs:
