@@ -2,6 +2,6 @@
     "./infrastructure": "0.0.0",
     ".": "1.1.1",
     "infrastructure": "0.2.18",
-    "frontend": "1.0.4",
+    "frontend": "1.0.5",
     "backend": "1.0.1"
 }
