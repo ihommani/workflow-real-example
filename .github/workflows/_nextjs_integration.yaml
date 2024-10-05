@@ -74,3 +74,6 @@ jobs:
           - name: Run test
             # run: ${{ steps.detect-package-manager.outputs.runner }} next build
             run: echo "Run nestjs test code"
+
+          - name: Adding markdown
+            run: echo '### Hello world from next integration 🚀' >> $GITHUB_STEP_SUMMARY
