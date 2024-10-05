@@ -18,11 +18,11 @@ jobs:
       uses: ./.github/workflows/_check_source_changes.yaml
       with:
         files: |
-          frontend/**
+          application/frontend/**
         files_ignore: |
-          frontend/*.md
-          frontend/Dockerfile*
-          frontend/.dockerignore
+          application/frontend/*.md
+          application/frontend/Dockerfile*
+          application/frontend/.dockerignore
 
     frontend_integration:
       permissions: 
@@ -32,6 +32,6 @@ jobs:
       if: ${{ needs.check-sources-change.outputs.is_modified_files == 'true' }}
       uses: ./.github/workflows/_nextjs_integration.yaml
       with:
-        application_folder_path: './frontend'
+        application_folder_path: './application/frontend'
       
   
