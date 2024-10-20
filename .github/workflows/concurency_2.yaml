@@ -1,0 +1,35 @@
+name: concurency_2
+run-name: lauching concurency 2
+
+
+on: 
+    push: 
+        branches:
+            - test-concurency
+
+
+jobs:
+    job0:
+        concurrency: 
+            group: c0
+        run-on: bash
+        steps: 
+            - name: sleep0
+              shell: bash
+              run: |-
+                echo "concurency0"
+                sleep 1
+                echo "finished task 0"
+
+    job1:
+        concurrency: 
+            group: c1
+        runs-on: ubuntu-latest
+        steps:
+            - name: sleep1
+              shell: bash
+              run: |-
+                echo "concurency2-c1"
+                sleep 5
+                echo "finished c2"
+    
